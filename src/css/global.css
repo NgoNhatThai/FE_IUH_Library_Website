@@ -1,0 +1,78 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-header: #237d3f;
+  --cart-footer-height: 64px;
+  --primary-light-color: #f3f3f3;
+  --secondary-light-color: #f3f3f3;
+  --primary-opacity-light-color: #f3f3f3;
+  --background-light-color: #f3f3f3;
+  --foreground-light-color: #f3f3f3;
+  --default-light-color: #f3f3f3;
+  --text-light-color: #000000;
+  /* category */
+  --category-aspect-light: 100%;
+  --category-border-radius-light: 100px;
+  --category-border-width-light: 2px;
+  --category-border-color-light: #3262a2;
+
+  /* // category config */
+  --category-aspect-dark: '1/1';
+  --category-border-radius-dark: 100px;
+  --category-border-width-dark: 1px;
+  --category-border-color-dark: #ffffff;
+
+  /* Product */
+  --background-light-color: #ececec;
+  /* // product config */
+  --product-aspect-light: 75%;
+  --product-border-radius-light: 8px;
+  --product-border-width-light: 0;
+  --product-border-color-light: transparent;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar:horizontal {
+  height: 0;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.react-tabs__tab--selected {
+  color: black !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px 5px 0 0 !important;
+  border-bottom: 3px solid #237d3f !important;
+  color: #333333 !important;
+}
+
+.react-tabs__tab:focus:after {
+  content: none !important;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
