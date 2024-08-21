@@ -5,7 +5,9 @@ const nextConfig = {
       'api-staging.addy.vn',
       '192.168.100.14',
       'https://api.addy.vn',
-      'api.addy.vn'
+      'api.addy.vn',
+      'res.cloudinary.com',
+      'example.com',
     ],
   },
 };

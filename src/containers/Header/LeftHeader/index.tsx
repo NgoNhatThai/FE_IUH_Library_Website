@@ -4,15 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import LeftIcon from '@/assets/svg/left-arrow.svg';
 import { usePathname } from 'next/navigation';
-// import { useSelector } from 'react-redux';
-// import { RootState } from '@/redux';
-// import { OrganizationModel } from '@/models';
 
 const LeftHeader = () => {
   const pathname = usePathname();
-  // const storeConfig = useSelector<RootState, OrganizationModel[]>(
-  //   (state) => state.storeStore.stores,
-  // );
   if (pathname === '/') {
     return (
       <Link href="/">

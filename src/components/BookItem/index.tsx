@@ -1,16 +1,15 @@
 'use client';
-import { ProductModel, ProductType } from '@/models';
 import { formatCurrencyVND } from '@/ultils/number';
-import { convertNumberToNumberText } from '@/ultils/text';
 import { Star, StarHalf } from 'lucide-react';
 import CustomImage from '../Image';
 import React, { useEffect, useState } from 'react';
+import { BookModel } from '@/models/bookModel';
 
-interface CartItemHomeProps {
-  data: ProductModel;
+interface BookItemProps {
+  data: BookModel;
 }
 
-const CartItemHome = ({ data }: CartItemHomeProps) => {
+const BookItem = ({ data }: BookItemProps) => {
   const [rating, setRating] = useState<number>(0);
   const [selected, setSelected] = useState(false);
 
@@ -18,28 +17,25 @@ const CartItemHome = ({ data }: CartItemHomeProps) => {
     setSelected(!selected);
   };
   useEffect(() => {
-    setRating(Math.ceil(Math.random() * 10) % 2 === 0 ? 5 : 4)
-  }, [])
+    setRating(Math.ceil(Math.random() * 10) % 2 === 0 ? 5 : 4);
+  }, []);
   return (
     <div
       className={`card flex cursor-pointer flex-col items-center rounded-md bg-white p-1 ${selected ? 'opacity-50' : ''}`}
       onClick={handleClick}
     >
       <CustomImage
-        avatarMetadata={data.avatarMetadata}
+        avatarMetadata={data.image}
         alt="product img"
         className={`rounded-md`}
         priority
       />
       <p className="mt-1 line-clamp-2 min-h-10 w-full text-xs font-medium text-[--text-light-color]">
-        {data.name}
+        {data.title}
       </p>
-      <div className="flex flex-col w-full items-center justify-start flex-wrap">
+      <div className="flex w-full flex-col flex-wrap items-center justify-start">
         <p className="w-full self-start text-[13px] font-semibold text-red-500">
           {formatCurrencyVND(data?.price || 0)}
-        </p>
-        <p className="w-full text-[--default-light-color] text-[11px] font-light line-through h-5">
-          {formatCurrencyVND(data?.oldPrice || 0)}
         </p>
       </div>
       <div className="flex w-full items-center gap-2">
@@ -59,19 +55,22 @@ const CartItemHome = ({ data }: CartItemHomeProps) => {
             );
           })}
         </div>
-        {data?.totalSales ? (
-          <p className="line-clamp-1 text-xs font-medium leading-none ml-2 text-[--text-light-color]">
+        <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
+          Đã đọc 0
+        </p>
+        {/* {data?.totalSales ? (
+          <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
             Đã {data?.type === ProductType.SERVICE ? 'đặt' : 'bán'}{' '}
             {convertNumberToNumberText(data.totalSales)}
           </p>
         ) : (
-          <p className="line-clamp-1 text-xs font-medium leading-none ml-2 text-[--text-light-color]">
-            Đã {data?.type === ProductType.SERVICE ? 'đặt' : 'bán'}{' '} 0
+          <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
+            Đã {data?.type === ProductType.SERVICE ? 'đặt' : 'bán'} 0
           </p>
-        )}
+        )} */}
       </div>
     </div>
   );
 };
 
-export default CartItemHome;
+export default BookItem;

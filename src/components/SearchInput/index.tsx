@@ -94,7 +94,7 @@ const SearchHeader: React.FC = () => {
       <input
         readOnly={windowWidth < 768}
         type="text"
-        placeholder="Tìm kiếm sách ..."
+        placeholder="Tìm kiếm ..."
         value={searchTerm}
         onChange={handleInputChange}
         className="w-full rounded-md border px-2 py-1 pr-5 text-xs text-black focus:border-transparent focus:outline-none sm:py-2 md:pr-8"

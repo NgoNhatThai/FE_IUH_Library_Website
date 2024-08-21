@@ -1,13 +1,12 @@
 'use client';
-import CartItemHome from '@/components/CartItemHome';
-import CustomImage from '@/components/Image';
+import BookItem from '@/components/BookItem';
 import SliderWrapper from '@/components/SliderWrapper';
-import { PRODUCT } from '@/constants';
-import { HomeConfigItemModel, ProductModel } from '@/models';
+import { BOOK } from '@/constants';
+import { BookModel } from '@/models/bookModel';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-const GroupProduct = ({ data }: { data: HomeConfigItemModel }) => {
+const BookGroup = ({ data }: { data: BookModel[] }) => {
   const router = useRouter();
   const [windowWidth, setWindowWidth] = React.useState<number>(0);
 
@@ -21,27 +20,15 @@ const GroupProduct = ({ data }: { data: HomeConfigItemModel }) => {
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
-  }
+  };
 
-  const handleOnClick = (item: ProductModel) => {
-    router.push(`${PRODUCT}/${item.id}`);
+  const handleOnClick = (item: BookModel) => {
+    router.push(`${BOOK}/${item._id}`);
   };
   return (
-    <div id={String(data.id)} className="bg-[var(--background-light-color)] p-2">
+    <div className="bg-[var(--background-light-color)] p-2">
       <div className="flex items-center gap-3">
-        {Array.isArray(data.cmsCategory?.avatarMetadata) &&
-          data.cmsCategory.avatarMetadata.length > 0 && (
-            <div className="h-[20px] w-[20px] overflow-hidden rounded-full">
-              <CustomImage
-                avatarMetadata={data.cmsCategory.avatarMetadata}
-                alt="icon"
-                className="!z-0"
-              />
-            </div>
-          )}
-        <p className="text-md font-bold text-gray-800">
-          {data.cmsCategory?.name}
-        </p>
+        <p className="text-md font-bold text-gray-800">Sách hot trong tháng</p>
       </div>
       <div className="mt-2">
         <SliderWrapper
@@ -54,15 +41,15 @@ const GroupProduct = ({ data }: { data: HomeConfigItemModel }) => {
             swipeToSlide: true,
           }}
         >
-          {data.cmsCategory?.linkDTOs
-            ?.map((item) => item.targetObject as ProductModel)
+          {data
+            ?.map((item) => item)
             .map((item, index) => (
               <div
                 key={index}
                 onClick={() => handleOnClick(item)}
                 className="p-1"
               >
-                <CartItemHome data={item} />
+                <BookItem data={item} />
               </div>
             ))}
         </SliderWrapper>
@@ -71,4 +58,4 @@ const GroupProduct = ({ data }: { data: HomeConfigItemModel }) => {
   );
 };
 
-export default GroupProduct;
+export default BookGroup;

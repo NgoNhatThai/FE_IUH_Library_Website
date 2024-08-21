@@ -1,5 +1,5 @@
 'use client';
-import CartItemHome from '@/components/CartItemHome';
+import CartItemHome from '@/components/BookItem';
 import ScrollToTop from '@/components/ScrollToTop';
 import { PAGE_DEFAULT } from '@/constants/defaultValue';
 import { PRODUCT } from '@/constants';
@@ -22,7 +22,7 @@ const MainSearch = ({ params: paramsParents }: { params: SearchParams }) => {
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
-  }
+  };
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -32,34 +32,32 @@ const MainSearch = ({ params: paramsParents }: { params: SearchParams }) => {
     };
   }, []);
 
-  const {
-    data: productData,
-    fetchNextPage: fetchNextPageProduct,
-  } = useInfiniteQuery(
-    [QueryKey.PRODUCT, storeInfo?.id, paramsParents],
-    async ({ pageParam = 0 }) => {
-      if (!storeInfo?.id) return null;
+  const { data: productData, fetchNextPage: fetchNextPageProduct } =
+    useInfiniteQuery(
+      [QueryKey.PRODUCT, storeInfo?.id, paramsParents],
+      async ({ pageParam = 0 }) => {
+        if (!storeInfo?.id) return null;
 
-      const params = {
-        ...paramsParents,
-        pageIndex: pageParam,
-        pageSize: PAGE_DEFAULT,
-        display: true,
-        organizationId: storeInfo.id,
-        sortBy: 'orderNumber',
-      };
-      const response = await productService.products(params);
-      return response;
-    },
-    {
-      getNextPageParam: (lastPage) => {
-        if (!lastPage?.last) {
-          return Number(lastPage?.pageable?.pageNumber || 0) + 1;
-        }
-        return undefined;
+        const params = {
+          ...paramsParents,
+          pageIndex: pageParam,
+          pageSize: PAGE_DEFAULT,
+          display: true,
+          organizationId: storeInfo.id,
+          sortBy: 'orderNumber',
+        };
+        const response = await productService.products(params);
+        return response;
       },
-    },
-  );
+      {
+        getNextPageParam: (lastPage) => {
+          if (!lastPage?.last) {
+            return Number(lastPage?.pageable?.pageNumber || 0) + 1;
+          }
+          return undefined;
+        },
+      },
+    );
 
   useInfiniteScroll(fetchNextPageProduct, 'product-search');
 
@@ -67,10 +65,12 @@ const MainSearch = ({ params: paramsParents }: { params: SearchParams }) => {
     router.push(`${PRODUCT}/${item.id}`);
   };
 
-
   return (
     <>
-      <div id='product-search' className={`${windowWidth > 768 ? 'grid grid-cols-4' : 'grid grid-cols-2'} overflow-y-auto p-2 gap-2 container`}>
+      <div
+        id="product-search"
+        className={`${windowWidth > 768 ? 'grid grid-cols-4' : 'grid grid-cols-2'} container gap-2 overflow-y-auto p-2`}
+      >
         {productData &&
           productData.pages.map((page) =>
             page?.content.map((product) => (

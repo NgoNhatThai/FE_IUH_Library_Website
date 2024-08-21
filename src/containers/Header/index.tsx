@@ -10,10 +10,8 @@ import Account from './Account';
 const Header = async () => {
   return (
     <header className="bg-white">
-      <div className="container m-auto flex w-full items-center justify-between py-1 md:py-2 lg:py-4">
-        <div className="w-1/10 h-full items-center">
-          <LeftHeader />
-        </div>
+      <div className="container m-auto flex w-full items-center justify-center py-1 md:py-2 lg:py-4">
+        <LeftHeader />
         <SearchHeader />
         <div className="ml-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full md:ml-4">
           <Link href="/shopping-cart">
@@ -29,7 +27,7 @@ const Header = async () => {
           </Link>
         </div>
         <div className="ml-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full md:ml-4">
-          <Link href="/shopping-cart">
+          <Link href="/login">
             <Account>
               <Image
                 src={UserIcon}

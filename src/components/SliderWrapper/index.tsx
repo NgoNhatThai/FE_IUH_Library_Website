@@ -1,5 +1,5 @@
 'use client';
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useMemo } from 'react';
 import Slider, { Settings } from 'react-slick';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
@@ -46,7 +46,6 @@ const SliderWrapper = ({
     }),
     [settings],
   );
-
 
   return (
     <>

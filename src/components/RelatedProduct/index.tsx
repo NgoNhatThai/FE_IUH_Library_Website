@@ -2,7 +2,7 @@
 import SliderWrapper from '@/components/SliderWrapper';
 import { ProductModel } from '@/models';
 import { ListResponse } from '@/types/api';
-import CartItemHome from '../CartItemHome';
+import CartItemHome from '../BookItem';
 import Link from 'next/link';
 import { PRODUCT } from '@/constants';
 import { useEffect, useState } from 'react';
@@ -12,12 +12,12 @@ const RelatedProduct = ({ data }: { data: ListResponse<ProductModel> }) => {
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
-  }
+  };
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
-  }, [])
+  }, []);
 
   return (
     <div className="rounded-md bg-[var(--background-light-color)] p-2">
@@ -35,7 +35,7 @@ const RelatedProduct = ({ data }: { data: ListResponse<ProductModel> }) => {
         {data?.content
           ?.map((item) => item as ProductModel)
           .map((product) => (
-            <div key={product.id} className="px-1 flex w-[152px]">
+            <div key={product.id} className="flex w-[152px] px-1">
               <Link href={`${PRODUCT}/${product.id}`}>
                 <CartItemHome data={product} />
               </Link>

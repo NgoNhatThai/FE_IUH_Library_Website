@@ -1,8 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import Image from 'next/image';
 import NotFoundImage from '@/assets/images/no-image.png';
-import { ImageModel } from '@/models';
-import bannerSrc from '@/assets/images/banner.png';
 
 interface Ratio {
   square?: string;
@@ -21,7 +19,7 @@ interface ImageProps {
   ratio?: keyof Ratio;
   className?: string;
   onClick?: () => void;
-  avatarMetadata?: ImageModel[] | ImageModel;
+  avatarMetadata?: string;
   size?: 'small' | 'medium' | 'large';
   customRatio?: string;
   style?: React.CSSProperties;
@@ -52,24 +50,14 @@ const LazyImage = ({
 }: ImageProps) => {
   const imagesSrc = useMemo(() => {
     if (avatarMetadata) {
-      const targetArray = Array.isArray(avatarMetadata)
-        ? avatarMetadata
-        : [avatarMetadata];
-
-      const avatar = targetArray
-        ?.map((avatar) => avatar?.[size]?.url)
-        ?.filter(Boolean)?.[0];
-
-      return (
-        avatar || targetArray?.[0]?.downloadUrl || errorSrc || NotFoundImage
-      );
+      return avatarMetadata || errorSrc || NotFoundImage;
     }
 
     return src || errorSrc || NotFoundImage;
   }, [JSON.stringify(avatarMetadata), src, errorSrc]);
   return (
     <Image
-      src={bannerSrc}
+      src={imagesSrc}
       alt={alt ?? 'image'}
       width={1000}
       height={1000}
@@ -80,6 +68,8 @@ const LazyImage = ({
       }}
       className={`w-full object-cover transition-all ${ratioClass[ratio]} ${customRatio} ${className}`}
       onClick={onClick}
+      sizes={size}
+      style={style}
     />
   );
 };

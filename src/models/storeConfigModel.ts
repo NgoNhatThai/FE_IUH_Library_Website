@@ -21,5 +21,12 @@ export interface StoreConfig {
   phoneNumber?: string;
   address?: string;
   vat?: string;
-}
 
+  // new
+  desc?: string;
+  logo?: string;
+  email?: string;
+  banner?: string[];
+  categories?: string[];
+  linkWebsite?: string;
+}

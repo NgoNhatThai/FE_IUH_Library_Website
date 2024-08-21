@@ -1,24 +1,35 @@
-'use client'
-import { StoreConfig } from "@/models";
-import { usePathname } from "next/navigation";
+'use client';
+import { StoreConfig } from '@/models';
+import { usePathname } from 'next/navigation';
 
 const FooterInfo = (storeInfo: StoreConfig) => {
-    const pathname = usePathname();
-    return (
-        (pathname === '/') && 
-        <div className="mx-auto w-full">
-            <div className="rounded-mdp-2 shadow-md md:p-4">
-                <h2 className="mb-2 text-sm font-bold">{storeInfo?.name}</h2>
-                <p className="mb-2 text-sm">Địa chỉ: {storeInfo?.address}</p>
-                <p className="mb-2 text-sm">
-                    Điện thoại:{' '}
-                    <a href={`tel:${storeInfo?.phoneNumber}`} className="text-blue-400">
-                        {storeInfo?.phoneNumber}
-                    </a>
-                </p>
-                <p className="mb-2 text-sm">Mã số thuế: {storeInfo?.vat}</p>
-            </div>
+  const pathname = usePathname();
+  return (
+    pathname === '/' && (
+      <>
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
+          <h2 className="mb-4 text-lg font-semibold text-gray-800">
+            {storeInfo?.name}
+          </h2>
+          <p className="mb-3 text-sm text-gray-600">
+            Địa chỉ: <span className="text-gray-700">{storeInfo?.address}</span>
+          </p>
+          <p className="mb-3 text-sm text-gray-600">
+            Điện thoại:{' '}
+            <a
+              href={`tel:${storeInfo?.phoneNumber}`}
+              className="text-blue-500 hover:underline"
+            >
+              {storeInfo?.phoneNumber}
+            </a>
+          </p>
+          <p className="text-sm text-gray-600">
+            Mã số thuế: <span className="text-gray-700">{storeInfo?.vat}</span>
+          </p>
         </div>
+      </>
     )
-}
+  );
+};
+
 export default FooterInfo;

@@ -1,13 +1,9 @@
 import { CmsCategoryModel } from './cmsCategoryModel';
 
 export interface HomeConfigModel {
-  id?: string;
-  welcomeMessage?: string[];
-  configDTOs?: HomeConfigItemModel[];
-  slug?: string;
-  zappId?: string;
-  createdDate?: string;
-  modifiedDate?: string;
+  status?: string;
+  message?: string;
+  data?: HomeConfigTypeModel;
 }
 
 export interface HomeConfigItemModel {
@@ -17,4 +13,16 @@ export interface HomeConfigItemModel {
   cmsCategory?: CmsCategoryModel;
 }
 
-
+export interface HomeConfigTypeModel {
+  _id?: string;
+  name?: string;
+  desc?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  banners?: string[];
+  logo?: string;
+  categories?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}

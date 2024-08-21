@@ -8,6 +8,7 @@ const config = {
   APP_ID: process.env.NEXT_PUBLIC_APP_ID,
   ZALO_MINI_APP_ID: process.env.NEXT_PUBLIC_ZALO_MINI_APP_ID,
   ORGANIZATION_ID: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
+  HOME_CONFIG_ID: process.env.NEXT_PUBLIC_HOME_CONFIG_ID,
 };
 
 export default config;
