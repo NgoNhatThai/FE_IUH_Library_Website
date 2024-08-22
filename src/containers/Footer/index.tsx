@@ -16,7 +16,7 @@ const Footer = async () => {
   const data = info ? info.data : {};
   return (
     <footer className="hidden bg-white text-white md:block">
-      <FooterInfo {...data} />
+      <FooterInfo storeInfo={data} />
     </footer>
   );
 };

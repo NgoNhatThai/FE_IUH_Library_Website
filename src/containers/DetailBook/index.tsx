@@ -8,6 +8,7 @@ import Breadcrumb from '../../components/Breadcrumb';
 import DetailProductInfo from './DetailBookInfo';
 // import ButtonFooter from './ButtonFooter';
 import { BookModel } from '@/models/bookModel';
+import ChapterContainer from './BookChapters';
 
 const DetailBook = ({ detail }: { detail: BookModel }) => {
   // const [relatedProducts, setRelatedProducts] =
@@ -44,16 +45,20 @@ const DetailBook = ({ detail }: { detail: BookModel }) => {
   // }, [storeInfo, detailProduct]);
 
   return (
-    <div className="container">
+    <div className="container shadow-md">
       <div className="hidden md:block">
         <Breadcrumb title={'Chi tiết sản phẩm'} />
       </div>
-      <DetailProductInfo data={detail} />
-      {/* {relatedProducts && (
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <DetailProductInfo data={detail} />
+        {/* {relatedProducts && (
         <DiscoverProducts relatedProducts={relatedProducts} />
       )} */}
-      <div className="mt-2 pt-[64px]"></div>
-      {/* <ButtonFooter data={detail} /> */}
+        <div className="border-l p-4">
+          <ChapterContainer data={detail} />
+        </div>
+        {/* <ButtonFooter data={detail} /> */}
+      </div>
     </div>
   );
 };

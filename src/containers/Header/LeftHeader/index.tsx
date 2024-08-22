@@ -3,10 +3,12 @@ import LogoIUH from '@/assets/svg/iuh-logo.svg';
 import Image from 'next/image';
 import Link from 'next/link';
 import LeftIcon from '@/assets/svg/left-arrow.svg';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const LeftHeader = () => {
+  const router = useRouter();
   const pathname = usePathname();
+
   if (pathname === '/') {
     return (
       <Link href="/">
@@ -22,7 +24,7 @@ const LeftHeader = () => {
     );
   } else {
     return (
-      <Link href="/">
+      <button onClick={() => router.back()} className="flex items-center">
         <Image
           src={LeftIcon}
           alt="Back Icon"
@@ -31,8 +33,9 @@ const LeftHeader = () => {
           className="h-8 w-8"
           priority
         />
-      </Link>
+      </button>
     );
   }
 };
+
 export default LeftHeader;

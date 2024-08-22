@@ -36,6 +36,7 @@ export const ORDER_SERVICE_URL = combine('service');
 
 export const HOME = '/';
 export const BOOK = '/book';
+export const CHAPTER = '/chapter';
 export const SEARCH = '/s';
 export const CATEGORIES = '/categories';
 export const CATEGORIES_QUERY = '/categories?categoryId=';

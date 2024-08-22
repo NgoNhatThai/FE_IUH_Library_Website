@@ -10,10 +10,10 @@ type Props = {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const title = `${searchParams?.title || 'Ứng dụng Túc Tắc Tea'}`;
+  const title = `${searchParams?.title || 'Ứng dụng thư viện online IUH'}`;
   const description = `${
     searchParams?.description ||
-    'Ứng dụng giúp bạn tận hưởng những ly trà đặc biệt từ Túc Tắc.'
+    'Ứng dụng giúp bạn truy cập vào thư viện sách online của trường đại học Công nghiệp TP Hồ Chí Minh.'
   }`;
   const imagePreviewURL = `${
     searchParams?.imagePreviewURL ||

@@ -13,7 +13,6 @@ const getDetailBook = async (id: string) => {
 
 const DetailProductPage = async ({ params }: { params: { slug: string } }) => {
   const detail = await getDetailBook(params.slug);
-  console.log(detail);
   return detail ? <DetailBook detail={detail.data} /> : <NotFoundDetail />;
 };
 export default DetailProductPage;

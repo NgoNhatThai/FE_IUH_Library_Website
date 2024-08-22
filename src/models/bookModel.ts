@@ -1,10 +1,15 @@
+import { AuthorModel } from './authorModel';
+import { CategoryModel } from './categoryModel';
+import { ContentModel } from './contentModel';
+import { MajorModel } from './majorModel';
+
 export interface BookModel {
   _id?: string;
   title?: string;
-  categoryId?: string;
-  authorId?: string;
-  majorId?: string;
-  content?: string;
+  categoryId?: string | CategoryModel;
+  authorId?: string | AuthorModel;
+  majorId?: string | MajorModel;
+  content?: string | ContentModel;
   review?: string;
   limit?: string;
   image?: string;

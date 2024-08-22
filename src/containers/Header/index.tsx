@@ -9,7 +9,7 @@ import Account from './Account';
 
 const Header = async () => {
   return (
-    <header className="bg-white">
+    <header className="bg-white shadow-md">
       <div className="container m-auto flex w-full items-center justify-center py-1 md:py-2 lg:py-4">
         <LeftHeader />
         <SearchHeader />

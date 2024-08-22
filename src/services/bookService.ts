@@ -1,5 +1,6 @@
 import { BOOK_ROUTE_URL } from '@/constants';
 import { BookDetailResponse, BookResponse } from '@/models/bookModel';
+import { ChapterResponse } from '@/models/chapterModel';
 import axios from 'axios';
 
 export const bookService = {
@@ -17,6 +18,17 @@ export const bookService = {
   getDetailBook: async (id: string): Promise<BookDetailResponse> => {
     return axios({
       baseURL: `${BOOK_ROUTE_URL}/get-detail-book/${id}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getDetalChapterById: async (id: string): Promise<ChapterResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-detail-chapter/${id}`,
       method: 'GET',
       headers: {},
     })
