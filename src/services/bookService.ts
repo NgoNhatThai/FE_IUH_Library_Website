@@ -26,9 +26,20 @@ export const bookService = {
         throw err;
       });
   },
-  getDetalChapterById: async (id: string): Promise<ChapterResponse> => {
+  getDetailChapterById: async (id: string): Promise<ChapterResponse> => {
     return axios({
       baseURL: `${BOOK_ROUTE_URL}/get-detail-chapter/${id}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getRelatedBooks: async (id: string): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-related-books/${id}`,
       method: 'GET',
       headers: {},
     })

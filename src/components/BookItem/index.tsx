@@ -58,16 +58,6 @@ const BookItem = ({ data }: BookItemProps) => {
         <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
           Đã đọc 0
         </p>
-        {/* {data?.totalSales ? (
-          <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
-            Đã {data?.type === ProductType.SERVICE ? 'đặt' : 'bán'}{' '}
-            {convertNumberToNumberText(data.totalSales)}
-          </p>
-        ) : (
-          <p className="ml-2 line-clamp-1 text-xs font-medium leading-none text-[--text-light-color]">
-            Đã {data?.type === ProductType.SERVICE ? 'đặt' : 'bán'} 0
-          </p>
-        )} */}
       </div>
     </div>
   );

@@ -1,13 +1,12 @@
 'use client';
 import SliderWrapper from '@/components/SliderWrapper';
-import { ProductModel } from '@/models';
-import { ListResponse } from '@/types/api';
-import CartItemHome from '../BookItem';
 import Link from 'next/link';
-import { PRODUCT } from '@/constants';
+import { BOOK } from '@/constants';
 import { useEffect, useState } from 'react';
+import { BookModel, BookResponse } from '@/models/bookModel';
+import BookItem from '../BookItem';
 
-const RelatedProduct = ({ data }: { data: ListResponse<ProductModel> }) => {
+const RelatedBook = ({ data }: { data: BookResponse }) => {
   const [windowWidth, setWindowWidth] = useState<number>(0);
 
   const handleResize = () => {
@@ -32,21 +31,18 @@ const RelatedProduct = ({ data }: { data: ListResponse<ProductModel> }) => {
           swipeToSlide: true,
         }}
       >
-        {data?.content
-          ?.map((item) => item as ProductModel)
-          .map((product) => (
-            <div key={product.id} className="flex w-[152px] px-1">
-              <Link href={`${PRODUCT}/${product.id}`}>
-                <CartItemHome data={product} />
+        {data?.data
+          ?.map((item) => item as BookModel)
+          .map((item) => (
+            <div key={item._id} className="flex w-[152px] px-1">
+              <Link href={`${BOOK}/${item._id}`}>
+                <BookItem data={item} />
               </Link>
             </div>
           ))}
-        {/* <p>1</p>
-        <p>2</p>
-        <p>3</p> */}
       </SliderWrapper>
     </div>
   );
 };
 
-export default RelatedProduct;
+export default RelatedBook;

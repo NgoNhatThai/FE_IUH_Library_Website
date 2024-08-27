@@ -3,7 +3,7 @@ import { bookService } from '@/services/bookService';
 
 const getChapter = async (id: string) => {
   try {
-    const response = await bookService.getDetalChapterById(id);
+    const response = await bookService.getDetailChapterById(id);
     if (response.data) {
       return response.data;
     }

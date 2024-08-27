@@ -1,9 +1,10 @@
+'use client';
+import React from 'react';
 import { formatCurrencyVND } from '@/ultils/number';
 import { Star, StarHalf } from 'lucide-react';
 import img from '@/assets/images/no-image.png';
 import CustomImage from '@/components/Image';
 import { BookModel } from '@/models/bookModel';
-import { ChapterModel } from '@/models/chapterModel';
 import { useRouter } from 'next/navigation';
 import { CHAPTER } from '@/constants';
 
@@ -11,9 +12,11 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const rating = 5;
   const router = useRouter();
 
-  const handleOnClick = (item: ChapterModel) => {
-    router.push(`${CHAPTER}/${item._id}`);
+  const handleOnClick = (id: string) => {
+    router.push(`${CHAPTER}/${id}`);
   };
+
+  const bookmark = JSON.parse(localStorage.getItem('@bookmark') || '[]');
 
   return (
     <div className="container p-2">
@@ -83,7 +86,11 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
               </span>
             </p>
             <p className="md:text-md text-sm text-gray-600">
-              Lượt xem: <span className="text-gray-700">{/* Lượt xem */}</span>
+              Lượt xem:{' '}
+              <span className="text-gray-700">
+                {(typeof data.review === 'object' && data.review.totalView) ||
+                  ''}
+              </span>
             </p>
             <p className="md:text-md text-sm text-gray-600">
               Tình trạng:{' '}
@@ -103,21 +110,35 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
                   data.content.chapters
                     ? data.content.chapters[0]
                     : {};
-                handleOnClick(chapter);
+                handleOnClick(chapter._id + '');
               }}
             >
               Đọc từ đầu
             </button>
-            <button className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-              Đọc tiếp
-            </button>
+            {bookmark && bookmark.length > 0 ? (
+              <button
+                className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                onClick={() => {
+                  bookmark.length > 0 &&
+                    bookmark.map((item: any) => {
+                      if (item.bookId === data._id) {
+                        handleOnClick(item.chapterId);
+                      }
+                    });
+                }}
+              >
+                Đọc tiếp
+              </button>
+            ) : (
+              <></>
+            )}
             <button className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">
               Theo dõi
             </button>
           </div>
         </div>
       </div>
-      <div className="mt-2 w-full p-4 text-sm shadow-md md:mt-4">
+      <div className="mt-2 w-full p-4 text-sm shadow-md md:mt-4 md:shadow-none">
         <h3 className="text-lg font-semibold">Nội dung sách</h3>
         <span>{data.desc}</span>
       </div>

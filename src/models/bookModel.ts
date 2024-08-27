@@ -2,6 +2,7 @@ import { AuthorModel } from './authorModel';
 import { CategoryModel } from './categoryModel';
 import { ContentModel } from './contentModel';
 import { MajorModel } from './majorModel';
+import { ReviewModel } from './reviewModel';
 
 export interface BookModel {
   _id?: string;
@@ -10,7 +11,7 @@ export interface BookModel {
   authorId?: string | AuthorModel;
   majorId?: string | MajorModel;
   content?: string | ContentModel;
-  review?: string;
+  review?: string | ReviewModel;
   limit?: string;
   image?: string;
   desc?: string;
