@@ -1,12 +1,12 @@
-// RootLayout.js
 import Header from '@/containers/Header';
 import Menu from '@/containers/Menu';
-// import Menu
 import ProModal from '@/components/BannerModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import type { Metadata } from 'next';
 import ScrollSticky from '@/components/ScrollSticky';
 import Footer from '@/containers/Footer';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: 'IUH - Online Book Library',
@@ -33,6 +33,7 @@ export default function RootLayout({
         <Footer />
       </div>
       <ScrollToTop />
+      <ToastContainer />
     </div>
   );
 }

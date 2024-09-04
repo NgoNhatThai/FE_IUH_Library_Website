@@ -5,12 +5,13 @@ import {
   configureStore,
 } from '@reduxjs/toolkit';
 
-import { cartReducer, storeReducer } from '../slices';
+import { cartReducer, storeReducer, userInfoReducer } from '../slices';
 import fire from '../fire';
 
 const appReducer = combineReducers({
   storeStore: storeReducer,
   cartStore: cartReducer,
+  userInfoStore: userInfoReducer,
   fire: fire,
 });
 

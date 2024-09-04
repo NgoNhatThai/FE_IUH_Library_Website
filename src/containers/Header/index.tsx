@@ -7,8 +7,10 @@ import Link from 'next/link';
 import LeftHeader from './LeftHeader';
 import CartWrapper from './CartWrapper';
 import Account from './Account';
+import store from '@/redux/store';
 
 const Header = async () => {
+  const userInfo = store.getState().userInfo;
   return (
     <header className="bg-white shadow-md">
       <div className="container m-auto flex w-full items-center justify-center py-1 md:py-2 lg:py-4">
@@ -60,7 +62,11 @@ const Header = async () => {
               </Account>
             </Link>
           </div>
-          <p className="ml-2 hidden text-sm md:block">Đăng nhập</p>
+          <p className="ml-2 hidden text-sm md:block">
+            {userInfo && userInfo.userRaw && userInfo.userRaw.userName
+              ? userInfo.userRaw.userName
+              : 'Đăng nhập'}
+          </p>
         </div>
       </div>
     </header>
