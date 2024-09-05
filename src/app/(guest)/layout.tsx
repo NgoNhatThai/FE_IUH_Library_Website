@@ -1,5 +1,4 @@
 import Header from '@/containers/Header';
-import Menu from '@/containers/Menu';
 import ProModal from '@/components/BannerModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import type { Metadata } from 'next';
@@ -24,9 +23,9 @@ export default function RootLayout({
         <Header />
         <ScrollSticky childId="header" height={100} />
       </div>
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <Menu />
-      </div>
+      </div> */}
       <main className="flex-grow md:py-2">{children}</main>
       <ProModal />
       <div id="footer" className="inset-x-0 bottom-0 z-0">

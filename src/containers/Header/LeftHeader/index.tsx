@@ -1,5 +1,5 @@
 'use client';
-import LogoIUH from '@/assets/svg/iuh-logo.svg';
+import LogoIUH from '@/assets/images/logo.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import LeftIcon from '@/assets/svg/left-arrow.svg';
@@ -17,7 +17,7 @@ const LeftHeader = () => {
           alt="IUH Logo"
           width={1000}
           height={1000}
-          className="h-12 w-14 md:h-1/2 md:w-full md:min-w-48"
+          className="h-12 w-14 md:flex"
           priority
         />
       </Link>

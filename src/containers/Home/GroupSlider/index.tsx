@@ -15,7 +15,7 @@ const GroupSlider = ({ data }: { data: string[] }) => {
         {data.map((item: string) => (
           <CustomImage
             ratio="13/8"
-            className="cursor-pointer md:flex"
+            className="max-h-screen cursor-pointer md:flex"
             avatarMetadata={item}
           />
         ))}

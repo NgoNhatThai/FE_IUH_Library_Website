@@ -1,6 +1,5 @@
 import BookGroup from '@/containers/Home/BookGroup';
 import CategoryGroup from '@/containers/Home/CategoryGroup';
-// import GroupProduct from '@/containers/Home/GroupProduct';
 import GroupSlider from '@/containers/Home/GroupSlider';
 import { bookService } from '@/services/bookService';
 import { categoryService } from '@/services/categoryService';
@@ -36,31 +35,12 @@ const fetchTopViewBook = async () => {
   }
 };
 
-// const renderHomeConfig = (homeConfigItemModel: HomeConfigTypeModel) => {
-//   switch (homeConfigItemModel.cmsCategory?.renderType) {
-//     case CmsCategoryRenderType.PRODUCT_GROUP: {
-//       return <GroupProduct data={homeConfigItemModel} />;
-//     }
-//     case CmsCategoryRenderType.SLIDER: {
-//       return (
-//         homeConfigItemModel?.banners && (
-//           <GroupSlider data={homeConfigItemModel?.banners} />
-//         )
-//       );
-//     }
-//     case CmsCategoryRenderType.CATEGORY: {
-//       return <CategoryGroup data={homeConfigItemModel} />;
-//     }
-//     default:
-//       return null;
-//   }
-// };
 const HomePage = async () => {
   const homeConfig = await fetchHomeConfig();
   const categoryResponse = await fetchCategories();
   const topViewBookResponse = await fetchTopViewBook();
   return (
-    <div className="md:container md:mt-10">
+    <div className="md:container md:mt-5">
       {homeConfig?.data?.banners && (
         <GroupSlider data={homeConfig.data.banners} />
       )}
