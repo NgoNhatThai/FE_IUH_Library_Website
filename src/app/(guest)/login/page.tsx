@@ -19,6 +19,9 @@ const LoginPage = () => {
       if (result) {
         dispatch(setUserInfo(result.data));
         localStorage.setItem('userInfo', JSON.stringify(result.data));
+        localStorage.setItem('@access_token', result.data.access_token);
+        localStorage.setItem('@refresh_token', result.data.refresh_token);
+
         toast.success('Đăng nhập thành công');
         router.push('/');
       }

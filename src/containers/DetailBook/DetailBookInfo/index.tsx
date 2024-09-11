@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { formatCurrencyVND } from '@/ultils/number';
 import { Star, StarHalf } from 'lucide-react';
 import img from '@/assets/images/no-image.png';
@@ -7,10 +7,15 @@ import CustomImage from '@/components/Image';
 import { BookModel } from '@/models/bookModel';
 import { useRouter } from 'next/navigation';
 import { CHAPTER } from '@/constants';
+import { userService } from '@/services/userService';
+import { toast } from 'react-toastify';
+import { useQuery } from 'react-query';
+import { UserModal } from '@/models/userInfo';
 
 const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const rating = 5;
   const router = useRouter();
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
   const handleOnClick = (id: string) => {
     router.push(`${CHAPTER}/${id}`);
@@ -18,12 +23,43 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
 
   const bookmark = JSON.parse(localStorage.getItem('@bookmark') || '[]');
 
+  const user: UserModal = useMemo(() => {
+    return userInfo ? userInfo.userRaw : null;
+  }, [userInfo]);
+
+  const { data: isFollow } = useQuery({
+    queryKey: [data._id],
+    queryFn: async () =>
+      await userService.checkFollowBook(String(user?._id), String(data._id)),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(data._id),
+  });
+
+  const handleUpdateFollowStatus = async () => {
+    if (!isFollow) {
+      if (user && user._id && data._id) {
+        const followResult = await userService.follow(user._id, data._id);
+        if (followResult) {
+          toast.success('Theo dõi thành công');
+        } else {
+          toast.error('Theo dõi thất bại');
+        }
+      }
+    } else {
+      const unfollowResult = await userService.unfollow(
+        user._id,
+        String(data._id),
+      );
+      if (unfollowResult) toast.success('Bỏ theo dõi thành công');
+    }
+  };
+
   return (
     <div className="container p-2">
       <div className="flex flex-col gap-4 md:flex-row">
         <CustomImage
           avatarMetadata={data.image}
-          alt="dịch vụ chăm sóc thú cưng"
+          alt="book"
           className="h-full w-full rounded-md object-contain md:h-1/3 md:w-1/3"
           errorSrc={img.src}
         />
@@ -132,8 +168,13 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
             ) : (
               <></>
             )}
-            <button className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">
-              Theo dõi
+            <button
+              className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+              onClick={() => {
+                handleUpdateFollowStatus();
+              }}
+            >
+              {isFollow ? 'Bỏ theo dõi' : 'Theo dõi'}
             </button>
           </div>
         </div>
