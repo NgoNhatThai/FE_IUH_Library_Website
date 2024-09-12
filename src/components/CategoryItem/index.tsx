@@ -2,21 +2,24 @@
 import { CategoryModel } from '@/models';
 import React, { useState } from 'react';
 import CustomImage from '@/components/Image';
+import { useRouter } from 'next/navigation';
 
 const CategoryItem = ({ category }: { category: CategoryModel }) => {
-  const [selected, setSelected] = useState(false);
+  const router = useRouter();
+  const [isClicked, setIsClicked] = useState(false);
   const handleClick = () => {
-    setSelected(!selected);
+    setIsClicked(!isClicked);
+    router.push(`/search?categoryId=${category._id}`);
   };
   return (
     <div
-      className={`h-28 w-[70px] rounded-md bg-white p-1 md:h-48 md:w-36 ${selected ? 'opacity-50' : ''}`}
+      className={`rounded-md bg-white p-2 ${isClicked ? 'opacity-50' : ''}`}
       onClick={handleClick}
     >
       <CustomImage
         avatarMetadata={category.image}
         alt="icon"
-        className="round-md !z-0 border-2 border-white"
+        className="round-md !z-0 m-2 border-2 border-white shadow-md"
         priority
       />
       <p className="md:text-md text-center text-[10px] font-bold text-[--text-light-color]">

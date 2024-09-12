@@ -1,17 +1,13 @@
 'use client';
 import searchIcon from '@/assets/svg/search.svg';
-import { PAGE_DEFAULT } from '@/constants/defaultValue';
-import { PRODUCT, SEARCH } from '@/constants';
+import { SEARCH } from '@/constants';
 import { useDebounce } from '@/hooks';
-import { OrganizationModel } from '@/models';
-import { RootState } from '@/redux';
-import { productService } from '@/services/productService';
+import { bookService } from '@/services/bookService';
 import { QueryKey } from '@/types/api';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { useInfiniteQuery } from 'react-query';
-import { useSelector } from 'react-redux';
+import { useQuery } from 'react-query';
 
 const SearchHeader: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -31,44 +27,21 @@ const SearchHeader: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const storeInfo = useSelector<RootState, OrganizationModel>(
-    (state) => state.storeStore.storeInfo,
-  );
-
-  const { data: productData } = useInfiniteQuery(
-    [QueryKey.PRODUCT, storeInfo?.id, searchDebounce],
-    async ({ pageParam = 0 }) => {
-      if (!storeInfo?.id) return null;
-      const params = {
-        pageIndex: pageParam,
-        pageSize: PAGE_DEFAULT,
-        isHaveChildren: false,
-        display: true,
-        organizationId: storeInfo.id,
-        sortBy: 'orderNumber',
-        name: searchTerm,
-      };
-      const response = await productService.products(params);
+  const { data: bookData } = useQuery(
+    [QueryKey.PRODUCT, searchDebounce],
+    async () => {
+      const response = await bookService.getBookByText(searchDebounce);
       return response;
-    },
-    {
-      getNextPageParam: (lastPage) => {
-        if (!lastPage?.last) {
-          return Number(lastPage?.pageable?.pageNumber || 0) + 1;
-        }
-        return undefined;
-      },
     },
   );
 
   useEffect(() => {
-    if (productData) {
-      const products = productData.pages.map((page) => page?.content).flat();
-      setSearchResults(products);
+    if (bookData) {
+      setSearchResults(bookData.data);
     } else {
       setSearchResults([]);
     }
-  }, [productData]);
+  }, [bookData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -114,10 +87,10 @@ const SearchHeader: React.FC = () => {
                     className="cursor-pointer border-b border-gray-200 px-4 py-2 text-xs text-[--text-light-color] last:border-b-0 hover:text-blue-500"
                     onClick={() => {
                       setSearchTerm('');
-                      router.push(`${PRODUCT}/${result.id}`);
+                      router.push(`/book/${result._id}`);
                     }}
                   >
-                    {result.name}
+                    {result.title}
                   </p>
                 ))}
               {!showAllResults && searchResults.length > 3 && (
@@ -131,7 +104,7 @@ const SearchHeader: React.FC = () => {
             </>
           ) : (
             <div className="px-4 py-2 text-gray-500">
-              Không tìm thấy sản phẩm
+              Không tìm thấy kết quả
             </div>
           )}
         </div>

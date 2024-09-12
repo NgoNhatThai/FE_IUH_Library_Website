@@ -48,4 +48,49 @@ export const bookService = {
         throw err;
       });
   },
+  getBookByText: async (text: string): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/find-books-by-text-input`,
+      method: 'GET',
+      headers: {},
+      params: { text },
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getBookByCategory: async (id: string): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-book-by-category/${id}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getBookByAuthor: async (id: string): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-book-by-author/${id}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getBookByMajor: async (id: string): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-book-by-major/${id}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
 };

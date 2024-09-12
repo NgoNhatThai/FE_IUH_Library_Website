@@ -45,7 +45,11 @@ const CategoryGroup = ({ data }: { data: CategoryModel[] }) => {
         >
           {data.map((item: CategoryModel) => {
             return (
-              <div key={item._id} onClick={() => {}}>
+              <div
+                key={item._id}
+                onClick={() => {}}
+                className="p-2 transition-transform duration-300 hover:scale-105"
+              >
                 <CategoryItem key={item._id} category={item} />
               </div>
             );

@@ -47,7 +47,7 @@ const BookGroup = ({ data }: { data: BookModel[] }) => {
               <div
                 key={index}
                 onClick={() => handleOnClick(item)}
-                className="p-1"
+                className="p-2 transition-transform duration-300 hover:scale-105"
               >
                 <BookItem data={item} />
               </div>
