@@ -76,4 +76,42 @@ export const userService = {
         throw err;
       });
   },
+  comment: async (
+    userId: string,
+    bookId: string,
+    comment: string,
+  ): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/comment`,
+      method: 'POST',
+      data: {
+        userId,
+        bookId,
+        comment,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  commentChapter: async (
+    userId: string,
+    chapterId: string,
+    comment: string,
+  ): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/comment-in-chapter`,
+      method: 'POST',
+      data: {
+        userId,
+        chapterId,
+        comment,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

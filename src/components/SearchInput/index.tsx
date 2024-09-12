@@ -82,16 +82,23 @@ const SearchHeader: React.FC = () => {
               {searchResults
                 .slice(0, showAllResults ? searchResults.length : 3)
                 .map((result, index) => (
-                  <p
+                  <div
                     key={index}
-                    className="cursor-pointer border-b border-gray-200 px-4 py-2 text-xs text-[--text-light-color] last:border-b-0 hover:text-blue-500"
+                    className="flex cursor-pointer border-b border-gray-200 px-4 py-2 text-xs text-[--text-light-color] last:border-b-0 hover:text-blue-500"
                     onClick={() => {
                       setSearchTerm('');
                       router.push(`/book/${result._id}`);
                     }}
                   >
-                    {result.title}
-                  </p>
+                    <Image
+                      src={result.image}
+                      alt="Book Thumbnail"
+                      width={60}
+                      height={60}
+                      className="rounded-md md:h-28 md:w-20"
+                    />
+                    <p className="text-md ml-2 text-gray-500">{result.title}</p>
+                  </div>
                 ))}
               {!showAllResults && searchResults.length > 3 && (
                 <button

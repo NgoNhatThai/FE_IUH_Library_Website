@@ -25,7 +25,7 @@ const ChapterContainer = ({ data }: { data: BookModel }) => {
             visibleChapters.map((chapter) => (
               <div
                 key={chapter._id}
-                className="flex cursor-pointer items-center justify-between border-b border-gray-300 px-4 py-2 hover:text-blue-700"
+                className="flex cursor-pointer items-center justify-between border-b border-gray-300 px-4 py-2"
                 onClick={() => handleOnClick(chapter)}
               >
                 <p className="text-sm">{chapter.title}</p>

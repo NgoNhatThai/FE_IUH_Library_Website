@@ -6,6 +6,8 @@ import { BookModel, BookResponse } from '@/models/bookModel';
 import ChapterContainer from './BookChapters';
 import { bookService } from '@/services/bookService';
 import RelatedBooks from '@/components/DiscoverBooks';
+import CommentContainer from '@/components/CommentContainer';
+import { CommentModel } from '@/models/commentModel';
 
 const DetailBook = ({ detail }: { detail: BookModel }) => {
   const [relatedBooks, setRelatedBooks] = useState<BookResponse>();
@@ -22,6 +24,13 @@ const DetailBook = ({ detail }: { detail: BookModel }) => {
       console.log(error);
     }
   };
+  const isCommentModelArray = (array: any[]): array is CommentModel[] => {
+    return array.every(
+      (item) =>
+        item && typeof item === 'object' && '_id' in item && 'content' in item,
+    );
+  };
+
   useEffect(() => {
     if (detail) {
       fetchRelatedBooks();
@@ -29,7 +38,7 @@ const DetailBook = ({ detail }: { detail: BookModel }) => {
   }, [detail]);
 
   return (
-    <div className="shadow-md md:container">
+    <div className="bg-white shadow-md md:container">
       <div className="hidden md:block">
         <Breadcrumb title={'Chi tiết sách'} />
       </div>
@@ -40,6 +49,17 @@ const DetailBook = ({ detail }: { detail: BookModel }) => {
 
         <div className="border-l p-4">
           <ChapterContainer data={detail} />
+          <CommentContainer
+            currentId={detail._id}
+            comments={
+              typeof detail?.review === 'object' &&
+              Array.isArray(detail?.review?.comments) &&
+              isCommentModelArray(detail.review.comments)
+                ? detail.review.comments
+                : []
+            }
+            isChapterComment={false}
+          />
         </div>
       </div>
       <div className="mt-2 md:mt-10 md:w-1/2">

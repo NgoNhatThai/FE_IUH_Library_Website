@@ -4,6 +4,7 @@ import { ChapterModel } from '@/models/chapterModel';
 import ContinueReadingPopup from '@/components/ContinuePopup';
 import PrevNextChapterButton from '@/components/PrevNextChapterButton';
 import { HomeIcon } from 'lucide-react';
+import CommentContainer from '@/components/CommentContainer';
 
 const useIntersectionObserver = (
   callback: (entry: IntersectionObserverEntry) => void,
@@ -162,6 +163,10 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
       </div>
 
       <PrevNextChapterButton chapter={chapter} currentIndex={currentIndex} />
+
+      <div>
+        <CommentContainer />
+      </div>
     </div>
   );
 };
