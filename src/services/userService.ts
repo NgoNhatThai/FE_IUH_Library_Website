@@ -2,6 +2,7 @@ import { USER_ROUTE_URL } from '@/constants';
 import { UserResponse } from '@/models/userInfo';
 import axios from 'axios';
 import axiosClient from './axiosService';
+import { BookModel } from '@/models/bookModel';
 
 export const userService = {
   login: async (studentCode: string): Promise<UserResponse> => {
@@ -18,25 +19,6 @@ export const userService = {
         throw err;
       });
   },
-  // follow: async (userId: string, bookId: string): Promise<UserResponse> => {
-  //   let token = localStorage.getItem(LOCAL_STORAGE.ACCESS_TOKEN) || '';
-  //   return axiosClient({
-  //     baseURL: `${USER_ROUTE_URL}/follow`,
-  //     method: 'POST',
-  //     headers: {
-  //       Authorization: 'Bearer ' + token,
-  //       'ngrok-skip-browser-warning': true,
-  //     },
-  //     data: {
-  //       userId,
-  //       bookId,
-  //     },
-  //   })
-  //     .then((res) => res.data)
-  //     .catch((err) => {
-  //       throw err;
-  //     });
-  // },
   follow: async (userId: string, bookId: string): Promise<{}> => {
     return axiosClient()({
       baseURL: `${USER_ROUTE_URL}/follow`,
@@ -76,6 +58,20 @@ export const userService = {
       },
     })
       .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  getFollowList: async (params: {}): Promise<BookModel[]> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-follow-list`,
+      method: 'GET',
+      headers: {},
+      params: {
+        ...params,
+      },
+    })
+      .then((res) => res.data.data)
       .catch((err) => {
         throw err;
       });

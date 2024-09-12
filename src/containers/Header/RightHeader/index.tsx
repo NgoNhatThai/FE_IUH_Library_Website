@@ -39,7 +39,7 @@ const RightHeader = () => {
       </div>
       <div className="flex flex-col items-center">
         <div className="ml-1 h-6 w-6 cursor-pointer items-center justify-center rounded-full md:ml-4 md:h-8 md:w-8">
-          <Link href="/shopping-cart">
+          <Link href="/follow-list">
             <CartWrapper>
               <Image
                 src={BookIcon}

@@ -3,13 +3,20 @@ interface SkeletonProps {
   count?: number;
   width?: string | number;
   height?: string | number;
+  isLoading?: boolean;
 }
 const SkeletonGlobal = (props: SkeletonProps) => (
   <SkeletonTheme {...props}>
     <p>
-      <Skeleton count={props.count} />
+      {props.isLoading && (
+        <Skeleton
+          count={props.count}
+          width={props.width}
+          height={props.height}
+        />
+      )}
     </p>
   </SkeletonTheme>
-)
+);
 
 export default SkeletonGlobal;

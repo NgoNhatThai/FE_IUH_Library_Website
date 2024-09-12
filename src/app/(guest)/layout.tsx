@@ -26,7 +26,7 @@ export default function RootLayout({
       {/* <div className="hidden md:block">
         <Menu />
       </div> */}
-      <main className="flex-grow md:py-2">{children}</main>
+      <main className="flex-grow bg-slate-100 md:py-2">{children}</main>
       <ProModal />
       <div id="footer" className="inset-x-0 bottom-0 z-0">
         <Footer />

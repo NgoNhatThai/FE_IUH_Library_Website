@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const Breadcrumb = ({ title }: { title: string }) => {
   return (
-    <div className="mt-1 flex w-full items-start justify-start">
+    <div className="mt-1 hidden w-full items-start justify-start md:block">
       <Link href="/">
         <span className="text-sm text-sky-500">Trang chủ</span>
       </Link>
