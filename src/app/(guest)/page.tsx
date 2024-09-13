@@ -35,10 +35,21 @@ const fetchTopViewBook = async () => {
   }
 };
 
+const fetchNewUpdatedBook = async () => {
+  try {
+    const topViewBook = await bookService.getNewBooks();
+    if (!topViewBook) return null;
+    return topViewBook;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const HomePage = async () => {
   const homeConfig = await fetchHomeConfig();
   const categoryResponse = await fetchCategories();
   const topViewBookResponse = await fetchTopViewBook();
+  const newUpdatedBookResponse = await fetchNewUpdatedBook();
   return (
     <div className="md:container md:mt-5">
       {homeConfig?.data?.banners && (
@@ -48,7 +59,16 @@ const HomePage = async () => {
         <CategoryGroup data={categoryResponse?.data} />
       )}
       {topViewBookResponse?.data && (
-        <BookGroup data={topViewBookResponse.data} />
+        <BookGroup
+          data={topViewBookResponse.data}
+          title="Sách hot trong tháng"
+        />
+      )}
+      {newUpdatedBookResponse?.data && (
+        <BookGroup
+          data={newUpdatedBookResponse.data}
+          title="Sách mới cập nhật"
+        />
       )}
     </div>
   );

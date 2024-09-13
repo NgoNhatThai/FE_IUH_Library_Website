@@ -5,8 +5,11 @@ import { BOOK } from '@/constants';
 import { BookModel } from '@/models/bookModel';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
-
-const BookGroup = ({ data }: { data: BookModel[] }) => {
+interface BookGroupProps {
+  title?: string;
+  data: BookModel[];
+}
+const BookGroup = ({ title, data }: BookGroupProps) => {
   const router = useRouter();
   const [windowWidth, setWindowWidth] = React.useState<number>(0);
 
@@ -28,7 +31,9 @@ const BookGroup = ({ data }: { data: BookModel[] }) => {
   return (
     <div className="bg-[var(--background-light-color)] p-2">
       <div className="flex items-center gap-3">
-        <p className="text-md font-bold text-gray-800">Sách hot trong tháng</p>
+        <p className="text-md font-bold text-gray-800">
+          {title ?? 'Sách nên đọc'}
+        </p>
       </div>
       <div className="mt-2">
         <SliderWrapper

@@ -1,10 +1,11 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ChapterModel } from '@/models/chapterModel';
 import ContinueReadingPopup from '@/components/ContinuePopup';
 import PrevNextChapterButton from '@/components/PrevNextChapterButton';
 import { HomeIcon } from 'lucide-react';
 import CommentContainer from '@/components/CommentContainer';
+import { CommentModel } from '@/models/commentModel';
 
 const useIntersectionObserver = (
   callback: (entry: IntersectionObserverEntry) => void,
@@ -13,7 +14,7 @@ const useIntersectionObserver = (
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!isInitialized) return; // Không làm gì nếu chưa hoàn thành render đầu tiên
+        if (!isInitialized) return;
 
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -37,6 +38,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   const [viewIndex, setViewIndex] = useState<number | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const audioRefs = useRef<(HTMLAudioElement | null)[]>([]); // Ref để lưu trữ các audio elements
 
   const handleSaveBookmark = () => {
     const storedBookmark = localStorage.getItem('@bookmark');
@@ -51,14 +53,12 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
     );
 
     if (bookmarkIndex === -1) {
-      // Add new bookmark if it doesn't exist
       bookmarks.push({
         bookId: chapter.bookId,
         chapterId: chapter._id,
         pageIndex: 0,
       });
     } else {
-      // Update existing bookmark
       setViewIndex(bookmarks[bookmarkIndex].pageIndex);
       bookmarks[bookmarkIndex] = {
         bookId: chapter.bookId,
@@ -84,6 +84,13 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
         mp3: chapter.mp3s ? chapter.mp3s[index] : '',
       }))
     : [];
+
+  const playNextAudio = (index: number) => {
+    if (audioRefs.current[index + 1]) {
+      audioRefs.current[index + 1]?.play();
+      audioRefs.current[index + 1]?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   useIntersectionObserver((entry) => {
     const id = entry.target.getAttribute('data-observe');
@@ -112,6 +119,13 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const isCommentModelArray = (array: any[]): array is CommentModel[] => {
+    return array.every(
+      (item) =>
+        item && typeof item === 'object' && '_id' in item && 'content' in item,
+    );
   };
 
   return (
@@ -148,7 +162,12 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
             className="relative p-2"
           >
             {item.mp3 && (
-              <audio controls className="mt-2 w-full">
+              <audio
+                controls
+                className="mt-2 w-full"
+                ref={(el: any) => (audioRefs.current[index] = el)}
+                onEnded={() => playNextAudio(index)}
+              >
                 <source src={item.mp3} type="audio/mp3" />
                 Your browser does not support the audio element.
               </audio>
@@ -165,7 +184,17 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
       <PrevNextChapterButton chapter={chapter} currentIndex={currentIndex} />
 
       <div>
-        <CommentContainer />
+        <CommentContainer
+          currentId={chapter._id}
+          isChapterComment={true}
+          comments={
+            typeof chapter?.comments === 'object' &&
+            Array.isArray(chapter?.comments) &&
+            isCommentModelArray(chapter.comments)
+              ? chapter.comments
+              : []
+          }
+        />
       </div>
     </div>
   );

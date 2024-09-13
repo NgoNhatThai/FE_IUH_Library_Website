@@ -114,4 +114,34 @@ export const userService = {
         throw error;
       });
   },
+  getNotification: async (userId: string): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-notification`,
+      method: 'GET',
+      params: {
+        userId,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  changeNotificationStatus: async (
+    userId: string,
+    notificationId: string,
+  ): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/change-notification-status`,
+      method: 'GET',
+      params: {
+        userId,
+        notificationId,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

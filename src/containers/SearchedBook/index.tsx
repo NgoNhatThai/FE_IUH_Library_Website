@@ -3,7 +3,7 @@ import BookItem from '@/components/BookItem';
 import { BookModel, BookResponse } from '@/models/bookModel';
 import { bookService } from '@/services/bookService';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import EmptyBookIcon from '@/assets/svg/book-empty.svg';
 import Image from 'next/image';
 
@@ -64,6 +64,8 @@ const SearchedBook = () => {
     };
   }, [searchText, categoryId, authorId, majorId]);
 
+  const router = useRouter();
+
   useEffect(() => {
     const fetchBooks = async () => {
       const fetchedData = await fetchData(
@@ -95,6 +97,9 @@ const SearchedBook = () => {
                 <div
                   key={index}
                   className="overflow-hidden p-2 shadow-md transition-transform duration-300 hover:scale-105"
+                  onClick={() => {
+                    router.push(`/book/${item._id}`);
+                  }}
                 >
                   <BookItem data={item} />
                 </div>

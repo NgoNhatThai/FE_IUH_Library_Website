@@ -1,3 +1,5 @@
+import { CommentModel } from './commentModel';
+
 export interface ChapterModel {
   _id?: string;
   title?: string;
@@ -10,6 +12,7 @@ export interface ChapterModel {
   createdAt?: string;
   updatedAt?: string;
   allChapters?: ChapterModel[];
+  comments: CommentModel[];
 }
 
 export interface ChapterResponse {

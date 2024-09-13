@@ -17,7 +17,7 @@ const LeftHeader = () => {
           alt="IUH Logo"
           width={1000}
           height={1000}
-          className="h-12 w-14 md:flex"
+          className="h-8 w-8 md:flex md:h-24 md:w-20"
           priority
         />
       </Link>

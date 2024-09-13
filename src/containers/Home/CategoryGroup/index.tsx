@@ -2,7 +2,6 @@
 import { CategoryModel } from '@/models';
 import React, { useEffect, useState } from 'react';
 import CategoryItem from '@/components/CategoryItem';
-import { useRouter } from 'next/navigation';
 import SliderWrapper from '@/components/SliderWrapper';
 
 const CategoryGroup = ({ data }: { data: CategoryModel[] }) => {
@@ -17,12 +16,6 @@ const CategoryGroup = ({ data }: { data: CategoryModel[] }) => {
     window.addEventListener('resize', handleResize);
   }, []);
 
-  const router = useRouter();
-  // const handleOnClick = (link: CmsLinkModel) => {
-  //   router.push(
-  //     `${CATEGORIES}?categoryId=${(link.targetObject as CategoryModel).id}`,
-  //   );
-  // };
   return (
     <div className="bg-[var(--background-light-color)] p-2">
       <div className="flex items-center gap-3">
@@ -34,7 +27,7 @@ const CategoryGroup = ({ data }: { data: CategoryModel[] }) => {
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <SliderWrapper
           settings={{
-            slidesToShow: windowWidth > 768 ? 6 : 5,
+            slidesToShow: windowWidth > 768 ? 6 : 3,
             slidesToScroll: 1,
             dots: false,
             autoplay: true,

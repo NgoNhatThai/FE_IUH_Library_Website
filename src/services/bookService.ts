@@ -93,4 +93,15 @@ export const bookService = {
         throw err;
       });
   },
+  getNewBooks: async (): Promise<BookResponse> => {
+    return axios({
+      baseURL: `${BOOK_ROUTE_URL}/get-new-books`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
 };

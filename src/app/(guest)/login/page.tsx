@@ -22,12 +22,12 @@ const LoginPage = () => {
         localStorage.setItem('@access_token', result.data.access_token);
         localStorage.setItem('@refresh_token', result.data.refresh_token);
 
-        toast.success('Đăng nhập thành công');
+        toast.success('Đăng nhập thành công', { position: 'bottom-right' });
         router.push('/');
       }
     } catch (error) {
       console.error(error);
-      toast.error('Đăng nhập thất bại');
+      toast.error('Đăng nhập thất bại', { position: 'bottom-right' });
     }
   };
 

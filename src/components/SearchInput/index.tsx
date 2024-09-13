@@ -1,6 +1,6 @@
 'use client';
 import searchIcon from '@/assets/svg/search.svg';
-import { SEARCH } from '@/constants';
+// import { SEARCH } from '@/constants';
 import { useDebounce } from '@/hooks';
 import { bookService } from '@/services/bookService';
 import { QueryKey } from '@/types/api';
@@ -13,7 +13,7 @@ const SearchHeader: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showAllResults, setShowAllResults] = useState(false);
-  const [isOpenSearch, setIsOpenSearch] = useState<boolean>(false);
+  const [isOpenSearch, setIsOpenSearch] = useState<boolean>(true);
   const searchDebounce = useDebounce(searchTerm, 1000);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const router = useRouter();
@@ -33,6 +33,9 @@ const SearchHeader: React.FC = () => {
       const response = await bookService.getBookByText(searchDebounce);
       return response;
     },
+    {
+      enabled: !!searchDebounce && isOpenSearch,
+    },
   );
 
   useEffect(() => {
@@ -50,19 +53,19 @@ const SearchHeader: React.FC = () => {
 
   const handleShowAllResults = () => {
     setShowAllResults(true);
-    router.push(SEARCH);
+    // router.push(SEARCH);
   };
 
   const handleOnClick = (e: React.MouseEvent<HTMLElement>) => {
-    if (windowWidth < 768) {
-      router.push(SEARCH);
-    }
+    e.stopPropagation();
+    setIsOpenSearch(true);
   };
 
   return (
     <div
       className="relative mx-1 flex flex-grow rounded-md border border-gray-300 bg-white md:mx-4"
       onClick={handleOnClick}
+      onBlur={() => setIsOpenSearch(false)}
     >
       <input
         readOnly={windowWidth < 768}
@@ -75,7 +78,7 @@ const SearchHeader: React.FC = () => {
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center md:pr-3">
         <Image src={searchIcon} alt="Search Icon" width={20} height={20} />
       </div>
-      {searchDebounce && searchResults && (
+      {searchDebounce && searchResults && isOpenSearch && (
         <div className="absolute left-0 top-full z-10 mt-2 max-h-80 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg">
           {searchResults.length > 0 ? (
             <>
@@ -95,9 +98,17 @@ const SearchHeader: React.FC = () => {
                       alt="Book Thumbnail"
                       width={60}
                       height={60}
-                      className="rounded-md md:h-28 md:w-20"
+                      className="rounded-md border border-gray-200 md:h-28 md:w-20"
                     />
-                    <p className="text-md ml-2 text-gray-500">{result.title}</p>
+                    <div className="ml-2 flex flex-col">
+                      <p className="text-sm font-semibold">{result.title}</p>
+                      <p className="text-xs italic text-gray-500">
+                        {result.author ?? 'Tác giả: đang cập nhật'}
+                      </p>
+                      <p className="text-xs italic text-gray-500">
+                        {result.category ?? 'Thể loại: đang cập nhật'}
+                      </p>
+                    </div>
                   </div>
                 ))}
               {!showAllResults && searchResults.length > 3 && (

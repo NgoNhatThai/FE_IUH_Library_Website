@@ -6,6 +6,7 @@ import { UserModal } from '@/models/userInfo';
 import { userService } from '@/services/userService';
 import { toast } from 'react-toastify';
 import { CommentModel } from '@/models/commentModel';
+import dayjs from 'dayjs';
 interface CommentContainerProps {
   currentId?: string;
   comments?: CommentModel[];
@@ -24,6 +25,12 @@ const CommentContainer = ({
     return userInfo ? userInfo.userRaw : null;
   }, [userInfo]);
 
+  const [visibleComments, setVisibleComments] = useState(3);
+
+  const showMoreComments = () => {
+    setVisibleComments((prevCount) => prevCount + 3);
+  };
+
   const handleCommentChange = (e: any) => {
     setComment(e.target.value);
   };
@@ -35,6 +42,7 @@ const CommentContainer = ({
         {
           _id: '',
           reviewId: '',
+          chapterId: '',
           user: user,
           content: comment,
           postDate: '',
@@ -80,7 +88,6 @@ const CommentContainer = ({
         <Image src={CommentIcon} alt="Comment Icon" width={30} height={30} />
       </div>
 
-      {/* Ô nhập bình luận */}
       {user ? (
         <div className="mb-4 flex">
           <textarea
@@ -103,19 +110,34 @@ const CommentContainer = ({
         </p>
       )}
 
-      {/* Danh sách bình luận */}
       <div className="space-y-4">
-        {commentsList.map((item, index) => (
+        {commentsList.slice(0, visibleComments).map((item, index) => (
           <div
             key={index}
             className="rounded-md border border-gray-300 bg-white p-2"
           >
-            <p className="text-sm font-semibold">
-              {typeof item?.user === 'object' && item?.user.userName}
-            </p>
+            <div className="flex justify-between">
+              <p className="text-sm font-semibold">
+                {typeof item?.user === 'object' && item?.user.userName}
+              </p>
+              <p className="text-xs italic text-gray-500">
+                {item.createdAt
+                  ? dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')
+                  : dayjs().format('HH:mm DD/MM/YYYY')}
+              </p>
+            </div>
             <p className="text-sm">{item.content}</p>
           </div>
         ))}
+
+        {visibleComments < commentsList.length && (
+          <button
+            onClick={showMoreComments}
+            className="text-blue-500 hover:underline"
+          >
+            Xem thêm
+          </button>
+        )}
       </div>
     </div>
   );
