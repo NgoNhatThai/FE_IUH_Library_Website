@@ -5,7 +5,24 @@ import axiosClient from './axiosService';
 import { BookModel } from '@/models/bookModel';
 
 export const userService = {
-  login: async (studentCode: string): Promise<UserResponse> => {
+  login: async (data: {
+    studentCode: string;
+    password: string;
+    email: string;
+    loginWithManagerRole: boolean;
+  }): Promise<UserResponse> => {
+    return axios({
+      baseURL: `${USER_ROUTE_URL}/login`,
+      method: 'POST',
+      headers: {},
+      data,
+    })
+      .then((res) => res.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  verify: async (studentCode: string): Promise<UserResponse> => {
     return axios({
       baseURL: `${USER_ROUTE_URL}/verify`,
       method: 'POST',

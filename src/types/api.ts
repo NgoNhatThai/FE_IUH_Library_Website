@@ -127,6 +127,8 @@ export enum QueryKey {
   PROMOTION = 'PROMOTION',
   POLICIES = 'POLICIES',
   ZAPP = 'ZAPP',
+  REQUEST = 'REQUEST',
+  CONFIG = 'CONFIG',
 }
 
 export enum SearchKey {

@@ -10,12 +10,20 @@ import { toast } from 'react-toastify';
 const LoginPage = () => {
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setMail] = useState('');
+  const [loginWithManagerRole, setLoginWithManagerRole] = useState(false);
+
   const router = useRouter();
   const dispatch = useDispatch();
 
   const login = async () => {
     try {
-      const result = await userService.login(studentId);
+      const result = await userService.login({
+        studentCode: studentId,
+        password,
+        email,
+        loginWithManagerRole,
+      });
       if (result) {
         dispatch(setUserInfo(result.data));
         localStorage.setItem('userInfo', JSON.stringify(result.data));
@@ -23,7 +31,11 @@ const LoginPage = () => {
         localStorage.setItem('@refresh_token', result.data.refresh_token);
 
         toast.success('Đăng nhập thành công', { position: 'bottom-right' });
-        router.push('/');
+        if (loginWithManagerRole) {
+          router.push('/home');
+        } else {
+          router.push('/');
+        }
       }
     } catch (error) {
       console.error(error);
@@ -51,43 +63,103 @@ const LoginPage = () => {
           Đăng nhập
         </h1>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="mb-2 block text-gray-700" htmlFor="studentId">
-              Mã sinh viên
-            </label>
-            <input
-              type="text"
-              id="studentId"
-              name="studentId"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              placeholder="Nhập mã sinh viên"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="mb-2 block text-gray-700" htmlFor="password">
-              Mật khẩu
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              placeholder="Nhập mật khẩu"
-            />
-          </div>
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-700 focus:outline-none"
-            >
-              Đăng nhập
-            </button>
-          </div>
+          {!loginWithManagerRole ? (
+            <>
+              <div className="mb-4">
+                <label className="mb-2 block text-gray-700" htmlFor="studentId">
+                  Mã sinh viên
+                </label>
+                <input
+                  type="text"
+                  id="studentId"
+                  name="studentId"
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
+                  className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="Nhập mã sinh viên"
+                  required
+                />
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-gray-700" htmlFor="password">
+                  Mật khẩu
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="Nhập mật khẩu"
+                />
+              </div>
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-700 focus:outline-none"
+                >
+                  Đăng nhập
+                </button>
+              </div>
+              <div
+                className="mt-2 flex justify-center"
+                onClick={() => setLoginWithManagerRole(true)}
+              >
+                <span className="cursor-pointer text-sm italic text-sky-600">
+                  Đăng nhập bằng tài khoản quản lý
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label className="mb-2 block text-gray-700" htmlFor="studentId">
+                  Email
+                </label>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setMail(e.target.value)}
+                  className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="Nhập email"
+                  required
+                />
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-gray-700" htmlFor="password">
+                  Mật khẩu
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="Nhập mật khẩu"
+                />
+              </div>
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-700 focus:outline-none"
+                >
+                  Đăng nhập
+                </button>
+              </div>
+              <div
+                className="mt-2 flex justify-center"
+                onClick={() => setLoginWithManagerRole(false)}
+              >
+                <span className="cursor-pointer text-sm italic text-sky-600">
+                  Đăng nhập bằng tài khoản sinh viên
+                </span>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </div>

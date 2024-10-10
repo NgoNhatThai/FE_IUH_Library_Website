@@ -50,6 +50,11 @@ export interface UserModel {
   currentMembership?: MembershipModel;
   totalAmountPurchased?: number;
   customerDeliveryAddressDTOs?: UserDeliveryAddress[];
+  avatar?: string;
+  userName?: string;
+  studentCode?: number;
+  refresh_token?: string;
+  historyId?: string;
 }
 
 export enum UserStatus {
