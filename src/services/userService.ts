@@ -3,6 +3,8 @@ import { UserResponse } from '@/models/userInfo';
 import axios from 'axios';
 import axiosClient from './axiosService';
 import { BookModel } from '@/models/bookModel';
+import { UserModel } from '@/models';
+import { AmountModel } from '@/models/amountModel';
 
 export const userService = {
   login: async (data: {
@@ -157,6 +159,32 @@ export const userService = {
       },
     })
       .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  getUserInfo: async (userId: string): Promise<UserModel> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-user-info`,
+      method: 'GET',
+      params: {
+        userId,
+      },
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  getUserAmount: async (userId: string): Promise<AmountModel> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-user-amount`,
+      method: 'GET',
+      params: {
+        userId,
+      },
+    })
+      .then((res) => res.data.data)
       .catch((error) => {
         throw error;
       });

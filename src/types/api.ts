@@ -129,6 +129,7 @@ export enum QueryKey {
   ZAPP = 'ZAPP',
   REQUEST = 'REQUEST',
   CONFIG = 'CONFIG',
+  USER_AMOUNT = 'USER_AMOUNT',
 }
 
 export enum SearchKey {

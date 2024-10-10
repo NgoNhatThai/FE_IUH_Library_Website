@@ -65,7 +65,7 @@ const AccountOptions = ({
               <li className="border-b">
                 <button
                   onClick={() => {
-                    console.log('User logged out');
+                    window.location.href = '/user-info';
                   }}
                   className="block w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
                 >

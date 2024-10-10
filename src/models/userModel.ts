@@ -55,6 +55,7 @@ export interface UserModel {
   studentCode?: number;
   refresh_token?: string;
   historyId?: string;
+  memberShip?: string;
 }
 
 export enum UserStatus {
