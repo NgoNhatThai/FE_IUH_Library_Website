@@ -189,4 +189,19 @@ export const userService = {
         throw error;
       });
   },
+  topUpAccount: async (data: {
+    userId: string;
+    amount: number;
+    bankConfigId: string;
+  }): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/request-amount`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

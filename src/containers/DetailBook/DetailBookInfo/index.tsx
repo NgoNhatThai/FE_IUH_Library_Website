@@ -136,47 +136,66 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
             </p>
           </div>
 
-          <div className="mt-6 flex gap-2">
-            <button
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-              onClick={() => {
-                const chapter =
-                  typeof data?.content === 'object' &&
-                  data.content &&
-                  data.content.chapters
-                    ? data.content.chapters[0]
-                    : {};
-                handleOnClick(chapter._id + '');
-              }}
-            >
-              Đọc từ đầu
-            </button>
-            {bookmark && bookmark.length > 0 ? (
+          {data?.price && data.price <= 0 ? (
+            <div className="mt-6 flex gap-2">
               <button
-                className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                 onClick={() => {
-                  bookmark.length > 0 &&
-                    bookmark.map((item: any) => {
-                      if (item.bookId === data._id) {
-                        handleOnClick(item.chapterId);
-                      }
-                    });
+                  const chapter =
+                    typeof data?.content === 'object' &&
+                    data.content &&
+                    data.content.chapters
+                      ? data.content.chapters[0]
+                      : {};
+                  handleOnClick(chapter._id + '');
                 }}
               >
-                Đọc tiếp
+                Đọc từ đầu
               </button>
-            ) : (
-              <></>
-            )}
-            <button
-              className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
-              onClick={() => {
-                handleUpdateFollowStatus();
-              }}
-            >
-              {isFollow ? 'Bỏ theo dõi' : 'Theo dõi'}
-            </button>
-          </div>
+              {bookmark && bookmark.length > 0 ? (
+                <button
+                  className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                  onClick={() => {
+                    bookmark.length > 0 &&
+                      bookmark.map((item: any) => {
+                        if (item.bookId === data._id) {
+                          handleOnClick(item.chapterId);
+                        }
+                      });
+                  }}
+                >
+                  Đọc tiếp
+                </button>
+              ) : (
+                <></>
+              )}
+              <button
+                className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+                onClick={() => {
+                  handleUpdateFollowStatus();
+                }}
+              >
+                {isFollow ? 'Bỏ theo dõi' : 'Theo dõi'}
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 flex gap-2">
+              <button
+                className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                onClick={() => {
+                  const chapter =
+                    typeof data?.content === 'object' &&
+                    data.content &&
+                    data.content.chapters
+                      ? data.content.chapters[0]
+                      : {};
+                  handleOnClick(chapter._id + '');
+                }}
+              >
+                Mua sách
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-2 w-full p-4 text-sm shadow-md md:mt-4 md:shadow-none">

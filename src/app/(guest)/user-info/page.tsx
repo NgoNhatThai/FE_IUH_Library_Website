@@ -11,7 +11,6 @@ import {
   Row,
   Col,
   Table,
-  Image,
   Select,
   InputNumber,
 } from 'antd';
@@ -23,11 +22,16 @@ import { QueryKey } from '@/types/api';
 import { userService } from '@/services/userService';
 import { formatCurrencyVND } from '@/ultils/numberUtils';
 import { adminService } from '@/services/adminService';
+import { QRModal } from '@/components/QRModal';
+import { toast } from 'react-toastify';
 
 const { Title, Text } = Typography;
 
 const UserInfoPage = () => {
   const [open, setOpen] = useState(false);
+  const [openQR, setOpenQR] = useState(false);
+  const [selectedBankAccount, setSelectedBankAccount] = useState<any>();
+  const [amount, setAmount] = useState<number>(0);
   const storedUserInfo = localStorage.getItem('userInfo');
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const userId = userInfo?.userRaw?._id;
@@ -47,28 +51,26 @@ const UserInfoPage = () => {
     return response;
   });
 
-  const { data: banks } = useQuery('banks', adminService.getAllBank);
+  const { data: bankAccounts } = useQuery([QueryKey.BANK_ACCOUNT], async () => {
+    const response = await adminService.getConfigBankAccount();
+    return response;
+  });
 
   const bankOptions = useMemo(
     () =>
-      banks?.data.map((bank: any) => ({
+      bankAccounts?.data.map((account: any) => ({
         label: (
           <div
-            key={bank.id}
-            className="flex items-center justify-start space-x-2"
+            key={account.id}
+            className="flex flex-col justify-start space-y-1"
           >
-            <Image
-              preview={false}
-              src={bank.logo}
-              className="!h-auto !w-[70px] object-cover lg:!w-[90px]"
-              alt={bank.name}
-            />
-            <span className="line-clamp-1 flex-1">{bank.name}</span>
+            <span className="text-sm text-sky-500">{`${account.bankName}`}</span>
+            <span className="text-sm font-medium">{`STK: ${account.accountNumber} - ${account.accountName}`}</span>
           </div>
         ),
-        value: bank.bin,
+        value: account._id,
       })),
-    [banks],
+    [bankAccounts],
   );
 
   const onFinish = (values: UserModel) => {
@@ -77,6 +79,33 @@ const UserInfoPage = () => {
 
   const handleTopUp = () => {
     setOpen(!open);
+  };
+
+  const handleFinish = async () => {
+    try {
+      if (amount === 0) {
+        toast.error('Vui lòng nhập số tiền cần nạp!');
+        return;
+      }
+      if (!selectedBankAccount) {
+        toast.error('Vui lòng chọn tài khoản nhận!');
+        return;
+      }
+      const response = await userService.topUpAccount({
+        userId,
+        amount,
+        bankConfigId: selectedBankAccount._id,
+      });
+      if (response) {
+        toast.success('Gửi yên cầu nạp tiền thành công!');
+        setOpenQR(false);
+        setOpen(false);
+        setAmount(0);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra, vui lòng thử lại sau!');
+    }
   };
   const columns = [
     {
@@ -187,23 +216,68 @@ const UserInfoPage = () => {
               </Button>
             </Col>
           ) : (
-            <Col
-              span={12}
-              className="flex flex-col items-center justify-center"
-            >
+            <Col span={12} className="flex w-full flex-col space-y-4">
+              <div className="w-full text-left">
+                <span className="text-gray-700">
+                  Chọn tài khoản nhận <span className="text-red-500">*</span>
+                </span>
+              </div>
               <Select
                 options={bankOptions}
-                placeholder="Vui lòng chọn ngân hàng"
-                className="rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(value) => {
+                  const selected = bankAccounts?.data.find(
+                    (account: any) => account._id === value,
+                  );
+                  setSelectedBankAccount(selected);
+                }}
+                placeholder="Vui lòng chọn tài khoản nhận"
+                className="h-fit w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <InputNumber placeholder="Nhập số tiền cần nạp" />
-              <Button type="primary" onClick={handleTopUp} className="mt-4">
+
+              <div className="w-full text-left">
+                <span className="text-gray-700">
+                  Nhập số tiền cần nạp <span className="text-red-500">*</span>
+                </span>
+              </div>
+              <InputNumber
+                placeholder="Nhập số tiền cần nạp"
+                className="w-full"
+                onChange={(value) => {
+                  setAmount(Number(value) || 0);
+                }}
+                // formatter={(value) => formatterNumber(value?.toString())}
+                // parser={(value) => parserNumber(value)}
+                addonAfter="VND"
+              />
+
+              <Button
+                type="primary"
+                onClick={() => {
+                  setOpenQR(true);
+                }}
+                className="w-full"
+              >
                 Hoàn tất
               </Button>
             </Col>
           )}
         </Row>
       </Card>
+      <QRModal
+        visibleModal={openQR}
+        handleOpenOrCloseQRModal={() => {
+          setOpenQR(!openQR);
+        }}
+        amount={amount}
+        bankAccountDetail={{
+          bankId: selectedBankAccount?.bankId || '',
+          accountNumber: selectedBankAccount?.accountNumber || '',
+          accountName: selectedBankAccount?.accountName || '',
+          bankName: selectedBankAccount?.bankName || '',
+        }}
+        userId={userId}
+        handleFinish={handleFinish}
+      />
     </div>
   );
 };
