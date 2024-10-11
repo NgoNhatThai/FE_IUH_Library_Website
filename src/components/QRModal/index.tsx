@@ -45,7 +45,7 @@ export const QRModal = ({
             <img
               width={300}
               height={300}
-              src={`https://img.vietqr.io/image/${bankAccountDetail?.bankId}-${bankAccountDetail?.accountNumber}-compact2.png?amount=${amount}&accountName=${bankAccountDetail?.accountName}`}
+              src={`https://img.vietqr.io/image/${bankAccountDetail?.bankId}-${bankAccountDetail?.accountNumber}-compact2.png?amount=${amount}&accountName=${bankAccountDetail?.accountName}&addInfo=${`${userId}-${dayjs().toISOString()}`}`}
             />
           </div>
           <div className="flex flex-col gap-4">

@@ -22,6 +22,7 @@ export interface UserDeliveryAddress {
 
 export interface UserModel {
   id?: string;
+  _id?: string;
   organizationId?: string;
   address?: string;
   affiliateCode?: string;

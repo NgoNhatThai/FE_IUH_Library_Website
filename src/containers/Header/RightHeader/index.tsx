@@ -83,7 +83,7 @@ const RightHeader = () => {
         onClick={togglePopup}
       >
         <div className="ml-1 h-6 w-6 cursor-pointer items-center justify-center rounded-full md:ml-4 md:h-8 md:w-8">
-          <Link href={userInfo ? '/' : '/login'}>
+          <Link href={userInfo ? '#' : '/login'}>
             <Account>
               <Image
                 src={userInfo ? userInfo.userRaw.avatar : UserIcon}

@@ -20,6 +20,7 @@ const BankPage = () => {
       await adminService.configBankAccount(values);
       form.resetFields();
       toast.success('Cấu hình tài khoản ngân hàng thành công!');
+      refetch();
     } catch (err) {
       console.error('Lỗi khi gọi API:', err);
       toast.error('Cấu hình tài khoản ngân hàng thất bại!');
@@ -68,18 +69,19 @@ const BankPage = () => {
     [banks],
   );
 
-  const { data, isLoading: isLoadingData } = useQuery(
-    [QueryKey.BANK_ACCOUNT],
-    async () => {
-      try {
-        const response = await adminService.getConfigBankAccount();
-        return response.data;
-      } catch (err) {
-        console.error('Lỗi khi gọi API:', err);
-        throw err;
-      }
-    },
-  );
+  const {
+    data,
+    isLoading: isLoadingData,
+    refetch,
+  } = useQuery([QueryKey.BANK_ACCOUNT], async () => {
+    try {
+      const response = await adminService.getConfigBankAccount();
+      return response.data;
+    } catch (err) {
+      console.error('Lỗi khi gọi API:', err);
+      throw err;
+    }
+  });
 
   return (
     <div className="container mx-auto rounded-lg bg-white shadow-lg md:m-5 md:p-8">

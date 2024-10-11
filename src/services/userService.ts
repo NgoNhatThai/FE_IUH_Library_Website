@@ -204,4 +204,29 @@ export const userService = {
         throw error;
       });
   },
+  buyBook: async (data: { userId: string; bookId: string }): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/buy-book`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  getUserBookMark: async (userId: string, bookId: string): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-user-book-mark`,
+      method: 'GET',
+      params: {
+        userId,
+        bookId,
+      },
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

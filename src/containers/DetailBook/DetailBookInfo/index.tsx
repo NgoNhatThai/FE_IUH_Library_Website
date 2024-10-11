@@ -11,11 +11,16 @@ import { userService } from '@/services/userService';
 import { toast } from 'react-toastify';
 import { useQuery } from 'react-query';
 import { UserModal } from '@/models/userInfo';
+import { LockOutlined } from '@ant-design/icons';
+import { QueryKey } from '@/types/api';
+import ConfirmModal from '@/components/ConfirmModal';
 
 const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const rating = 5;
   const router = useRouter();
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
+  const [openModal, setOpenModal] = React.useState(false);
 
   const handleOnClick = (id: string) => {
     router.push(`${CHAPTER}/${id}`);
@@ -28,12 +33,27 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
   }, [userInfo]);
 
   const { data: isFollow } = useQuery({
-    queryKey: [data._id],
+    queryKey: [QueryKey.BOOK],
     queryFn: async () =>
       await userService.checkFollowBook(String(user?._id), String(data._id)),
     refetchOnWindowFocus: false,
     enabled: Boolean(data._id),
   });
+
+  const { data: userBookMark } = useQuery({
+    queryKey: [QueryKey.USER_BOOKMARK],
+    queryFn: async () =>
+      await userService.getUserBookMark(String(user?._id), String(data._id)),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(data._id),
+  });
+
+  const isBuy = useMemo(() => {
+    if (userBookMark && userBookMark.isBuy) {
+      return true;
+    }
+    return false;
+  }, [userBookMark]);
 
   const handleUpdateFollowStatus = async () => {
     if (!isFollow) {
@@ -51,6 +71,32 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
         String(data._id),
       );
       if (unfollowResult) toast.success('Bỏ theo dõi thành công');
+    }
+  };
+
+  const handleBuyBook = async (bookId: string) => {
+    try {
+      if (!user) {
+        toast.error('Bạn cần đăng nhập để mua sách');
+        return;
+      }
+      if (bookId) {
+        const response: { status?: number } = await userService.buyBook({
+          userId: user._id,
+          bookId,
+        });
+        if (response.status === 200) {
+          toast.success('Mua sách thành công');
+          window.location.reload();
+        } else if (response.status === 404) {
+          toast.error('Số dư không đủ !');
+        } else {
+          toast.error('Mua sách thất bại');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra');
     }
   };
 
@@ -136,12 +182,12 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
             </p>
           </div>
 
-          {data?.price && data.price <= 0 ? (
+          {(data?.price && data.price <= 0) || isBuy ? (
             <div className="mt-6 flex gap-2">
               <button
                 className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                 onClick={() => {
-                  const chapter =
+                  const chapter: { _id?: string } =
                     typeof data?.content === 'object' &&
                     data.content &&
                     data.content.chapters
@@ -181,18 +227,12 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
           ) : (
             <div className="mt-6 flex gap-2">
               <button
-                className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                 onClick={() => {
-                  const chapter =
-                    typeof data?.content === 'object' &&
-                    data.content &&
-                    data.content.chapters
-                      ? data.content.chapters[0]
-                      : {};
-                  handleOnClick(chapter._id + '');
+                  setOpenModal(true);
                 }}
               >
-                Mua sách
+                <LockOutlined className="mr-2" /> Mua sách
               </button>
             </div>
           )}
@@ -202,6 +242,16 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
         <h3 className="text-lg font-semibold">Nội dung sách</h3>
         <span>{data.desc}</span>
       </div>
+      <ConfirmModal
+        isOpen={openModal}
+        onClose={() => {
+          setOpenModal(false);
+        }}
+        onConfirm={() => {
+          handleBuyBook(String(data._id));
+        }}
+        title={`Xác nhận mua ${data.title} với giá ${formatCurrencyVND(Number(data?.price))} ?`}
+      />
     </div>
   );
 };

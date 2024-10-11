@@ -130,6 +130,8 @@ export enum QueryKey {
   REQUEST = 'REQUEST',
   CONFIG = 'CONFIG',
   USER_AMOUNT = 'USER_AMOUNT',
+  USER_BOOKMARK = 'USER_BOOKMARK',
+  BOOK = 'BOOK',
 }
 
 export enum SearchKey {
