@@ -13,6 +13,7 @@ import {
   Table,
   Select,
   InputNumber,
+  Radio,
 } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { userInfo } from '@/models/userInfo';
@@ -25,16 +26,29 @@ import { adminService } from '@/services/adminService';
 import { QRModal } from '@/components/QRModal';
 import { toast } from 'react-toastify';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const UserInfoPage = () => {
   const [open, setOpen] = useState(false);
+  const [isFirstTable, setIsFirstTable] = useState(true);
   const [openQR, setOpenQR] = useState(false);
   const [selectedBankAccount, setSelectedBankAccount] = useState<any>();
   const [amount, setAmount] = useState<number>(0);
   const storedUserInfo = localStorage.getItem('userInfo');
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const userId = userInfo?.userRaw?._id;
+  const userCode = userInfo?.userRaw?.studentCode;
+
+  const options = [
+    {
+      label: 'Lịch sử giao dịch',
+      value: true,
+    },
+    {
+      label: 'Yêu cầu đang chờ',
+      value: false,
+    },
+  ];
 
   const [form] = Form.useForm<UserModel>();
 
@@ -50,11 +64,18 @@ const UserInfoPage = () => {
     form.setFieldsValue(response);
     return response;
   });
-
   const { data: bankAccounts } = useQuery([QueryKey.BANK_ACCOUNT], async () => {
     const response = await adminService.getConfigBankAccount();
     return response;
   });
+  const { data: pendingRequest, refetch: refetchPendingRequest } = useQuery(
+    [QueryKey.REQUEST],
+    async () => {
+      const response = await userService.getPendingRequest(userId);
+      return response;
+    },
+    { enabled: userId ? true : false },
+  );
 
   const bankOptions = useMemo(
     () =>
@@ -107,12 +128,37 @@ const UserInfoPage = () => {
       toast.error('Có lỗi xảy ra, vui lòng thử lại sau!');
     }
   };
+
+  const handleCancelRequest = async (userId: string, requestId: string) => {
+    try {
+      const response = await userService.deletePendingRequest({
+        userId,
+        requestId,
+      });
+      if (response) {
+        toast.success('Hủy yêu cầu thành công!');
+        refetchPendingRequest();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
+
   const columns = [
     {
       title: 'Số tiền',
       dataIndex: 'amount',
       key: 'amount',
-      render: (text: any) => formatCurrencyVND(text),
+      render: (amount: number) => {
+        return (
+          <p
+            className={`${amount > 0 ? `text-green-600` : `text-red-600`} font-bold`}
+          >
+            {formatCurrencyVND(amount || 0)}
+          </p>
+        );
+      },
     },
     {
       title: 'Thời gian',
@@ -121,8 +167,60 @@ const UserInfoPage = () => {
     },
   ];
 
+  const pendingTableColumns = [
+    {
+      title: 'Số tiền',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (amount: number) => {
+        return (
+          <p
+            className={`${amount > 0 ? `text-green-600` : `text-red-600`} font-bold`}
+          >
+            {formatCurrencyVND(amount || 0)}
+          </p>
+        );
+      },
+    },
+    {
+      title: 'Tài khoản nhận',
+      dataIndex: 'bankConfigId',
+      key: 'bankConfigId',
+      render: (bankConfig: any) => {
+        return (
+          <p>{`${bankConfig?.bankName || ''} - ${bankConfig?.accountNumber || ''} `}</p>
+        );
+      },
+    },
+    {
+      title: 'Thời gian',
+      dataIndex: 'date',
+      key: 'date',
+    },
+    {
+      title: 'Tùy chỉnh',
+      dataIndex: 'status',
+      key: 'status',
+      render: (__status: string, record: any) => {
+        return (
+          <div className="flex items-center">
+            <Button
+              title="Hủy"
+              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              onClick={() => {
+                handleCancelRequest(userId, record._id);
+              }}
+            >
+              Hủy
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
-    <div className="container mx-auto mt-10">
+    <div className="container mx-auto mt-10 md:mb-10">
       <Card className="p-5 shadow-md">
         <Space
           direction="vertical"
@@ -191,29 +289,53 @@ const UserInfoPage = () => {
                 <Input placeholder="Nhập trạng thái" readOnly />
               </Form.Item>
 
-              <Form.Item>
+              {/* <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Cập nhật
                 </Button>
-              </Form.Item>
+              </Form.Item> */}
             </Form>
           </Col>
 
           {!open ? (
             <Col span={12} className="flex flex-col">
-              <Text className="text-md font-medium">{`Số tiền hiện có: ${formatCurrencyVND(userAmount?.total || 0)}`}</Text>
+              <span className="text-lg font-bold text-gray-700">
+                Số dư tài khoản: {formatCurrencyVND(userAmount?.total || 0)}
+              </span>
 
-              <Text className="text-sm">Lịch sử giao dịch</Text>
-              <Table
-                columns={columns}
-                dataSource={userAmount?.history}
-                pagination={false}
+              <Radio.Group
                 className="mt-4"
-                scroll={{ y: 240 }}
+                options={options}
+                defaultValue={true}
+                onChange={(e) => {
+                  setIsFirstTable(e.target.value);
+                }}
+                optionType="button"
               />
-              <Button type="primary" onClick={handleTopUp} className="mt-4">
-                Nạp tiền
-              </Button>
+              {isFirstTable ? (
+                <>
+                  <Table
+                    columns={columns}
+                    dataSource={userAmount?.history}
+                    pagination={false}
+                    className="mt-4"
+                    scroll={{ y: 240 }}
+                  />
+                  <Button type="primary" onClick={handleTopUp} className="mt-4">
+                    Nạp tiền
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Table
+                    columns={pendingTableColumns}
+                    dataSource={pendingRequest}
+                    pagination={false}
+                    className="mt-4"
+                    scroll={{ y: 240 }}
+                  />
+                </>
+              )}
             </Col>
           ) : (
             <Col span={12} className="flex w-full flex-col space-y-4">
@@ -253,6 +375,14 @@ const UserInfoPage = () => {
               <Button
                 type="primary"
                 onClick={() => {
+                  if (amount === 0) {
+                    toast.error('Vui lòng nhập số tiền cần nạp!');
+                    return;
+                  }
+                  if (!selectedBankAccount) {
+                    toast.error('Vui lòng chọn tài khoản nhận!');
+                    return;
+                  }
                   setOpenQR(true);
                 }}
                 className="w-full"
@@ -275,7 +405,7 @@ const UserInfoPage = () => {
           accountName: selectedBankAccount?.accountName || '',
           bankName: selectedBankAccount?.bankName || '',
         }}
-        userId={userId}
+        userId={String(userCode)}
         handleFinish={handleFinish}
       />
     </div>

@@ -10,6 +10,7 @@ export const ADMIN_ROUTE_URL = combine('admin');
 export const USER_ROUTE_URL = combine('user');
 export const AUTH_ROUTE_URL = combine('auth');
 export const BOOK_ROUTE_URL = combine('book');
+export const OVERVIEW_ROUTE_URL = combine('overview');
 
 // Home Config
 export const HOME_CONFIG_URL = `${ADMIN_ROUTE_URL}/get-config`;

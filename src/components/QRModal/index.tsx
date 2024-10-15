@@ -1,6 +1,5 @@
 import { formatterNumber } from '@/ultils/numberUtils';
 import { Button, Modal } from 'antd';
-import dayjs from 'dayjs';
 
 interface QRModalProps {
   handleOpenOrCloseQRModal: () => void;
@@ -45,7 +44,7 @@ export const QRModal = ({
             <img
               width={300}
               height={300}
-              src={`https://img.vietqr.io/image/${bankAccountDetail?.bankId}-${bankAccountDetail?.accountNumber}-compact2.png?amount=${amount}&accountName=${bankAccountDetail?.accountName}&addInfo=${`${userId}-${dayjs().toISOString()}`}`}
+              src={`https://img.vietqr.io/image/${bankAccountDetail?.bankId}-${bankAccountDetail?.accountNumber}-compact2.png?amount=${amount}&accountName=${bankAccountDetail?.accountName}&addInfo=${`${userId}`}`}
             />
           </div>
           <div className="flex flex-col gap-4">
@@ -81,7 +80,7 @@ export const QRModal = ({
 
             <div className="grid gap-2">
               <span>Nội dung chuyển khoản</span>
-              <span className="font-bold">{`${userId}-${dayjs().toISOString()}`}</span>
+              <span className="font-bold">{`${userId}`}</span>
             </div>
           </div>
         </div>

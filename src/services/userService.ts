@@ -229,4 +229,31 @@ export const userService = {
         throw error;
       });
   },
+  getPendingRequest: async (userId: string): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-pending-request`,
+      method: 'GET',
+      params: {
+        userId,
+      },
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  deletePendingRequest: async (data: {
+    userId: string;
+    requestId: string;
+  }): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/cancel-pending-request`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };
