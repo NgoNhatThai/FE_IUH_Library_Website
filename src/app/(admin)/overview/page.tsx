@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { Line, Pie, Bar } from 'react-chartjs-2';
+import React, { useEffect, useState } from 'react';
+import { Pie, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,14 +12,15 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Radio, DatePicker } from 'antd';
+import { Radio } from 'antd';
 import { OverviewType } from '@/constants/overviewType';
 import dayjs from 'dayjs';
 import { useQuery } from 'react-query';
 import { QueryKey } from '@/types/api';
 import { overviewService } from '@/services/overviewService';
+import DateRangePicker from '@/components/DateRangePicker';
+import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
 
-// Đăng ký các thành phần biểu đồ
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -41,7 +42,7 @@ const OverviewPage = () => {
     dayjs(),
   ]);
 
-  const { data: transactionOverview } = useQuery(
+  const { data: transactionOverview, refetch: refetchTransaction } = useQuery(
     [QueryKey.TRANSACTION_OVERVIEW, selectedOverview],
     async () => {
       const response = await overviewService.getTransactionOverview(
@@ -55,7 +56,7 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: revenueOverTime } = useQuery(
+  const { data: revenueOverTime, refetch: refetchRevenue } = useQuery(
     [QueryKey.REVENUE_OVER_TIME, selectedOverview],
     async () => {
       const response = await overviewService.getRevenueOverTime(
@@ -69,7 +70,7 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: topUsers } = useQuery(
+  const { data: topUsers, refetch: refetchTopUser } = useQuery(
     [QueryKey.TOP_USERS, selectedOverview],
     async () => {
       const response = await overviewService.getTopUsersByDepositAmount(
@@ -83,19 +84,20 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: averageProcessingTime } = useQuery(
-    [QueryKey.AVERAGE_PROCESSING_TIME, selectedOverview],
-    async () => {
-      const response = await overviewService.getAverageProcessingTime(
-        dateRange[0].format('YYYY-MM-DD'),
-        dateRange[1].format('YYYY-MM-DD'),
-      );
-      return response;
-    },
-    {
-      enabled: selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME,
-    },
-  );
+  const { data: averageProcessingTime, refetch: refetchAverageProcessingTime } =
+    useQuery(
+      [QueryKey.AVERAGE_PROCESSING_TIME, selectedOverview],
+      async () => {
+        const response = await overviewService.getAverageProcessingTime(
+          dateRange[0].format('YYYY-MM-DD'),
+          dateRange[1].format('YYYY-MM-DD'),
+        );
+        return response;
+      },
+      {
+        enabled: selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME,
+      },
+    );
 
   const { data: userDepositRate } = useQuery(
     [QueryKey.USER_DEPOSIT_RATE, selectedOverview],
@@ -133,20 +135,28 @@ const OverviewPage = () => {
 
   const handleDateChange = (dates: any) => {
     setDateRange(dates);
-    // Ở đây bạn có thể gọi API để lấy dữ liệu theo ngày đã chọn
   };
 
+  useEffect(() => {
+    if (selectedOverview === OverviewType.TRANSACTION) {
+      refetchTransaction();
+    }
+    if (selectedOverview === OverviewType.REVENUE) {
+      refetchRevenue();
+    }
+    if (selectedOverview === OverviewType.TOP_USERS) {
+      refetchTopUser();
+    }
+    if (selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME) {
+      refetchAverageProcessingTime();
+    }
+  }, [selectedOverview, dateRange]);
+
   return (
-    <div className="container mx-auto p-5">
+    <div className="container mx-auto rounded-md bg-white p-5 px-4">
       <h1 className="mb-5 text-center text-2xl font-bold">
         Thống kê Thư viện Online
       </h1>
-
-      <DatePicker.RangePicker
-        className="mb-5"
-        onChange={handleDateChange}
-        format="DD/MM/YYYY"
-      />
 
       <Radio.Group
         className="mb-5 flex justify-center"
@@ -155,15 +165,44 @@ const OverviewPage = () => {
         onChange={(e) => setSelectedOverview(e.target.value)}
         optionType="button"
       />
+      {selectedOverview !== OverviewType.USER_DEPOSIT_RATE && (
+        <div className="mb-4 mt-4 w-full max-w-md md:w-1/3">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Chọn khoảng thời gian
+          </label>
+          <DateRangePicker
+            allowClear
+            format={DATE_FORMAT_DDMMYYYY}
+            value={[dayjs(dateRange[0]), dayjs(dateRange[1])]}
+            onChange={(date) => {
+              handleDateChange(date);
+            }}
+          />
+        </div>
+      )}
 
-      <div className="">
+      {/* Các biểu đồ */}
+      <div className="h-screen">
         {selectedOverview === OverviewType.TRANSACTION && (
           <div className="chart-container">
             <h2 className="mb-3 text-center text-xl font-semibold">
               Giao dịch Nạp tiền
             </h2>
-            {transactionOverview && <Pie data={transactionOverview} />}{' '}
-            {/* Chỉnh sửa thành Pie chart */}
+            {transactionOverview &&
+            transactionOverview.datasets[0].data.reduce(
+              (a: number, b: number) => a + b,
+              0,
+            ) > 0 ? (
+              <div className="h-96 w-96">
+                <Pie data={transactionOverview} />
+              </div>
+            ) : (
+              <div>
+                <span className="text-center font-medium italic text-gray-500">
+                  Không có dữ liệu
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -172,18 +211,44 @@ const OverviewPage = () => {
             <h2 className="mb-3 text-center text-xl font-semibold">
               Doanh thu Theo Thời gian
             </h2>
-            {revenueOverTime && <Line data={revenueOverTime} />}{' '}
-            {/* Line chart */}
+            {revenueOverTime &&
+            revenueOverTime.datasets[0].data.reduce(
+              (a: number, b: number) => a + b,
+              0,
+            ) > 0 ? (
+              <div className="h-96 w-full">
+                <Bar data={revenueOverTime} />
+              </div>
+            ) : (
+              <div>
+                <span className="text-center font-medium italic text-gray-500">
+                  Không có dữ liệu
+                </span>
+              </div>
+            )}
           </div>
         )}
 
         {selectedOverview === OverviewType.TOP_USERS && (
           <div className="chart-container">
             <h2 className="mb-3 text-center text-xl font-semibold">
-              Người dùng hàng đầu
+              Top người dùng theo thời gian
             </h2>
-            {topUsers && <Bar data={topUsers} />}{' '}
-            {/* Chỉnh sửa thành Bar chart */}
+            {topUsers &&
+            topUsers.datasets[0].data.reduce(
+              (a: number, b: number) => a + b,
+              0,
+            ) > 0 ? (
+              <div className="h-96 w-96">
+                <Bar data={topUsers} />
+              </div>
+            ) : (
+              <div>
+                <span className="text-center font-medium italic text-gray-500">
+                  Không có dữ liệu
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -192,8 +257,21 @@ const OverviewPage = () => {
             <h2 className="mb-3 text-center text-xl font-semibold">
               Thời gian xử lý trung bình
             </h2>
-            {averageProcessingTime && <Line data={averageProcessingTime} />}{' '}
-            {/* Line chart */}
+            {averageProcessingTime &&
+            averageProcessingTime.datasets[0].data.reduce(
+              (a: number, b: number) => a + b,
+              0,
+            ) > 0 ? (
+              <div className="h-96 w-96">
+                <Bar data={averageProcessingTime} />
+              </div>
+            ) : (
+              <div>
+                <span className="text-center font-medium italic text-gray-500">
+                  Không có dữ liệu
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -202,8 +280,21 @@ const OverviewPage = () => {
             <h2 className="mb-3 text-center text-xl font-semibold">
               Tỷ lệ người dùng nạp tiền
             </h2>
-            {userDepositRate && <Pie data={userDepositRate} />}{' '}
-            {/* Chỉnh sửa thành Pie chart */}
+            {userDepositRate &&
+            userDepositRate.datasets[0].data.reduce(
+              (a: number, b: number) => a + b,
+              0,
+            ) > 0 ? (
+              <div className="h-96 w-96">
+                <Pie data={userDepositRate} />
+              </div>
+            ) : (
+              <div>
+                <span className="text-center font-medium italic text-gray-500">
+                  Không có dữ liệu
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>

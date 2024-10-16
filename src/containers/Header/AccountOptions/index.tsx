@@ -72,6 +72,18 @@ const AccountOptions = ({
                   Trang cá nhân
                 </button>
               </li>
+              {userInfo?.userRaw?.isManager && (
+                <li className="border-b">
+                  <button
+                    onClick={() => {
+                      window.location.href = '/home';
+                    }}
+                    className="block w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
+                  >
+                    Quản lý thư viện
+                  </button>
+                </li>
+              )}
               <li>
                 <button
                   onClick={() => {
