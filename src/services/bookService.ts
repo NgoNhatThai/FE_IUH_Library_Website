@@ -2,6 +2,7 @@ import { BOOK_ROUTE_URL } from '@/constants';
 import { BookDetailResponse, BookResponse } from '@/models/bookModel';
 import { ChapterResponse } from '@/models/chapterModel';
 import axios from 'axios';
+import axiosClient from './axiosService';
 
 export const bookService = {
   getTopViewBook: async (): Promise<BookResponse> => {
@@ -102,6 +103,17 @@ export const bookService = {
       .then((res) => res.data)
       .catch((err) => {
         throw err;
+      });
+  },
+  createBook: async (data: FormData): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${BOOK_ROUTE_URL}/create`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
       });
   },
 };

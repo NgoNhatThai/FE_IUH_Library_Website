@@ -89,4 +89,24 @@ export const adminService = {
         throw error;
       });
   },
+  getAllAuthor: async (): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/get-all-author`,
+      method: 'GET',
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  getAllMajor: async (): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/get-all-major`,
+      method: 'GET',
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

@@ -34,3 +34,8 @@ export interface BookDetailResponse {
   message: string;
   data: BookModel;
 }
+
+export enum BookType {
+  NORMAL = 'NORMAL',
+  VOICE = 'VOICE',
+}
