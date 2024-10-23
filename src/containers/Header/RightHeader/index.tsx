@@ -1,9 +1,6 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import BookIcon from '@/assets/svg/book-icon.svg';
-import UserIcon from '@/assets/svg/user-icon.svg';
-import BellIcon from '@/assets/svg/bell-icon.svg';
 import CartWrapper from '../CartWrapper';
 import Account from '../Account';
 import { useMemo, useRef, useState } from 'react';
@@ -12,6 +9,16 @@ import AccountOptions from '../AccountOptions';
 import { QueryKey } from '@/types/api';
 import { useQuery } from 'react-query';
 import { userService } from '@/services/userService';
+import { Notify } from '@/models/notifyModel';
+import { Badge, Dropdown, List } from 'antd';
+import {
+  BellOutlined,
+  DollarOutlined,
+  HeartOutlined,
+  NotificationOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { toast } from 'react-toastify';
 const RightHeader = () => {
   const storedUserInfo = localStorage.getItem('userInfo');
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
@@ -22,7 +29,7 @@ const RightHeader = () => {
   };
   const popupRef = useRef(null);
 
-  const { data: notificationData, isLoading } = useQuery({
+  const { data: notificationData } = useQuery({
     queryKey: [QueryKey.NOTIFICATION, userInfo?.userRaw?._id],
     queryFn: async () => {
       if (userInfo && userInfo.userRaw && userInfo.userRaw._id)
@@ -32,47 +39,115 @@ const RightHeader = () => {
     refetchOnWindowFocus: false,
   });
 
+  const changeStatusNotification = async (userId: string, notifyId: string) => {
+    try {
+      await userService.changeNotificationStatus({
+        userId,
+        notifyId,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Có lỗi xảy ra khi đánh dấu đã đọc thông báo');
+    }
+  };
+
   const unReadNotification = useMemo(() => {
-    return notificationData;
+    return notificationData?.data?.filter(
+      (item: Notify) => item.status === 'UNREAD',
+    );
   }, [notificationData]);
 
+  const notificationList = (
+    <div
+      style={{
+        width: '300px',
+        backgroundColor: 'white',
+        padding: '4px',
+        borderRadius: '4px',
+        border: '1px solid #f0f0f0',
+      }}
+    >
+      <List
+        itemLayout="horizontal"
+        dataSource={notificationData?.data}
+        renderItem={(item: Notify) => (
+          <List.Item>
+            <List.Item.Meta
+              className={`${item.status === 'UNREAD' ? '' : 'bg-gray-100'} p-2`}
+              title={
+                <div>
+                  {item?.requestId ? (
+                    <DollarOutlined
+                      style={{
+                        fontSize: '16px',
+                        color: '#52c41a',
+                        marginRight: '8px',
+                      }}
+                    />
+                  ) : (
+                    <NotificationOutlined
+                      style={{
+                        fontSize: '16px',
+                        color: '#1890ff',
+                        marginRight: '8px',
+                      }}
+                    />
+                  )}
+                  {'Nạp/rút' || 'Thông báo'}
+                </div>
+              }
+              description={
+                <a
+                  className="cursor-pointer"
+                  href={`${item?.bookId && item?.chapterId ? `/chapter/${item.chapterId}` : `/user-info`}`}
+                  onClick={() => {
+                    if (
+                      item.status === 'UNREAD' &&
+                      userInfo?.userRaw?._id &&
+                      item._id
+                    ) {
+                      changeStatusNotification(
+                        userInfo?.userRaw?._id,
+                        item._id,
+                      );
+                    }
+                  }}
+                >
+                  {item?.message || 0}
+                </a>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </div>
+  );
   return (
     <div className="flex items-center justify-center">
       <div className="relative flex flex-col items-center">
         <div className="ml-1 h-6 w-6 cursor-pointer items-center justify-center rounded-full md:ml-4 md:h-8 md:w-8">
-          <Link href="/">
-            <div className="relative">
-              <Image
-                src={BellIcon}
-                alt="Notification Icon"
-                width={1000}
-                height={1000}
-                className="text-sky-500"
-              />
-              {/* Vòng tròn đỏ */}
-              {!isLoading &&
-                unReadNotification &&
-                unReadNotification.length > 0 && (
-                  <span className="absolute right-0 top-0 block h-2.5 w-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border border-white bg-red-500">
-                    KKKKKKKKKKKKKKKK
-                  </span>
-                )}
-            </div>
-          </Link>
+          <Dropdown overlay={notificationList} trigger={['click']}>
+            <Badge
+              count={
+                unReadNotification && unReadNotification.length > 0
+                  ? unReadNotification.length
+                  : 0
+              }
+              size="small"
+              offset={[5, 0]}
+            >
+              <BellOutlined style={{ fontSize: '24px', color: '#00BFFF' }} />
+            </Badge>
+          </Dropdown>
         </div>
+
         <p className="ml-2 hidden text-sm md:block">Thông báo</p>
       </div>
       <div className="flex flex-col items-center justify-center">
         <div className="ml-1 h-6 w-6 cursor-pointer items-center justify-center rounded-full md:ml-4 md:h-8 md:w-8">
           <Link href="/follow-list">
             <CartWrapper>
-              <Image
-                src={BookIcon}
-                alt="Follow list book"
-                width={1000}
-                height={1000}
-                className="text-sky-500"
-              />
+              <HeartOutlined style={{ fontSize: '24px', color: '#00BFFF' }} />
             </CartWrapper>
           </Link>
         </div>
@@ -85,13 +160,17 @@ const RightHeader = () => {
         <div className="ml-1 h-6 w-6 cursor-pointer items-center justify-center rounded-full md:ml-4 md:h-8 md:w-8">
           <Link href={userInfo ? '#' : '/login'}>
             <Account>
-              <Image
-                src={userInfo ? userInfo.userRaw.avatar : UserIcon}
-                alt="User Account Icon"
-                width={1000}
-                height={1000}
-                className="h-6 w-6 rounded-full text-sky-500 md:h-8 md:w-8"
-              />
+              {userInfo && userInfo.userRaw && userInfo.userRaw.avatar ? (
+                <Image
+                  src={userInfo.userRaw.avatar}
+                  alt="User Account Icon"
+                  width={1000}
+                  height={1000}
+                  className="h-6 w-6 rounded-full text-sky-500 md:h-8 md:w-8"
+                />
+              ) : (
+                <UserOutlined style={{ fontSize: '24px', color: '#00BFFF' }} />
+              )}
             </Account>
           </Link>
         </div>

@@ -57,6 +57,7 @@ export interface UserModel {
   refresh_token?: string;
   historyId?: string;
   memberShip?: string;
+  isManager?: boolean;
 }
 
 export enum UserStatus {

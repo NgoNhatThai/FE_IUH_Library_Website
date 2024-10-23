@@ -15,6 +15,7 @@ export interface UserModal {
   studentCode: number;
   password: string;
   memberShip: string;
+  isManager?: boolean;
   refresh_token: string;
   status: string;
   createdAt: string;

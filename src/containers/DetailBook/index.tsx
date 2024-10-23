@@ -70,7 +70,7 @@ const DetailBook = ({ detail }: { detail: BookModel }) => {
         </div>
 
         <div className="border-l p-4">
-          {isBuy || (detail?.price === 0 && <ChapterContainer data={detail} />)}
+          {(isBuy || detail?.price === 0) && <ChapterContainer data={detail} />}
           <CommentContainer
             currentId={detail._id}
             comments={

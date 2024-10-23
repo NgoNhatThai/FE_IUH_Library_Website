@@ -182,7 +182,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
             </p>
           </div>
 
-          {(data?.price && data.price <= 0) || isBuy ? (
+          {data?.price === undefined || data?.price <= 0 || isBuy ? (
             <div className="mt-6 flex gap-2">
               <button
                 className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
