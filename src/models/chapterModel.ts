@@ -6,6 +6,7 @@ export interface ChapterModel {
   bookId?: string;
   contentId?: string;
   images?: string[];
+  text?: string[];
   mp3s?: string[];
   numberOfPage?: number;
   status?: string;
