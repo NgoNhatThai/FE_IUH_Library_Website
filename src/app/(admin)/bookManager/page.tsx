@@ -1,6 +1,16 @@
 'use client';
 import { BookModel, BookType } from '@/models/bookModel';
-import { Button, Form, Input, Select, InputNumber, Upload, Radio } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Upload,
+  Radio,
+  Modal,
+  DatePicker,
+} from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { PlusOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
@@ -10,25 +20,43 @@ import { adminService } from '@/services/adminService';
 import { QueryKey } from '@/types/api';
 import { toast } from 'react-toastify';
 import { bookService } from '@/services/bookService';
+import { CategoryModel, CategoryStatus } from '@/models';
+import { AuthorModel, AuthorStatus } from '@/models/authorModel';
+import { MajorModel } from '@/models/majorModel';
+import dayjs from 'dayjs';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const BookManagerPage = () => {
   const [form] = useForm<BookModel>();
+  const [formCategory] = useForm<CategoryModel>();
+  const [formAuthor] = useForm<AuthorModel>();
+  const [formMajor] = useForm<MajorModel>();
   const [imageList, setImageList] = useState([]);
+  const [isModalCatergory, setIsModalCatergor] = useState(false);
+  const [isModalAuthor, setIsModalAuthor] = useState(false);
+  const [isModalMajor, setIsModalMajor] = useState(false);
+  const { data: categories, refetch: refetchCategories } = useQuery(
+    [QueryKey.CATEGORY],
+    async () => {
+      return await adminService.getAllCategory();
+    },
+  );
 
-  const { data: categories } = useQuery([QueryKey.CATEGORY], async () => {
-    return await adminService.getAllCategory();
-  });
+  const { data: majors, refetch: refetchMajor } = useQuery(
+    [QueryKey.MAJOR],
+    async () => {
+      return await adminService.getAllMajor();
+    },
+  );
 
-  const { data: majors } = useQuery([QueryKey.MAJOR], async () => {
-    return await adminService.getAllMajor();
-  });
-
-  const { data: authors } = useQuery([QueryKey.AUTHOR], async () => {
-    return await adminService.getAllAuthor();
-  });
+  const { data: authors, refetch: refetchAuthors } = useQuery(
+    [QueryKey.AUTHOR],
+    async () => {
+      return await adminService.getAllAuthor();
+    },
+  );
 
   const categoriesOptions = useMemo(() => {
     return categories?.map((category: any) => (
@@ -61,7 +89,7 @@ const BookManagerPage = () => {
 
   const onFinish = async (values: BookModel) => {
     const formData = new FormData();
-    formData.append('image', imageList[0].originFileObj); // Giả sử bạn đã có file ở đây
+    formData.append('image', imageList[0].originFileObj);
     formData.append('title', values.title ? values.title : '');
     formData.append('desc', values.desc ? values.desc : '');
     formData.append('categoryId', values.categoryId ? values.categoryId : '');
@@ -85,7 +113,65 @@ const BookManagerPage = () => {
     setImageList(fileList);
     form.setFieldsValue({ image: fileList });
   };
-
+  const handleOkModalCategory = async () => {
+    try {
+      const values = await formCategory.validateFields(['name', 'desc']);
+      const data: CategoryModel = {
+        name: values.name,
+        desc: values.desc,
+        status: CategoryStatus.ACTIVE,
+      };
+      await adminService.createCategory(data);
+      toast.success('Thêm danh mục thành công!');
+      formCategory.resetFields();
+      refetchCategories();
+      setIsModalCatergor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
+  const handleOkModalAuthor = async () => {
+    try {
+      const values = await formAuthor.validateFields([
+        'name',
+        'desc',
+        'birthDate',
+      ]);
+      const data: AuthorModel = {
+        name: values.name,
+        desc: values.desc,
+        birthDate: values.birthDate,
+        status: AuthorStatus.ACTIVE,
+      };
+      await adminService.createAuthor(data);
+      toast.success('Thêm tác giả thành công!');
+      formAuthor.resetFields();
+      refetchAuthors();
+      setIsModalAuthor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
+  const handleOkModalMajor = async () => {
+    try {
+      const values = await formMajor.validateFields(['name', 'desc']);
+      const data: MajorModel = {
+        name: values.name,
+        desc: values.desc,
+        status: 'ACTIVE',
+      };
+      await adminService.createMajor(data);
+      toast.success('Thêm chuyên ngành thành công!');
+      formMajor.resetFields();
+      refetchMajor();
+      setIsModalMajor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
   return (
     <div className="container w-[80%] rounded-md bg-white p-4 md:mb-10">
       <Breadcrumb title="Quản lý sách" />
@@ -100,7 +186,7 @@ const BookManagerPage = () => {
               name="image"
               valuePropName="fileList"
               getValueFromEvent={(e) => e && e.fileList}
-              // rules={[{ required: true, message: 'Vui lòng chọn ảnh bìa!' }]}
+              rules={[{ required: true, message: 'Vui lòng chọn ảnh bìa!' }]}
             >
               <Upload
                 className="w-[80%]"
@@ -138,15 +224,66 @@ const BookManagerPage = () => {
               <TextArea rows={4} />
             </Form.Item>
 
-            <Form.Item label="Danh mục" name="categoryId">
+            <Form.Item
+              label={
+                <div className="flex items-center justify-items-center">
+                  Danh mục
+                  <Button
+                    type="link"
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      setIsModalCatergor(true);
+                    }}
+                    style={{ marginLeft: 8 }}
+                  />
+                </div>
+              }
+              name="categoryId"
+              rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+            >
               <Select placeholder="Chọn danh mục">{categoriesOptions}</Select>
             </Form.Item>
 
-            <Form.Item label="Tác giả" name="authorId">
+            <Form.Item
+              // thêm nút thêm tác giả
+              label={
+                <div className="flex items-center justify-items-center">
+                  Tác giả
+                  <Button
+                    type="link"
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      setIsModalAuthor(true);
+                    }}
+                    style={{ marginLeft: 8 }}
+                  />
+                </div>
+              }
+              name="authorId"
+              rules={[{ required: true, message: 'Vui lòng chọn tác giả!' }]}
+            >
               <Select placeholder="Chọn tác giả">{authorsOptions}</Select>
             </Form.Item>
 
-            <Form.Item label="Chuyên ngành" name="majorId">
+            <Form.Item
+              label={
+                <div className="flex items-center justify-items-center">
+                  Chuyên ngành
+                  <Button
+                    type="link"
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      setIsModalMajor(true);
+                    }}
+                    style={{ marginLeft: 8 }}
+                  />
+                </div>
+              }
+              name="majorId"
+              rules={[
+                { required: true, message: 'Vui lòng chọn chuyên ngành!' },
+              ]}
+            >
               <Select placeholder="Chọn chuyên ngành">{majorsOptions}</Select>
             </Form.Item>
 
@@ -160,18 +297,118 @@ const BookManagerPage = () => {
                 defaultValue={BookType.NORMAL}
               />
             </Form.Item>
-
-            <Form.Item label="Giá bán" name="price">
+            <Form.Item
+              label="Giá bán"
+              name="price"
+              rules={[{ type: 'number', message: 'Vui lòng nhập số!' }]}
+            >
               <InputNumber
                 min={0}
                 className="w-full"
                 addonAfter="VND"
                 defaultValue={0}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                }
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
               />
             </Form.Item>
           </div>
         </div>
+        {/* Modal thêm danh mục mới */}
+        <Modal
+          title="Thêm danh mục mới"
+          open={isModalCatergory}
+          onOk={handleOkModalCategory}
+          onCancel={() => setIsModalCatergor(false)}
+        >
+          <Form form={formCategory} layout="vertical">
+            <Form.Item
+              label="Tên danh mục"
+              name="name"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tên danh mục!' },
+              ]}
+            >
+              <Input placeholder="Nhập tên danh mục" />
+            </Form.Item>
+            <Form.Item
+              label="Mô tả"
+              name="desc"
+              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+            >
+              <TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
+        {/* Modal thêm tác giả mới */}
 
+        <Modal
+          title="Thêm tác giả mới"
+          open={isModalAuthor}
+          onOk={handleOkModalAuthor}
+          onCancel={() => setIsModalAuthor(false)}
+        >
+          <Form form={formAuthor} layout="vertical">
+            <Form.Item
+              label="Tên tác giả"
+              name="name"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tên tác giả!' },
+              ]}
+            >
+              <Input placeholder="Nhập tên tác giả" />
+            </Form.Item>
+            <Form.Item
+              label="Ngày sinh"
+              name="birthDate"
+              rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
+            >
+              <DatePicker
+                format="DD/MM/YYYY"
+                style={{ width: '100%' }}
+                size="large"
+                placeholder="Chọn ngày sinh"
+                disabledDate={(current) =>
+                  current && current > dayjs().endOf('day')
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="Mô tả"
+              name="desc"
+              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+            >
+              <TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
+        {/* Modal thêm chuyên ngành mới gồm tên và mô tả */}
+        <Modal
+          title="Thêm chuyên ngành mới"
+          open={isModalMajor}
+          onOk={handleOkModalMajor}
+          onCancel={() => setIsModalMajor(false)}
+        >
+          <Form form={formMajor} layout="vertical">
+            <Form.Item
+              label="Tên chuyên ngành"
+              name="name"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tên chuyên ngành!' },
+              ]}
+            >
+              <Input placeholder="Nhập tên chuyên ngành" />
+            </Form.Item>
+            <Form.Item
+              label="Mô tả"
+              name="desc"
+              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+            >
+              <TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
         <div className="flex w-full items-end justify-end">
           <Form.Item>
             <Button type="primary" htmlType="submit">

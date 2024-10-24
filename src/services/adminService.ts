@@ -2,6 +2,9 @@ import { BankConfig } from '@/models/bankConfigModel';
 import axiosClient from './axiosService';
 import { ADMIN_ROUTE_URL } from '@/constants';
 import { Config } from '@/models/configModel';
+import { CategoryModel } from '@/models/categoryModel';
+import { AuthorModel } from '@/models/authorModel';
+import { MajorModel } from '@/models/majorModel';
 export const adminService = {
   configBankAccount: async (data: BankConfig): Promise<BankConfig> => {
     return axiosClient()({
@@ -103,6 +106,39 @@ export const adminService = {
     return axiosClient()({
       baseURL: `${ADMIN_ROUTE_URL}/get-all-major`,
       method: 'GET',
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  createCategory: async (data: CategoryModel): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/create-category`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  createAuthor: async (data: AuthorModel): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/create-author`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  createMajor: async (data: MajorModel): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/create-major`,
+      method: 'POST',
+      data,
     })
       .then((res) => res.data.data)
       .catch((error) => {

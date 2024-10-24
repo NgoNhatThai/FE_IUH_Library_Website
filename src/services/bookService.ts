@@ -109,6 +109,9 @@ export const bookService = {
     return axiosClient()({
       baseURL: `${BOOK_ROUTE_URL}/create`,
       method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
       data,
     })
       .then((res) => res.data)
