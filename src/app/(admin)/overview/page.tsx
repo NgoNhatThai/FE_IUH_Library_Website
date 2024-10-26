@@ -84,20 +84,19 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: averageProcessingTime, refetch: refetchAverageProcessingTime } =
-    useQuery(
-      [QueryKey.AVERAGE_PROCESSING_TIME, selectedOverview],
-      async () => {
-        const response = await overviewService.getAverageProcessingTime(
-          dateRange[0].format('YYYY-MM-DD'),
-          dateRange[1].format('YYYY-MM-DD'),
-        );
-        return response;
-      },
-      {
-        enabled: selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME,
-      },
-    );
+  const { data: topViewData, refetch: refetchTopView } = useQuery(
+    [QueryKey.TOP_VIEW, selectedOverview],
+    async () => {
+      const response = await overviewService.getTopBooksByViews(
+        dateRange[0].format('YYYY-MM-DD'),
+        dateRange[1].format('YYYY-MM-DD'),
+      );
+      return response;
+    },
+    {
+      enabled: selectedOverview === OverviewType.TOP_VIEW,
+    },
+  );
 
   const { data: userDepositRate } = useQuery(
     [QueryKey.USER_DEPOSIT_RATE, selectedOverview],
@@ -124,8 +123,8 @@ const OverviewPage = () => {
       value: OverviewType.TOP_USERS,
     },
     {
-      label: 'Thời gian xử lý trung bình',
-      value: OverviewType.AVERAGE_PROCESSING_TIME,
+      label: 'Lượt view cao nhất',
+      value: OverviewType.TOP_VIEW,
     },
     {
       label: 'Tỷ lệ người dùng nạp tiền',
@@ -147,8 +146,8 @@ const OverviewPage = () => {
     if (selectedOverview === OverviewType.TOP_USERS) {
       refetchTopUser();
     }
-    if (selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME) {
-      refetchAverageProcessingTime();
+    if (selectedOverview === OverviewType.TOP_VIEW) {
+      refetchTopView();
     }
   }, [selectedOverview, dateRange]);
 
@@ -252,18 +251,18 @@ const OverviewPage = () => {
           </div>
         )}
 
-        {selectedOverview === OverviewType.AVERAGE_PROCESSING_TIME && (
+        {selectedOverview === OverviewType.TOP_VIEW && (
           <div className="chart-container">
             <h2 className="mb-3 text-center text-xl font-semibold">
-              Thời gian xử lý trung bình
+              Sách có lượt view cao theo khoảng thời gian
             </h2>
-            {averageProcessingTime &&
-            averageProcessingTime.datasets[0].data.reduce(
+            {topViewData &&
+            topViewData.datasets[0].data.reduce(
               (a: number, b: number) => a + b,
               0,
             ) > 0 ? (
               <div className="h-96 w-96">
-                <Bar data={averageProcessingTime} />
+                <Bar data={topViewData} />
               </div>
             ) : (
               <div>

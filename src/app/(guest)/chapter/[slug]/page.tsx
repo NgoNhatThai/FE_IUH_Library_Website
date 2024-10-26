@@ -14,6 +14,6 @@ const getChapter = async (id: string) => {
 };
 const ChapterDetailPage = async ({ params }: { params: { slug: string } }) => {
   const chapter = await getChapter(params.slug);
-  return <Chapter chapter={chapter || {}} />;
+  if (chapter) return <Chapter chapter={chapter} />;
 };
 export default ChapterDetailPage;

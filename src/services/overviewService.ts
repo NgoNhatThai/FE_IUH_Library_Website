@@ -84,4 +84,22 @@ export const overviewService = {
         throw error;
       });
   },
+
+  getTopBooksByViews: async (
+    startDate: string,
+    endDate: string,
+  ): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${OVERVIEW_ROUTE_URL}/top-view`,
+      method: 'GET',
+      params: {
+        startDate,
+        endDate,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

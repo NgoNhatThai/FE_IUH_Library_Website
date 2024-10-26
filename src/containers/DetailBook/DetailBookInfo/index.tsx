@@ -22,7 +22,8 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
 
   const [openModal, setOpenModal] = React.useState(false);
 
-  const handleOnClick = (id: string) => {
+  const handleOnClick = async (id: string) => {
+    await userService.read(userInfo?._id, data?._id ?? '', id);
     router.push(`${CHAPTER}/${id}`);
   };
 

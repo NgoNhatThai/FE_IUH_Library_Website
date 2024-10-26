@@ -100,7 +100,7 @@ const BookManagerPage = () => {
     formData.append('type', values.type ? values.type : BookType.NORMAL);
 
     try {
-      const response = await bookService.createBook(formData);
+      await bookService.createBook(formData);
       toast.success('Đăng sách thành công!');
     } catch (error) {
       console.error('Error:', error);
@@ -245,7 +245,6 @@ const BookManagerPage = () => {
             </Form.Item>
 
             <Form.Item
-              // thêm nút thêm tác giả
               label={
                 <div className="flex items-center justify-items-center">
                   Tác giả
@@ -315,7 +314,7 @@ const BookManagerPage = () => {
             </Form.Item>
           </div>
         </div>
-        {/* Modal thêm danh mục mới */}
+
         <Modal
           title="Thêm danh mục mới"
           open={isModalCatergory}
@@ -341,7 +340,6 @@ const BookManagerPage = () => {
             </Form.Item>
           </Form>
         </Modal>
-        {/* Modal thêm tác giả mới */}
 
         <Modal
           title="Thêm tác giả mới"
@@ -383,7 +381,6 @@ const BookManagerPage = () => {
             </Form.Item>
           </Form>
         </Modal>
-        {/* Modal thêm chuyên ngành mới gồm tên và mô tả */}
         <Modal
           title="Thêm chuyên ngành mới"
           open={isModalMajor}

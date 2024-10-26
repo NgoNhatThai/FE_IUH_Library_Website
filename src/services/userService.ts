@@ -38,6 +38,25 @@ export const userService = {
         throw err;
       });
   },
+  read: async (
+    userId: string,
+    bookId: string,
+    chapterId: string,
+  ): Promise<{}> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/read`,
+      method: 'POST',
+      data: {
+        userId,
+        bookId,
+        chapterId,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
   follow: async (userId: string, bookId: string): Promise<{}> => {
     return axiosClient()({
       baseURL: `${USER_ROUTE_URL}/follow`,
