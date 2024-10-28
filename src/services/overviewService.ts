@@ -41,6 +41,7 @@ export const overviewService = {
   getTopUsersByDepositAmount: async (
     startDate: string,
     endDate: string,
+    limit: number,
   ): Promise<any> => {
     return axiosClient()({
       baseURL: `${OVERVIEW_ROUTE_URL}/top-users-by-deposit`,
@@ -48,6 +49,7 @@ export const overviewService = {
       params: {
         startDate,
         endDate,
+        limit,
       },
     })
       .then((res) => res.data)
@@ -88,6 +90,7 @@ export const overviewService = {
   getTopBooksByViews: async (
     startDate: string,
     endDate: string,
+    limit: number,
   ): Promise<any> => {
     return axiosClient()({
       baseURL: `${OVERVIEW_ROUTE_URL}/top-view`,
@@ -95,6 +98,7 @@ export const overviewService = {
       params: {
         startDate,
         endDate,
+        limit,
       },
     })
       .then((res) => res.data)

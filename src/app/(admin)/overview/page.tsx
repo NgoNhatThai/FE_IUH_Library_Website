@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Radio, Select } from 'antd';
+import { Radio, Select, Table } from 'antd';
 import { OverviewType } from '@/constants/overviewType';
 import dayjs from 'dayjs';
 import { useQuery } from 'react-query';
@@ -22,6 +22,11 @@ import DateRangePicker from '@/components/DateRangePicker';
 import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
 import ButtonExport from '@/components/Button/ButtonExport';
 import * as XLSX from 'xlsx';
+import {
+  revenueTableColumns,
+  topUserTableColumns,
+  topViewTableColumns,
+} from '@/ultils/column';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -43,21 +48,40 @@ const OverviewPage = () => {
     dayjs(),
   ]);
 
-  const { data: transactionOverview, refetch: refetchTransaction } = useQuery(
-    [QueryKey.TRANSACTION_OVERVIEW, selectedOverview],
-    async () => {
-      const response = await overviewService.getTransactionOverview(
-        dateRange[0].format('YYYY-MM-DD'),
-        dateRange[1].format('YYYY-MM-DD'),
-      );
-      return response;
-    },
-    {
-      enabled: selectedOverview === OverviewType.REVENUE,
-    },
-  );
+  const [limit, setLimit] = useState(5);
 
-  const { data: revenueOverTime, refetch: refetchRevenue } = useQuery(
+  const topOptions = [
+    { value: 1, label: 'Top 1' },
+    { value: 2, label: 'Top 2' },
+    { value: 3, label: 'Top 3' },
+    { value: 4, label: 'Top 4' },
+    { value: 5, label: 'Top 5' },
+    { value: 6, label: 'Top 6' },
+    { value: 7, label: 'Top 7' },
+    { value: 8, label: 'Top 8' },
+    { value: 9, label: 'Top 9' },
+    { value: 10, label: 'Top 10' },
+  ];
+
+  // const { data: transactionOverview, refetch: refetchTransaction } = useQuery(
+  //   [QueryKey.TRANSACTION_OVERVIEW, selectedOverview],
+  //   async () => {
+  //     const response = await overviewService.getTransactionOverview(
+  //       dateRange[0].format('YYYY-MM-DD'),
+  //       dateRange[1].format('YYYY-MM-DD'),
+  //     );
+  //     return response;
+  //   },
+  //   {
+  //     enabled: selectedOverview === OverviewType.REVENUE,
+  //   },
+  // );
+
+  const {
+    data: revenueOverTime,
+    refetch: refetchRevenue,
+    isLoading: isLoadingRevenueData,
+  } = useQuery(
     [QueryKey.REVENUE_OVER_TIME, selectedOverview],
     async () => {
       const response = await overviewService.getRevenueOverTime(
@@ -71,12 +95,17 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: topUsers, refetch: refetchTopUser } = useQuery(
+  const {
+    data: topUsers,
+    refetch: refetchTopUser,
+    isLoading: isLoadingTopUserData,
+  } = useQuery(
     [QueryKey.TOP_USERS, selectedOverview],
     async () => {
       const response = await overviewService.getTopUsersByDepositAmount(
         dateRange[0].format('YYYY-MM-DD'),
         dateRange[1].format('YYYY-MM-DD'),
+        limit,
       );
       return response;
     },
@@ -85,12 +114,17 @@ const OverviewPage = () => {
     },
   );
 
-  const { data: topViewData, refetch: refetchTopView } = useQuery(
+  const {
+    data: topViewData,
+    refetch: refetchTopView,
+    isLoading: isLoadingTopViewData,
+  } = useQuery(
     [QueryKey.TOP_VIEW, selectedOverview],
     async () => {
       const response = await overviewService.getTopBooksByViews(
         dateRange[0].format('YYYY-MM-DD'),
         dateRange[1].format('YYYY-MM-DD'),
+        limit,
       );
       return response;
     },
@@ -98,7 +132,6 @@ const OverviewPage = () => {
       enabled: selectedOverview === OverviewType.TOP_VIEW,
     },
   );
-  console.log('topUsers', topUsers);
   const { data: userDepositRate } = useQuery(
     [QueryKey.USER_DEPOSIT_RATE, selectedOverview],
     async () => {
@@ -150,7 +183,7 @@ const OverviewPage = () => {
     if (selectedOverview === OverviewType.TOP_VIEW) {
       refetchTopView();
     }
-  }, [selectedOverview, dateRange]);
+  }, [selectedOverview, dateRange, limit]);
 
   const handleExportTopUsers = () => {
     if (!topUsers?.tableData || topUsers.tableData.length === 0) return;
@@ -211,8 +244,15 @@ const OverviewPage = () => {
 
     XLSX.writeFile(workbook, fileName);
   };
+
+  const handleTopLimitChange = (value: number) => {
+    if (value > 0) {
+      setLimit(value);
+    }
+  };
+
   return (
-    <div className="container mx-auto rounded-md bg-white p-5 px-4">
+    <div className="mx-auto rounded-md bg-white p-5 px-4 md:ml-10 md:mr-10">
       <h1 className="mb-5 text-center text-2xl font-bold">
         Thống kê Thư viện Online
       </h1>
@@ -247,11 +287,8 @@ const OverviewPage = () => {
             <div className="w-1/4 items-end">
               <Select
                 defaultValue={5}
-                // onChange={handleTopLimitChange}
-                options={[
-                  { value: 5, label: 'Top 5' },
-                  { value: 10, label: 'Top 10' },
-                ]}
+                onChange={handleTopLimitChange}
+                options={topOptions}
                 className="h-9 w-full"
               />
             </div>
@@ -261,29 +298,6 @@ const OverviewPage = () => {
 
       {/* Các biểu đồ */}
       <div className="h-screen">
-        {/* {selectedOverview === OverviewType.TRANSACTION && (
-          <div className="chart-container">
-            <h2 className="mb-3 text-center text-xl font-semibold">
-              Giao dịch Nạp tiền
-            </h2>
-            {transactionOverview &&
-            transactionOverview.datasets[0].data.reduce(
-              (a: number, b: number) => a + b,
-              0,
-            ) > 0 ? (
-              <div className="h-96 w-96">
-                <Pie data={transactionOverview} />
-              </div>
-            ) : (
-              <div>
-                <span className="text-center font-medium italic text-gray-500">
-                  Không có dữ liệu
-                </span>
-              </div>
-            )}
-          </div>
-        )} */}
-
         {selectedOverview === OverviewType.REVENUE && (
           <>
             <h2 className="mb-3 text-center text-xl font-semibold">
@@ -294,56 +308,33 @@ const OverviewPage = () => {
               (a: number, b: number) => a + b,
               0,
             ) > 0 ? (
-              <div className="chart-table-container flex">
-                <div className="chart-container w-1/2">
+              <div className="chart-table-container grid grid-cols-2">
+                <div className="chart-container col-span-2 md:col-span-1">
                   <div className="h-96 w-5/6">
                     <Bar data={revenueOverTime} />
                   </div>
                 </div>
 
-                <div className="table-container w-1/2">
+                <div className="table-container col-span-2 md:col-span-1">
                   <div className="mb-2 flex justify-end">
                     <ButtonExport onClick={handleExportRevenue} />
                   </div>
 
-                  <table className="min-w-full rounded-lg border border-gray-300 bg-white shadow-md">
-                    <thead className="bg-blue-600 text-white">
-                      <tr>
-                        <th className="border px-4 py-2">STT</th>
-                        <th className="border px-4 py-2">Tên người nạp</th>
-                        <th className="border px-4 py-2">Số tiền nạp</th>
-                        <th className="border px-4 py-2">Ngày nạp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {revenueOverTime?.tableData.map(
-                        (entry: any, index: any) => (
-                          <tr
-                            key={entry._id}
-                            className="text-center hover:bg-gray-100"
-                          >
-                            <td className="border px-4 py-2">{index + 1}</td>
-                            <td className="border px-4 py-2">
-                              {entry.userId.userName}
-                            </td>
-                            <td className="border px-4 py-2">
-                              {new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND',
-                              }).format(entry.amount)}
-                            </td>
-                            <td className="border px-4 py-2">
-                              {dayjs(entry.date).format('DD-MM-YYYY')}
-                            </td>
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
+                  <Table
+                    columns={revenueTableColumns}
+                    dataSource={revenueOverTime.tableData}
+                    loading={isLoadingRevenueData}
+                    rowKey="id"
+                    pagination={{
+                      pageSize: 5,
+                      showSizeChanger: true,
+                      pageSizeOptions: ['5', '10', '20', '30'],
+                    }}
+                  />
                 </div>
               </div>
             ) : (
-              <div className="flex h-96 items-center justify-center">
+              <div className="flex items-center justify-center">
                 <span className="text-center font-medium italic text-gray-500">
                   Không có dữ liệu
                 </span>
@@ -373,36 +364,17 @@ const OverviewPage = () => {
                     <ButtonExport onClick={handleExportTopUsers} />
                   </div>
 
-                  <table className="min-w-full rounded-lg border border-gray-300 bg-white shadow-md">
-                    <thead className="bg-blue-600 text-white">
-                      <tr>
-                        <th className="border px-4 py-2">STT</th>
-                        <th className="border px-4 py-2">Tên người dùng</th>
-                        <th className="border px-4 py-2">Số tiền nạp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {topUsers?.tableData
-                        .sort((a: any, b: any) => b.totalAmount - a.totalAmount)
-                        .map((user: any, index: any) => (
-                          <tr
-                            key={user.userId}
-                            className="text-center hover:bg-gray-100"
-                          >
-                            <td className="border px-4 py-2">{index + 1}</td>
-                            <td className="border px-4 py-2">
-                              {user.userName}
-                            </td>
-                            <td className="border px-4 py-2">
-                              {new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND',
-                              }).format(user.totalAmount)}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
+                  <Table
+                    columns={topUserTableColumns}
+                    dataSource={topUsers.tableData}
+                    loading={isLoadingTopUserData}
+                    rowKey="id"
+                    pagination={{
+                      pageSize: 5,
+                      showSizeChanger: true,
+                      pageSizeOptions: ['5', '10', '20', '30'],
+                    }}
+                  />
                 </div>
               </div>
             ) : (
@@ -435,29 +407,17 @@ const OverviewPage = () => {
                     <ButtonExport onClick={handleExportTopView} />
                   </div>
 
-                  <table className="min-w-full rounded-lg border border-gray-300 bg-white shadow-md">
-                    <thead className="bg-blue-600 text-white">
-                      <tr>
-                        <th className="border px-4 py-2">STT</th>
-                        <th className="border px-4 py-2">Tên sách</th>
-                        <th className="border px-4 py-2">Tổng lượt đọc</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {topViewData?.tableData.map((book: any, index: any) => (
-                        <tr
-                          key={book.bookId}
-                          className="text-center hover:bg-gray-100"
-                        >
-                          <td className="border px-4 py-2">{index + 1}</td>
-                          <td className="border px-4 py-2">{book?.title}</td>
-                          <td className="border px-4 py-2">
-                            {book?.totalViews}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <Table
+                    columns={topViewTableColumns}
+                    dataSource={topViewData.tableData}
+                    loading={isLoadingTopViewData}
+                    rowKey="id"
+                    pagination={{
+                      pageSize: 5,
+                      showSizeChanger: true,
+                      pageSizeOptions: ['5', '10', '20', '30'],
+                    }}
+                  />
                 </div>
               </div>
             ) : (

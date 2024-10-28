@@ -220,7 +220,7 @@ const UserInfoPage = () => {
   ];
 
   return (
-    <div className="container mx-auto mt-10 md:mb-10">
+    <div className="container mx-auto mt-10 md:mb-20">
       <Card className="p-5 shadow-md">
         <Space
           direction="vertical"
@@ -289,11 +289,23 @@ const UserInfoPage = () => {
                 <Input placeholder="Nhập trạng thái" readOnly />
               </Form.Item>
 
-              {/* <Form.Item>
+              <Form.Item className="flex justify-between">
                 <Button type="primary" htmlType="submit">
-                  Cập nhật
+                  Đổi mật khẩu
                 </Button>
-              </Form.Item> */}
+                <Button
+                  type="link"
+                  color="danger"
+                  htmlType="submit"
+                  onClick={() => {
+                    alert(
+                      'Liên hệ quản trị viên qua số điện thoại: 0928292929 hoặc email: sv4tb1@gmail.com',
+                    );
+                  }}
+                >
+                  Báo lỗi thông tin
+                </Button>
+              </Form.Item>
             </Form>
           </Col>
 
