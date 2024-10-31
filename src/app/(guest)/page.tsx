@@ -1,72 +1,85 @@
+'use client';
+import { useEffect, useState } from 'react';
 import BookGroup from '@/containers/Home/BookGroup';
 import CategoryGroup from '@/containers/Home/CategoryGroup';
 import GroupSlider from '@/containers/Home/GroupSlider';
-import { userInfo } from '@/models/userInfo';
 import { bookService } from '@/services/bookService';
 import { categoryService } from '@/services/categoryService';
 import { homeConfigService } from '@/services/homeConfigService';
 
-const fetchHomeConfig = async () => {
-  try {
-    const homeConfigData = await homeConfigService.getConfig();
-    if (!homeConfigData) return null;
-    return homeConfigData;
-  } catch (error) {
-    console.log(error);
+interface HomeConfig {
+  data?: {
+    banners?: string[];
+  };
+}
+
+interface CategoryResponse {
+  data?: Array<any>;
+}
+
+interface BookResponse {
+  data?: Array<any>;
+}
+
+declare global {
+  interface Window {
+    CozeWebSDK: any;
   }
+}
+
+// Hàm để load script và chờ script tải xong
+const loadCozeChat = () => {
+  const script = document.createElement('script');
+  script.src =
+    'https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.5/libs/oversea/index.js';
+  script.onload = () => {
+    if (window.CozeWebSDK) {
+      new window.CozeWebSDK.WebChatClient({
+        config: {
+          bot_id: '7419067016906801168',
+        },
+        componentProps: {
+          title: 'IUH Library',
+        },
+      });
+    }
+  };
+  document.body.appendChild(script);
 };
 
-const fetchCategories = async () => {
-  try {
-    const categoryResponse = await categoryService.getAllCategories();
-    if (!categoryResponse) return null;
-    return categoryResponse;
-  } catch (error) {
-    console.log(error);
-  }
-};
+const HomePage: React.FC = () => {
+  const [homeConfig, setHomeConfig] = useState<HomeConfig | null>(null);
+  const [categoryResponse, setCategoryResponse] =
+    useState<CategoryResponse | null>(null);
+  const [topViewBookResponse, setTopViewBookResponse] =
+    useState<BookResponse | null>(null);
+  const [newUpdatedBookResponse, setNewUpdatedBookResponse] =
+    useState<BookResponse | null>(null);
 
-const fetchTopViewBook = async () => {
-  try {
-    const topViewBook = await bookService.getTopViewBook();
-    if (!topViewBook) return null;
-    return topViewBook;
-  } catch (error) {
-    console.log(error);
-  }
-};
+  useEffect(() => {
+    loadCozeChat();
 
-const fetchNewUpdatedBook = async () => {
-  try {
-    const topViewBook = await bookService.getNewBooks();
-    if (!topViewBook) return null;
-    return topViewBook;
-  } catch (error) {
-    console.log(error);
-  }
-};
+    const fetchHomeData = async () => {
+      try {
+        const homeConfigData: HomeConfig = await homeConfigService.getConfig();
+        setHomeConfig(homeConfigData);
 
-const fetchSuggestedBook = async () => {
-  try {
-    const storedUserInfo = localStorage.getItem('userInfo');
-    const userInfo: userInfo = storedUserInfo
-      ? JSON.parse(storedUserInfo)
-      : null;
-    const userId = userInfo?.userRaw?._id;
-    const suggestBook = await bookService.getSuggestedBook(userId);
-    if (!suggestBook) return null;
-    return suggestBook;
-  } catch (error) {
-    console.error(error);
-  }
-};
+        const categoryData: CategoryResponse =
+          await categoryService.getAllCategories();
+        setCategoryResponse(categoryData);
 
-const HomePage = async () => {
-  const homeConfig = await fetchHomeConfig();
-  const categoryResponse = await fetchCategories();
-  const topViewBookResponse = await fetchTopViewBook();
-  const newUpdatedBookResponse = await fetchNewUpdatedBook();
-  const suggestBook = await fetchSuggestedBook();
+        const topViewBook: BookResponse = await bookService.getTopViewBook();
+        setTopViewBookResponse(topViewBook);
+
+        const newUpdatedBook: BookResponse = await bookService.getNewBooks();
+        setNewUpdatedBookResponse(newUpdatedBook);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
 
   return (
     <div className="md:container md:mt-5">
@@ -75,9 +88,6 @@ const HomePage = async () => {
       )}
       {categoryResponse?.data && (
         <CategoryGroup data={categoryResponse?.data} />
-      )}
-      {suggestBook?.data && (
-        <BookGroup data={suggestBook.data} title="Gợi ý cho bạn" />
       )}
       {topViewBookResponse?.data && (
         <BookGroup

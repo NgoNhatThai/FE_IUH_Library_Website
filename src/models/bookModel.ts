@@ -10,7 +10,7 @@ export interface BookModel {
   categoryId?: string | CategoryModel;
   authorId?: string | AuthorModel;
   majorId?: string | MajorModel;
-  content?: string | ContentModel;
+  content?: ContentModel;
   review?: string | ReviewModel;
   limit?: string;
   image?: string;

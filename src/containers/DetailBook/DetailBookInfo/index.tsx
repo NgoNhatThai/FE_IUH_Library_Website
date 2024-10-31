@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { formatCurrencyVND } from '@/ultils/number';
 import { Star, StarHalf } from 'lucide-react';
 import img from '@/assets/images/no-image.png';
@@ -14,8 +14,10 @@ import { UserModal } from '@/models/userInfo';
 import { LockOutlined } from '@ant-design/icons';
 import { QueryKey } from '@/types/api';
 import ConfirmModal from '@/components/ConfirmModal';
-
+import { DownloadOutlined } from '@ant-design/icons';
+import jsPDF from 'jspdf';
 const DetailBookInfo = ({ data }: { data: BookModel }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const rating = 5;
   const router = useRouter();
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -100,6 +102,43 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
       toast.error('Có lỗi xảy ra');
     }
   };
+  const DowloadBook = async () => {
+    setIsLoading(true);
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    const bookTitle = data?.title || 'untitled';
+
+    if (data.image) {
+      const imageUrl = data.image;
+      const img = await fetch(imageUrl).then((res) => res.blob());
+      const imageData = await convertBlobToDataURL(img);
+      doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
+      doc.addPage();
+    }
+
+    for (const chapter of data?.content?.chapters) {
+      if (chapter.images && chapter.images.length > 0) {
+        for (const image of chapter.images) {
+          const img = await fetch(image).then((res) => res.blob());
+          const imageData = await convertBlobToDataURL(img);
+          doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
+          doc.addPage();
+        }
+      }
+    }
+
+    doc.deletePage(doc.getNumberOfPages());
+    doc.save(`${bookTitle}.pdf`);
+    setIsLoading(false);
+  };
+
+  const convertBlobToDataURL = (blob: Blob): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  };
 
   return (
     <div className="container p-2">
@@ -113,6 +152,43 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
         <div className="mt-2 h-full w-full">
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold md:text-2xl">{data?.title}</p>
+            {data?.price === undefined || data?.price <= 0 || isBuy ? (
+              <button
+                className={`mr-2 mt-2 flex items-center rounded px-4 py-2 text-black ${
+                  isLoading
+                    ? 'cursor-not-allowed bg-gray-300'
+                    : 'bg-white hover:bg-gray-100'
+                }`}
+                onClick={DowloadBook}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <svg
+                    className="mr-2 h-5 w-5 animate-spin text-black"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <DownloadOutlined style={{ fontSize: '24px' }} />
+                )}
+                {isLoading ? 'Đang tải...' : ''}
+              </button>
+            ) : null}
           </div>
 
           <div className="flex items-center gap-2">

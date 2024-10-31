@@ -27,6 +27,7 @@ import {
   topUserTableColumns,
   topViewTableColumns,
 } from '@/ultils/column';
+import AdminHomePage from '../home/page';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -252,7 +253,7 @@ const OverviewPage = () => {
   };
 
   return (
-    <div className="mx-auto rounded-md bg-white p-5 px-4 md:ml-10 md:mr-10">
+    <div className="mx-auto rounded-md bg-white p-2 md:ml-10 md:mr-10">
       <h1 className="mb-5 text-center text-2xl font-bold">
         Thống kê Thư viện Online
       </h1>
@@ -330,6 +331,31 @@ const OverviewPage = () => {
                       showSizeChanger: true,
                       pageSizeOptions: ['5', '10', '20', '30'],
                     }}
+                    components={{
+                      header: {
+                        cell: ({
+                          children,
+                          ...restProps
+                        }: {
+                          children: React.ReactNode;
+                          [key: string]: any;
+                        }) => (
+                          <th
+                            {...restProps}
+                            style={{
+                              backgroundColor: '#e6f7ff',
+                              color: '#1890ff',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {children}
+                          </th>
+                        ),
+                      },
+                    }}
+                    style={{
+                      overflow: 'hidden',
+                    }}
                   />
                 </div>
               </div>
@@ -374,6 +400,31 @@ const OverviewPage = () => {
                       showSizeChanger: true,
                       pageSizeOptions: ['5', '10', '20', '30'],
                     }}
+                    components={{
+                      header: {
+                        cell: ({
+                          children,
+                          ...restProps
+                        }: {
+                          children: React.ReactNode;
+                          [key: string]: any;
+                        }) => (
+                          <th
+                            {...restProps}
+                            style={{
+                              backgroundColor: '#e6f7ff',
+                              color: '#1890ff',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {children}
+                          </th>
+                        ),
+                      },
+                    }}
+                    style={{
+                      overflow: 'hidden',
+                    }}
                   />
                 </div>
               </div>
@@ -417,6 +468,31 @@ const OverviewPage = () => {
                       showSizeChanger: true,
                       pageSizeOptions: ['5', '10', '20', '30'],
                     }}
+                    components={{
+                      header: {
+                        cell: ({
+                          children,
+                          ...restProps
+                        }: {
+                          children: React.ReactNode;
+                          [key: string]: any;
+                        }) => (
+                          <th
+                            {...restProps}
+                            style={{
+                              backgroundColor: '#e6f7ff',
+                              color: '#1890ff',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {children}
+                          </th>
+                        ),
+                      },
+                    }}
+                    style={{
+                      overflow: 'hidden',
+                    }}
                   />
                 </div>
               </div>
@@ -458,3 +534,6 @@ const OverviewPage = () => {
 };
 
 export default OverviewPage;
+// OverviewPage.getLayout = (page: React.ReactNode) => (
+//   <AdminHomePage>{page}</AdminHomePage>
+// );
