@@ -1,5 +1,5 @@
 'use client';
-import { BookModel, BookType } from '@/models/bookModel';
+import { BookModel } from '@/models/bookModel';
 import {
   Button,
   Form,
@@ -7,7 +7,6 @@ import {
   Select,
   InputNumber,
   Upload,
-  Radio,
   Modal,
   DatePicker,
 } from 'antd';
@@ -82,22 +81,19 @@ const AddBookPage = () => {
     ));
   }, [authors]);
 
-  const typeOptions = [
-    { label: 'Sách ảnh', value: BookType.NORMAL },
-    { label: 'Sách nói', value: BookType.VOICE },
-  ];
-
   const onFinish = async (values: BookModel) => {
     const formData = new FormData();
     formData.append('image', imageList[0].originFileObj);
     formData.append('title', values.title ? values.title : '');
     formData.append('desc', values.desc ? values.desc : '');
-    formData.append('categoryId', values.categoryId ? values.categoryId : '');
-    formData.append('authorId', values.authorId ? values.authorId : '');
-    formData.append('majorId', values.majorId ? values.majorId : '');
+    formData.append(
+      'categoryId',
+      values.categoryId ? String(values.categoryId) : '',
+    );
+    formData.append('authorId', values.authorId ? String(values.authorId) : '');
+    formData.append('majorId', values.majorId ? String(values.majorId) : '');
     formData.append('limit', values.limit ? values.limit : '');
-    formData.append('price', values.price ? values.price : 0);
-    formData.append('type', values.type ? values.type : BookType.NORMAL);
+    formData.append('price', values.price ? String(values.price) : '0');
 
     try {
       await bookService.createBook(formData);
@@ -290,12 +286,6 @@ const AddBookPage = () => {
               <Input placeholder="Nhập giới hạn độ tuổi" defaultValue={0} />
             </Form.Item>
 
-            <Form.Item name="type">
-              <Radio.Group
-                options={typeOptions}
-                defaultValue={BookType.NORMAL}
-              />
-            </Form.Item>
             <Form.Item
               label="Giá bán"
               name="price"
