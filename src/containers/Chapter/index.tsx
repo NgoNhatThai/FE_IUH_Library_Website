@@ -263,7 +263,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
         return (
           <div
             key={paragraphIndex}
-            className="paragraph-container relative mb-6 rounded-lg bg-white p-24 pb-32 pt-32 shadow-lg"
+            className="paragraph-container relative mb-6 rounded-lg bg-white shadow-lg md:p-24 md:pb-32 md:pt-32"
             style={{ marginBottom: '1.5em' }}
           >
             {paragraphGroup.map((part, partIndex) => {

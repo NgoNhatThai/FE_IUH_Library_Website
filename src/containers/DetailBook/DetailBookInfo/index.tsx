@@ -25,13 +25,17 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const [openModal, setOpenModal] = React.useState(false);
 
   const handleOnClick = async (id: string) => {
-    await userService.read(userInfo?.userRaw?._id, data?._id ?? '', id);
+    if (user) {
+      console.log('ddd:', user, data?._id, id);
+      await userService.read(userInfo._id, data?._id ?? '', id);
+    }
     router.push(`${CHAPTER}/${id}`);
   };
 
   const bookmark = JSON.parse(localStorage.getItem('@bookmark') || '[]');
 
   const user: UserModal = useMemo(() => {
+    console.log({ userInfo });
     return userInfo ? userInfo.userRaw : null;
   }, [userInfo]);
 
@@ -116,13 +120,15 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
       doc.addPage();
     }
 
-    for (const chapter of data?.content?.chapters) {
-      if (chapter.images && chapter.images.length > 0) {
-        for (const image of chapter.images) {
-          const img = await fetch(image).then((res) => res.blob());
-          const imageData = await convertBlobToDataURL(img);
-          doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
-          doc.addPage();
+    if (data?.content && data?.content.chapters) {
+      for (const chapter of data?.content?.chapters) {
+        if (chapter.images && chapter.images.length > 0) {
+          for (const image of chapter.images) {
+            const img = await fetch(image).then((res) => res.blob());
+            const imageData = await convertBlobToDataURL(img);
+            doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
+            doc.addPage();
+          }
         }
       }
     }
