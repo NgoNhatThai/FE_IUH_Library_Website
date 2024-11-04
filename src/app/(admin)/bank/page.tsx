@@ -84,7 +84,7 @@ const BankPage = () => {
   });
 
   return (
-    <div className="container mx-auto rounded-lg bg-white shadow-lg md:m-5 md:p-8">
+    <div className="container mx-auto rounded-lg bg-white shadow-lg md:p-8">
       <h2 className="mb-6 text-center text-2xl font-bold">
         Cấu hình tài khoản ngân hàng
       </h2>
@@ -132,11 +132,36 @@ const BankPage = () => {
         </Form.Item>
       </Form>
       <Table
-        className="mt-6 table w-full"
         columns={columns}
         dataSource={data || []}
         loading={isLoadingData}
         rowKey="bankId"
+        className="mt-6 table w-full rounded-md shadow-md"
+        components={{
+          header: {
+            cell: ({
+              children,
+              ...restProps
+            }: {
+              children: React.ReactNode;
+              [key: string]: any;
+            }) => (
+              <th
+                {...restProps}
+                style={{
+                  backgroundColor: '#e6f7ff',
+                  color: '#1890ff',
+                  fontWeight: 'bold',
+                }}
+              >
+                {children}
+              </th>
+            ),
+          },
+        }}
+        style={{
+          overflow: 'hidden',
+        }}
       />
     </div>
   );

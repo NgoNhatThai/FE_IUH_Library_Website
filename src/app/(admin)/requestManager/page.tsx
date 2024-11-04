@@ -22,6 +22,7 @@ const RequestManagerPage = () => {
     {
       title: 'Số tiền',
       dataIndex: 'amount',
+      className: 'text-right',
       key: 'amount',
       render: (amount: number) => {
         return <p>{formatCurrencyVND(amount || 0)}</p>;
@@ -35,6 +36,15 @@ const RequestManagerPage = () => {
         return (
           <p>{`${bankConfig?.bankName || ''} - ${bankConfig?.accountNumber || ''} `}</p>
         );
+      },
+    },
+    // ngày tạo
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'createdAt',
+      key: 'createdAt ',
+      render: (createdAt: string) => {
+        return <p>{new Date(createdAt).toLocaleDateString()}</p>;
       },
     },
     {
@@ -70,7 +80,7 @@ const RequestManagerPage = () => {
     adminService.getAllRequest,
     {},
   );
-
+  console.log('data', data);
   const handleAcceptRequest = async (userId: string, requestId: string) => {
     try {
       const response = await adminService.acceptRequest({ userId, requestId });
@@ -84,15 +94,42 @@ const RequestManagerPage = () => {
   };
   return (
     <div className="container rounded-md bg-white">
+      <h1 className="mb-4 text-center text-2xl font-bold">Yêu cầu nạp tiền</h1>
       <Table
         columns={columns}
         dataSource={data}
         loading={isLoading}
         rowKey="id"
-        pagination={{
-          pageSize: 5,
-          showSizeChanger: true,
-          pageSizeOptions: ['5', '10', '20', '30'],
+        // pagination={{
+        //   pageSize: 5,
+        //   showSizeChanger: true,
+        //   pageSizeOptions: ['5', '10', '20', '30'],
+        // }}
+        className="rounded-md shadow-md"
+        components={{
+          header: {
+            cell: ({
+              children,
+              ...restProps
+            }: {
+              children: React.ReactNode;
+              [key: string]: any;
+            }) => (
+              <th
+                {...restProps}
+                style={{
+                  backgroundColor: '#e6f7ff',
+                  color: '#1890ff',
+                  fontWeight: 'bold',
+                }}
+              >
+                {children}
+              </th>
+            ),
+          },
+        }}
+        style={{
+          overflow: 'hidden',
         }}
       />
     </div>

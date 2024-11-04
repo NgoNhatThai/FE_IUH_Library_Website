@@ -24,11 +24,14 @@ import { CategoryModel, CategoryStatus } from '@/models';
 import { AuthorModel, AuthorStatus } from '@/models/authorModel';
 import { MajorModel } from '@/models/majorModel';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const AddBookPage = () => {
+  const router = useRouter();
+
   const [form] = useForm<BookModel>();
   const [formCategory] = useForm<CategoryModel>();
   const [formAuthor] = useForm<AuthorModel>();
@@ -37,13 +40,15 @@ const AddBookPage = () => {
   const [isModalCatergory, setIsModalCatergor] = useState(false);
   const [isModalAuthor, setIsModalAuthor] = useState(false);
   const [isModalMajor, setIsModalMajor] = useState(false);
+  const [isModalAddChapter, setIsModalAddChapter] = useState(false);
+  const [bookResponse, setBookResponse] = useState('');
+
   const { data: categories, refetch: refetchCategories } = useQuery(
     [QueryKey.CATEGORY],
     async () => {
       return await adminService.getAllCategory();
     },
   );
-
   const { data: majors, refetch: refetchMajor } = useQuery(
     [QueryKey.MAJOR],
     async () => {
@@ -97,17 +102,33 @@ const AddBookPage = () => {
     formData.append('majorId', values.majorId ? values.majorId : '');
     formData.append('limit', values.limit ? values.limit : '');
     formData.append('price', values.price ? values.price : 0);
-    formData.append('type', values.type ? values.type : BookType.NORMAL);
+    formData.append('type', BookType.VOICE);
 
     try {
-      await bookService.createBook(formData);
+      const response = await bookService.createBook(formData);
+      setBookResponse(response?.data?._id);
       toast.success('Đăng sách thành công!');
+      setIsModalAddChapter(true);
     } catch (error) {
       console.error('Error:', error);
       toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
     }
   };
+  const handleChapterOption = (option: string) => {
+    if (bookResponse) {
+      if (option === 'chapter') {
+        console.log('Response for chapter:', bookResponse);
+        router.push(`/addOneChapter?id=${bookResponse}`);
+      } else if (option === 'full') {
+        console.log('Response for chapter:', bookResponse);
 
+        router.push(`/addAllChapter?id=${bookResponse}`);
+      }
+      setIsModalAddChapter(false);
+    } else {
+      toast.error('Không có dữ liệu để xử lý');
+    }
+  };
   const handleUploadChange = ({ fileList }: any) => {
     console.log('fileList', fileList);
     setImageList(fileList);
@@ -174,7 +195,7 @@ const AddBookPage = () => {
   };
   return (
     <div className="container w-[80%] rounded-md bg-white p-4 md:mb-10">
-      <Breadcrumb title="Quản lý sách" />
+      {/* <Breadcrumb title="Quản lý sách" /> */}
       <hr className="my-4" />
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <h1 className="mb-4 text-2xl font-semibold">Thêm sách mới</h1>
@@ -290,12 +311,12 @@ const AddBookPage = () => {
               <Input placeholder="Nhập giới hạn độ tuổi" defaultValue={0} />
             </Form.Item>
 
-            <Form.Item name="type">
+            {/* <Form.Item name="type">
               <Radio.Group
                 options={typeOptions}
                 defaultValue={BookType.NORMAL}
               />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
               label="Giá bán"
               name="price"
@@ -414,6 +435,32 @@ const AddBookPage = () => {
           </Form.Item>
         </div>
       </Form>
+      <Modal open={isModalAddChapter} footer={null} closable={false}>
+        <div className="text-center">
+          <p className="mb-6 text-lg">
+            Bạn muốn nội dung sách đang theo chapter hay đăng hết nội dung 1
+            lần?
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Button
+              type="primary"
+              onClick={() => handleChapterOption('chapter')}
+            >
+              Đăng chapter
+            </Button>
+            <Button
+              style={{
+                backgroundColor: '#FF5733',
+                color: 'white',
+                border: 'none',
+              }}
+              onClick={() => handleChapterOption('full')}
+            >
+              Đăng nguyên
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

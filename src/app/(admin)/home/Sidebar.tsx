@@ -30,12 +30,22 @@ const Sidebar = () => {
         { label: 'Tác giả', key: '/authorManager', icon: <AppstoreOutlined /> },
         {
           label: 'Chuyên ngành',
-          key: '/departments',
+          key: '/majorManager',
           icon: <AppstoreOutlined />,
         },
         { label: 'Thống kê', key: '/overview', icon: <BarChartOutlined /> },
-
+        {
+          label: 'Ngân hàng',
+          key: '/bank',
+          icon: <BarChartOutlined />,
+        },
+        {
+          label: 'Yêu cầu nạp tiền',
+          key: '/requestManager',
+          icon: <BarChartOutlined />,
+        },
         { label: 'Tài khoản', key: '/accounts', icon: <UserOutlined /> },
+        { label: 'adđ', key: '/addAllChapter', icon: <UserOutlined /> },
       ],
     },
   ];

@@ -7,75 +7,35 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import { useQuery } from 'react-query';
+import { QueryKey } from '@/types/api';
+import { bookService } from '@/services/bookService';
 
 const BookManagerPage = () => {
   const router = useRouter();
   const navigateToPage = (path: string) => {
     router.push(path);
   };
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
-  const data = [
-    {
-      id: 1,
-      title: 'Harry Potter và Hòn Đá Phù Thủy',
-      category: 'Tiểu thuyết',
-      major: 'Văn học',
-      author: 'J.K. Rowling',
-      price: 100000,
-      image:
-        'https://res.cloudinary.com/iuhcloundlibrary/image/upload/w_1000,ar_1:1,c_fill,g_auto,e_art:hokusai/v1724377719/category_klkwdq.jpg',
+  const { data: books, refetch: refetchBooks } = useQuery(
+    [QueryKey.BOOK, current, pageSize],
+    async () => {
+      return await bookService.getAllBook(current - 1, pageSize);
     },
-    {
-      id: 2,
-      title: 'Có công mài sắt có ngày nên kim',
-      category: 'Văn học',
-      major: 'Văn học',
-      author: 'Nguyễn Du',
-      price: 120000,
-      image:
-        'https://res.cloudinary.com/iuhcloundlibrary/image/upload/w_1000,ar_1:1,c_fill,g_auto,e_art:hokusai/v1724377719/category_klkwdq.jpg',
-    },
-    {
-      id: 3,
-      title: 'Lập trình không khó',
-      category: 'Khoa học',
-      major: 'Công nghệ',
-      author: 'John Doe',
-      price: 150000,
-      image:
-        'https://res.cloudinary.com/iuhcloundlibrary/image/upload/w_1000,ar_1:1,c_fill,g_auto,e_art:hokusai/v1724377719/category_klkwdq.jpg',
-    },
-    {
-      id: 4,
-      title: 'Tư duy nhanh và chậm',
-      category: 'Tâm lý',
-      major: 'Khoa học',
-      author: 'Daniel Kahneman',
-      price: 180000,
-      image:
-        'https://res.cloudinary.com/iuhcloundlibrary/image/upload/w_1000,ar_1:1,c_fill,g_auto,e_art:hokusai/v1724377719/category_klkwdq.jpg',
-    },
-    {
-      id: 5,
-      title: 'Đắc nhân tâm',
-      category: 'Kỹ năng sống',
-      major: 'Phát triển bản thân',
-      author: 'Dale Carnegie',
-      price: 130000,
-      image:
-        'https://res.cloudinary.com/iuhcloundlibrary/image/upload/w_1000,ar_1:1,c_fill,g_auto,e_art:hokusai/v1724377719/category_klkwdq.jpg',
-    },
-  ];
-
-  const filteredData = data.filter(
-    (book) =>
-      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const optionsMenu = (
+  const filteredData = books?.data.filter(
+    (book: any) =>
+      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.authorId.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.categoryId.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const optionsMenu = (recod: any) => (
     <div className="flex flex-col space-y-2">
       <Button type="text" onClick={() => alert('Sửa sách')}>
         Sửa
@@ -83,12 +43,20 @@ const BookManagerPage = () => {
       <Button type="text" onClick={() => alert('Xóa sách')}>
         Xóa
       </Button>
-      <Button type="text" onClick={() => alert('Thêm Chapter')}>
-        Thêm Chapter
-      </Button>
+      {recod?.status === 'ISWRITE' && (
+        <Button
+          type="text"
+          onClick={() => {
+            router.push(`/addOneChapter?id=${recod?._id}`);
+          }}
+        >
+          Thêm Chapter
+        </Button>
+      )}
     </div>
   );
 
+  // Define columns for the table
   const columns = [
     {
       title: 'Ảnh sách',
@@ -106,38 +74,50 @@ const BookManagerPage = () => {
     },
     {
       title: 'Tác giả',
-      dataIndex: 'author',
-      key: 'author',
+      dataIndex: 'authorId',
+      key: 'authorId',
+      render: (author: any) => author?.name,
     },
     {
       title: 'Danh mục',
-      dataIndex: 'category',
-      key: 'category',
+      dataIndex: 'categoryId',
+      key: 'categoryId',
+      render: (category: any) => category?.name,
     },
     {
       title: 'Chuyên ngành',
-      dataIndex: 'major',
-      key: 'major',
+      dataIndex: 'majorId',
+      key: 'majorId',
+      render: (major: any) => major?.name,
     },
     {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',
-      render: (price: number) => (
-        <span>
-          {price.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-          })}
+      render: (price: number) =>
+        price
+          ? price.toLocaleString('vi-VN', {
+              style: 'currency',
+              currency: 'VND',
+            })
+          : 'Miễn phí',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'active',
+      key: 'active',
+      render: (active: boolean) => (
+        <span style={{ color: active ? 'green' : 'red' }}>
+          {active ? 'ACTIVE' : 'INACTIVE'}
         </span>
       ),
     },
     {
       title: 'Tùy chỉnh',
       key: 'action',
-      render: () => (
+      render: (record: any) => (
         <Space size="middle">
-          <Popover content={optionsMenu} trigger="click">
+          <Popover content={optionsMenu(record)} trigger="click">
             <Button type="text" icon={<SettingOutlined />} />
           </Popover>
         </Space>
@@ -165,20 +145,22 @@ const BookManagerPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: 300, height: 40 }}
           />
-          <Button type="primary" icon={<SearchOutlined />}>
-            Tìm
-          </Button>
         </div>
       </div>
       <Table
         columns={columns}
         dataSource={filteredData}
         pagination={{
-          pageSize: 5,
-          pageSizeOptions: ['5', '10'],
-          showSizeChanger: true,
+          current,
+          pageSize,
+          total: books?.total,
+          onChange: (page, pageSize) => {
+            setCurrent(page);
+            setPageSize(pageSize);
+            refetchBooks();
+          },
         }}
-        rowKey="id"
+        rowKey="_id"
         className="rounded-md shadow-md"
         components={{
           header: {

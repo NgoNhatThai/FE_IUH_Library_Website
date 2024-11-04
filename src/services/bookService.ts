@@ -133,4 +133,30 @@ export const bookService = {
         throw error;
       });
   },
+  getAllBook: async (page: number, pageSize: number): Promise<any> => {
+    return axios({
+      // baseURL: `${BOOK_ROUTE_URL}/search`,
+      baseURL: `${BOOK_ROUTE_URL}/search?pageIndex=${page}&pageSize=${pageSize}`,
+      method: 'GET',
+      headers: {},
+    })
+      .then((res) => res?.data?.data)
+      .catch((err) => {
+        throw err;
+      });
+  },
+  addChapter: async (data: FormData): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${BOOK_ROUTE_URL}/add-chapter`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };
