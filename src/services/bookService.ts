@@ -159,4 +159,32 @@ export const bookService = {
         throw error;
       });
   },
+  addChapterbyOutline: async (data: FormData): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${BOOK_ROUTE_URL}/add-chapter-by-outline`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  addMultiChapters: async (data: FormData): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${BOOK_ROUTE_URL}/add-multi-chapters`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

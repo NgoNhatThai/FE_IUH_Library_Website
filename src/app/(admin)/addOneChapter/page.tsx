@@ -1,7 +1,17 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Form, Input, Upload, message, List, Typography } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Upload,
+  message,
+  List,
+  Typography,
+  Spin,
+  Checkbox,
+} from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
 import { useQuery } from 'react-query';
 import { QueryKey } from '@/types/api';
@@ -10,11 +20,13 @@ import { BookDetailResponse } from '@/models/bookModel';
 import { toast } from 'react-toastify';
 
 const AddOneChapter = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const bookId = searchParams.get('id');
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-
+  const [loading, setLoading] = useState(false);
+  const [isChapterFinal, setIsChapterFinal] = useState(false);
   const {
     data: book,
     isLoading,
@@ -42,7 +54,7 @@ const AddOneChapter = () => {
         message.error('Vui lòng tải lên file PDF!');
         return;
       }
-
+      setLoading(true);
       const formData = new FormData();
       formData.append('contentId', book?.data?.content?._id || '');
       if (fileList[0].originFileObj) {
@@ -51,26 +63,35 @@ const AddOneChapter = () => {
         throw new Error('File is undefined');
       }
       formData.append('title', values.chapterName); // Thêm title
-
+      if (isChapterFinal) {
+        formData.append('status', 'FINISH');
+      }
       try {
         const response = await bookService.addChapter(formData);
         console.log('response', response);
+        if (isChapterFinal) {
+          router.push(`/bookManager`);
+          return;
+        }
         refetch();
-        message.success('Thêm chapter mới thành công!');
+        message.success('Thêm chương mới thành công!');
         form.resetFields();
+        setFileList([]);
       } catch (error) {
         console.error('Error:', error);
         message.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+      } finally {
+        setLoading(false);
       }
     });
   };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+  // if (isLoading) {
+  //   return <p>Loading...</p>;
+  // }
 
   return (
-    <>
+    <Spin spinning={loading} size="large" tip="Đang xử lý...">
       <h1 className="text-center text-3xl font-semibold">Thêm Chapter</h1>
 
       <div className="container flex w-full justify-between rounded-md bg-white p-10">
@@ -132,16 +153,23 @@ const AddOneChapter = () => {
             >
               <Input placeholder="Tên Chapter" />
             </Form.Item>
-
+            <Form.Item>
+              <Checkbox
+                checked={isChapterFinal}
+                onChange={(e) => setIsChapterFinal(e.target.checked)}
+              >
+                Chương cuối
+              </Checkbox>
+            </Form.Item>
             <div className="mt-4 text-right">
               <Button type="primary" onClick={handleSubmit}>
-                Đăng Chapter
+                Đăng chương
               </Button>
             </div>
           </Form>
         </div>
       </div>
-    </>
+    </Spin>
   );
 };
 

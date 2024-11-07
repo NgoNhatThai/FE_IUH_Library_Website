@@ -27,7 +27,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const handleOnClick = async (id: string) => {
     if (user) {
       console.log('ddd:', user, data?._id, id);
-      await userService.read(userInfo._id, data?._id ?? '', id);
+      await userService.read(user._id, data?._id ?? '', id);
     }
     router.push(`${CHAPTER}/${id}`);
   };
@@ -112,13 +112,13 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
 
     const bookTitle = data?.title || 'untitled';
 
-    if (data.image) {
-      const imageUrl = data.image;
-      const img = await fetch(imageUrl).then((res) => res.blob());
-      const imageData = await convertBlobToDataURL(img);
-      doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
-      doc.addPage();
-    }
+    // if (data.image) {
+    //   const imageUrl = data.image;
+    //   const img = await fetch(imageUrl).then((res) => res.blob());
+    //   const imageData = await convertBlobToDataURL(img);
+    //   doc.addImage(imageData, 'PNG', 0, 0, 210, 297);
+    //   doc.addPage();
+    // }
 
     if (data?.content && data?.content.chapters) {
       for (const chapter of data?.content?.chapters) {

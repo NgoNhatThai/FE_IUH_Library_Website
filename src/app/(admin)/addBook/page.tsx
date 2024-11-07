@@ -9,6 +9,7 @@ import {
   Upload,
   Modal,
   DatePicker,
+  Spin,
 } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { PlusOutlined } from '@ant-design/icons';
@@ -41,6 +42,7 @@ const AddBookPage = () => {
   const [isModalMajor, setIsModalMajor] = useState(false);
   const [isModalAddChapter, setIsModalAddChapter] = useState(false);
   const [bookResponse, setBookResponse] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { data: categories, refetch: refetchCategories } = useQuery(
     [QueryKey.CATEGORY],
@@ -87,6 +89,8 @@ const AddBookPage = () => {
   }, [authors]);
 
   const onFinish = async (values: BookModel) => {
+    setLoading(true);
+
     const formData = new FormData();
     formData.append('image', imageList[0].originFileObj);
     formData.append('title', values.title ? values.title : '');
@@ -108,8 +112,11 @@ const AddBookPage = () => {
     } catch (error) {
       console.error('Error:', error);
       toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    } finally {
+      setLoading(false);
     }
   };
+  console.log('bookResponse', bookResponse);
   const handleChapterOption = (option: string) => {
     if (bookResponse) {
       if (option === 'chapter') {
@@ -190,274 +197,281 @@ const AddBookPage = () => {
     }
   };
   return (
-    <div className="container w-[80%] rounded-md bg-white p-4 md:mb-10">
-      {/* <Breadcrumb title="Quản lý sách" /> */}
-      <hr className="my-4" />
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        <h1 className="mb-4 text-2xl font-semibold">Thêm sách mới</h1>
-        <div className="grid grid-cols-2">
-          <div className="col-span-1">
-            <Form.Item
-              className="h-full pl-5 pr-5"
-              label="Ảnh bìa"
-              name="image"
-              valuePropName="fileList"
-              getValueFromEvent={(e) => e && e.fileList}
-              rules={[{ required: true, message: 'Vui lòng chọn ảnh bìa!' }]}
-            >
-              <Upload
-                className="w-[80%]"
-                type="drag"
-                listType="picture"
-                fileList={imageList}
-                accept="image/*"
-                maxCount={1}
-                onChange={handleUploadChange}
-                beforeUpload={() => false}
+    <Spin spinning={loading} size="large" tip="Đang xử lý...">
+      <div className="container w-[80%] rounded-md bg-white p-4 md:mb-10">
+        {/* <Breadcrumb title="Quản lý sách" /> */}
+        <hr className="my-4" />
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <h1 className="mb-4 text-2xl font-semibold">Thêm sách mới</h1>
+          <div className="grid grid-cols-2">
+            <div className="col-span-1">
+              <Form.Item
+                className="h-full pl-5 pr-5"
+                label="Ảnh bìa"
+                name="image"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => e && e.fileList}
+                rules={[{ required: true, message: 'Vui lòng chọn ảnh bìa!' }]}
               >
-                {imageList.length < 1 && (
-                  <div>
-                    <PlusOutlined />
-                    <div style={{ marginTop: 8 }}>Upload</div>
+                <Upload
+                  className="w-[80%]"
+                  type="drag"
+                  listType="picture"
+                  fileList={imageList}
+                  accept="image/*"
+                  maxCount={1}
+                  onChange={handleUploadChange}
+                  beforeUpload={() => false}
+                >
+                  {imageList.length < 1 && (
+                    <div>
+                      <PlusOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  )}
+                </Upload>
+                <p className="mt-2 text-center text-sm text-gray-400">
+                  Vui lòng tải lên ảnh có tỷ lệ 1:1.5, kích thước tối thiểu
+                  1000x1500 pixels để đảm bảo chất lượng bìa sách tốt nhất.
+                </p>
+              </Form.Item>
+            </div>
+            <div className="col-span-1">
+              <Form.Item
+                label="Tên sách"
+                name="title"
+                rules={[{ required: true, message: 'Vui lòng nhập tên sách!' }]}
+              >
+                <Input placeholder="Nhập tên sách" />
+              </Form.Item>
+
+              <Form.Item label="Mô tả" name="desc">
+                <TextArea rows={4} />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <div className="flex items-center justify-items-center">
+                    Danh mục
+                    <Button
+                      type="link"
+                      icon={<PlusOutlined />}
+                      onClick={() => {
+                        setIsModalCatergor(true);
+                      }}
+                      style={{ marginLeft: 8 }}
+                    />
                   </div>
-                )}
-              </Upload>
-              <p className="mt-2 text-center text-sm text-gray-400">
-                Vui lòng tải lên ảnh có tỷ lệ 1:1.5, kích thước tối thiểu
-                1000x1500 pixels để đảm bảo chất lượng bìa sách tốt nhất.
-              </p>
-            </Form.Item>
-          </div>
-          <div className="col-span-1">
-            <Form.Item
-              label="Tên sách"
-              name="title"
-              rules={[{ required: true, message: 'Vui lòng nhập tên sách!' }]}
-            >
-              <Input placeholder="Nhập tên sách" />
-            </Form.Item>
+                }
+                name="categoryId"
+                rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+              >
+                <Select placeholder="Chọn danh mục">{categoriesOptions}</Select>
+              </Form.Item>
 
-            <Form.Item label="Mô tả" name="desc">
-              <TextArea rows={4} />
-            </Form.Item>
+              <Form.Item
+                label={
+                  <div className="flex items-center justify-items-center">
+                    Tác giả
+                    <Button
+                      type="link"
+                      icon={<PlusOutlined />}
+                      onClick={() => {
+                        setIsModalAuthor(true);
+                      }}
+                      style={{ marginLeft: 8 }}
+                    />
+                  </div>
+                }
+                name="authorId"
+                rules={[{ required: true, message: 'Vui lòng chọn tác giả!' }]}
+              >
+                <Select placeholder="Chọn tác giả">{authorsOptions}</Select>
+              </Form.Item>
 
-            <Form.Item
-              label={
-                <div className="flex items-center justify-items-center">
-                  Danh mục
-                  <Button
-                    type="link"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      setIsModalCatergor(true);
-                    }}
-                    style={{ marginLeft: 8 }}
-                  />
-                </div>
-              }
-              name="categoryId"
-              rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
-            >
-              <Select placeholder="Chọn danh mục">{categoriesOptions}</Select>
-            </Form.Item>
+              <Form.Item
+                label={
+                  <div className="flex items-center justify-items-center">
+                    Chuyên ngành
+                    <Button
+                      type="link"
+                      icon={<PlusOutlined />}
+                      onClick={() => {
+                        setIsModalMajor(true);
+                      }}
+                      style={{ marginLeft: 8 }}
+                    />
+                  </div>
+                }
+                name="majorId"
+                rules={[
+                  { required: true, message: 'Vui lòng chọn chuyên ngành!' },
+                ]}
+              >
+                <Select placeholder="Chọn chuyên ngành">{majorsOptions}</Select>
+              </Form.Item>
 
-            <Form.Item
-              label={
-                <div className="flex items-center justify-items-center">
-                  Tác giả
-                  <Button
-                    type="link"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      setIsModalAuthor(true);
-                    }}
-                    style={{ marginLeft: 8 }}
-                  />
-                </div>
-              }
-              name="authorId"
-              rules={[{ required: true, message: 'Vui lòng chọn tác giả!' }]}
-            >
-              <Select placeholder="Chọn tác giả">{authorsOptions}</Select>
-            </Form.Item>
+              <Form.Item label="Giới hạn độ tuổi" name="limit">
+                <Input placeholder="Nhập giới hạn độ tuổi" defaultValue={0} />
+              </Form.Item>
 
-            <Form.Item
-              label={
-                <div className="flex items-center justify-items-center">
-                  Chuyên ngành
-                  <Button
-                    type="link"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      setIsModalMajor(true);
-                    }}
-                    style={{ marginLeft: 8 }}
-                  />
-                </div>
-              }
-              name="majorId"
-              rules={[
-                { required: true, message: 'Vui lòng chọn chuyên ngành!' },
-              ]}
-            >
-              <Select placeholder="Chọn chuyên ngành">{majorsOptions}</Select>
-            </Form.Item>
-
-            <Form.Item label="Giới hạn độ tuổi" name="limit">
-              <Input placeholder="Nhập giới hạn độ tuổi" defaultValue={0} />
-            </Form.Item>
-
-            <Form.Item name="type">
+              {/* <Form.Item name="type">
               <Radio.Group
                 options={typeOptions}
                 defaultValue={BookType.NORMAL}
               />
-            </Form.Item>
-            <Form.Item
-              label="Giá bán"
-              name="price"
-              rules={[{ type: 'number', message: 'Vui lòng nhập số!' }]}
-            >
-              <InputNumber
-                min={0}
-                className="w-full"
-                addonAfter="VND"
-                defaultValue={0}
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                }
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
-              />
+            </Form.Item> */}
+              <Form.Item
+                label="Giá bán"
+                name="price"
+                rules={[{ type: 'number', message: 'Vui lòng nhập số!' }]}
+              >
+                <InputNumber
+                  min={0}
+                  className="w-full"
+                  addonAfter="VND"
+                  defaultValue={0}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
+                />
+              </Form.Item>
+            </div>
+          </div>
+
+          <Modal
+            title="Thêm danh mục mới"
+            open={isModalCatergory}
+            onOk={handleOkModalCategory}
+            onCancel={() => setIsModalCatergor(false)}
+          >
+            <Form form={formCategory} layout="vertical">
+              <Form.Item
+                label="Tên danh mục"
+                name="name"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập tên danh mục!' },
+                ]}
+              >
+                <Input placeholder="Nhập tên danh mục" />
+              </Form.Item>
+              <Form.Item
+                label="Mô tả"
+                name="desc"
+                rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+              >
+                <TextArea rows={4} />
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          <Modal
+            title="Thêm tác giả mới"
+            open={isModalAuthor}
+            onOk={handleOkModalAuthor}
+            onCancel={() => setIsModalAuthor(false)}
+          >
+            <Form form={formAuthor} layout="vertical">
+              <Form.Item
+                label="Tên tác giả"
+                name="name"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập tên tác giả!' },
+                ]}
+              >
+                <Input placeholder="Nhập tên tác giả" />
+              </Form.Item>
+              <Form.Item
+                label="Ngày sinh"
+                name="birthDate"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập ngày sinh!' },
+                ]}
+              >
+                <DatePicker
+                  format="DD/MM/YYYY"
+                  style={{ width: '100%' }}
+                  size="large"
+                  placeholder="Chọn ngày sinh"
+                  disabledDate={(current) =>
+                    current && current > dayjs().endOf('day')
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="Mô tả"
+                name="desc"
+                rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+              >
+                <TextArea rows={4} />
+              </Form.Item>
+            </Form>
+          </Modal>
+          <Modal
+            title="Thêm chuyên ngành mới"
+            open={isModalMajor}
+            onOk={handleOkModalMajor}
+            onCancel={() => setIsModalMajor(false)}
+          >
+            <Form form={formMajor} layout="vertical">
+              <Form.Item
+                label="Tên chuyên ngành"
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập tên chuyên ngành!',
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập tên chuyên ngành" />
+              </Form.Item>
+              <Form.Item
+                label="Mô tả"
+                name="desc"
+                rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+              >
+                <TextArea rows={4} />
+              </Form.Item>
+            </Form>
+          </Modal>
+          <div className="flex w-full items-end justify-end">
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Đăng sách
+              </Button>
             </Form.Item>
           </div>
-        </div>
-
-        <Modal
-          title="Thêm danh mục mới"
-          open={isModalCatergory}
-          onOk={handleOkModalCategory}
-          onCancel={() => setIsModalCatergor(false)}
-        >
-          <Form form={formCategory} layout="vertical">
-            <Form.Item
-              label="Tên danh mục"
-              name="name"
-              rules={[
-                { required: true, message: 'Vui lòng nhập tên danh mục!' },
-              ]}
-            >
-              <Input placeholder="Nhập tên danh mục" />
-            </Form.Item>
-            <Form.Item
-              label="Mô tả"
-              name="desc"
-              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-            >
-              <TextArea rows={4} />
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Modal
-          title="Thêm tác giả mới"
-          open={isModalAuthor}
-          onOk={handleOkModalAuthor}
-          onCancel={() => setIsModalAuthor(false)}
-        >
-          <Form form={formAuthor} layout="vertical">
-            <Form.Item
-              label="Tên tác giả"
-              name="name"
-              rules={[
-                { required: true, message: 'Vui lòng nhập tên tác giả!' },
-              ]}
-            >
-              <Input placeholder="Nhập tên tác giả" />
-            </Form.Item>
-            <Form.Item
-              label="Ngày sinh"
-              name="birthDate"
-              rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
-            >
-              <DatePicker
-                format="DD/MM/YYYY"
-                style={{ width: '100%' }}
-                size="large"
-                placeholder="Chọn ngày sinh"
-                disabledDate={(current) =>
-                  current && current > dayjs().endOf('day')
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="Mô tả"
-              name="desc"
-              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-            >
-              <TextArea rows={4} />
-            </Form.Item>
-          </Form>
-        </Modal>
-        <Modal
-          title="Thêm chuyên ngành mới"
-          open={isModalMajor}
-          onOk={handleOkModalMajor}
-          onCancel={() => setIsModalMajor(false)}
-        >
-          <Form form={formMajor} layout="vertical">
-            <Form.Item
-              label="Tên chuyên ngành"
-              name="name"
-              rules={[
-                { required: true, message: 'Vui lòng nhập tên chuyên ngành!' },
-              ]}
-            >
-              <Input placeholder="Nhập tên chuyên ngành" />
-            </Form.Item>
-            <Form.Item
-              label="Mô tả"
-              name="desc"
-              rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-            >
-              <TextArea rows={4} />
-            </Form.Item>
-          </Form>
-        </Modal>
-        <div className="flex w-full items-end justify-end">
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Đăng sách
-            </Button>
-          </Form.Item>
-        </div>
-      </Form>
-      <Modal open={isModalAddChapter} footer={null} closable={false}>
-        <div className="text-center">
-          <p className="mb-6 text-lg">
-            Bạn muốn nội dung sách đang theo chapter hay đăng hết nội dung 1
-            lần?
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Button
-              type="primary"
-              onClick={() => handleChapterOption('chapter')}
-            >
-              Đăng chapter
-            </Button>
-            <Button
-              style={{
-                backgroundColor: '#FF5733',
-                color: 'white',
-                border: 'none',
-              }}
-              onClick={() => handleChapterOption('full')}
-            >
-              Đăng nguyên
-            </Button>
+        </Form>
+        <Modal open={isModalAddChapter} footer={null} closable={false}>
+          <div className="text-center">
+            <p className="mb-6 text-lg">
+              Bạn muốn nội dung sách đang theo chapter hay đăng hết nội dung 1
+              lần?
+            </p>
+            <div className="flex justify-center space-x-4">
+              <Button
+                type="primary"
+                onClick={() => handleChapterOption('chapter')}
+              >
+                Đăng chapter
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: '#FF5733',
+                  color: 'white',
+                  border: 'none',
+                }}
+                onClick={() => handleChapterOption('full')}
+              >
+                Đăng nguyên
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
-    </div>
+        </Modal>
+      </div>
+    </Spin>
   );
 };
 

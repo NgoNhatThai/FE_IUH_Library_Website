@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Button,
   Form,
@@ -8,105 +9,26 @@ import {
   message,
   List,
   Typography,
-  Table,
   Spin,
+  Checkbox,
+  Modal,
 } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
-import { Viewer, Worker } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from 'react-query';
-import { BookDetailResponse } from '@/models/bookModel';
 import { QueryKey } from '@/types/api';
 import { bookService } from '@/services/bookService';
+import { BookDetailResponse } from '@/models/bookModel';
+import { toast } from 'react-toastify';
+
 const AddAllChapter = () => {
-  const [form] = Form.useForm();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const bookId = searchParams.get('id');
+  const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null); // Đường dẫn tệp PDF
-  const [chapters, setChapters] = useState<
-    { title: string; pages: number[] }[]
-  >([]);
-  const [lastEndPage, setLastEndPage] = useState(0);
-
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
-
-  const handleAddChapter = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        const chapterTitle = values.chapterTitle;
-        const startPage = parseInt(values.startPage, 10);
-        const endPage = parseInt(values.endPage, 10);
-
-        if (endPage < startPage) {
-          message.error('Trang kết thúc không được nhỏ hơn trang bắt đầu!');
-          return;
-        }
-
-        if (startPage <= lastEndPage) {
-          message.error(
-            `Trang bắt đầu phải lớn hơn ${lastEndPage}. Vui lòng nhập lại!`,
-          );
-          return;
-        }
-
-        const pages = Array.from(
-          { length: endPage - startPage + 1 },
-          (_, index) => startPage + index,
-        );
-
-        const newChapter = { title: chapterTitle, pages };
-        setChapters((prevChapters) => [...prevChapters, newChapter]);
-        setLastEndPage(endPage);
-
-        form.resetFields();
-      })
-      .catch((error) => {
-        console.error('Validation Failed:', error);
-      });
-  };
-
-  const formatPages = (pages: any) => {
-    const maxPagesToShow = 5;
-    if (pages.length > maxPagesToShow) {
-      return `${pages.slice(0, 3).join(', ')}, ..., ${pages.slice(-2).join(', ')}`;
-    }
-    return pages.join(', ');
-  };
-
-  const handleFileChange = (info: any) => {
-    const latestFileList = info.fileList.slice(-1);
-    setFileList(latestFileList);
-
-    if (latestFileList.length > 0) {
-      const file = latestFileList[0];
-      const url = URL.createObjectURL(file.originFileObj);
-      setPdfUrl(url);
-    } else {
-      setPdfUrl(null);
-    }
-  };
-  const columns = [
-    {
-      title: 'Tên chương',
-      dataIndex: 'title',
-      key: 'title',
-      width: '80%',
-      render: (text: string) => <span className="font-semibold">{text}</span>,
-    },
-    {
-      title: 'Danh sách trang',
-      dataIndex: 'pages',
-      key: 'pages',
-      render: (text: any) => (
-        <span className="font-semibold">{formatPages(text)}</span>
-      ),
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [isShortBook, setIsShortBook] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const {
     data: book,
     isLoading,
@@ -117,168 +39,155 @@ const AddAllChapter = () => {
     }
     throw new Error('Book ID is null');
   });
-  const [loading, setLoading] = useState(false);
-  const Finish = async () => {
-    if (!pdfUrl) {
-      message.error('Vui lòng chọn file PDF!');
-      return;
-    }
 
-    setLoading(true);
+  const handleFileChange = (info: any) => {
+    const latestFileList = info.fileList.slice(-1);
+    setFileList(latestFileList);
 
-    const formData = new FormData();
-    formData.append('contentId', book?.data?.content?._id || '');
-    if (fileList[0].originFileObj) {
-      formData.append('file', fileList[0].originFileObj);
-    } else {
-      throw new Error('File is undefined');
-    }
-    formData.append('status', 'SHORT');
-
-    try {
-      const response = await bookService.addChapter(formData);
-      console.log('response', response);
-      refetch();
-      message.success('Thêm nội dung sách thành công!');
-      form.resetFields();
-    } catch (error) {
-      console.error('Error:', error);
-      message.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
-    } finally {
-      setLoading(false);
+    if (latestFileList.length > 0) {
+      const fileName = latestFileList[0].name.replace(/\.[^/.]+$/, '');
+      form.setFieldsValue({ chapterName: fileName });
     }
   };
 
-  return (
-    <Spin spinning={loading || isLoading} size="large" tip="Đang xử lý...">
-      <h1 className="text-center text-3xl font-semibold">Thêm nội dung sách</h1>
-      <p className="text-center text-gray-500">
-        {' '}
-        (Nếu sách không có chương, bạn có thể chọn file pdf rồi bỏ qua bước thêm
-        chương)
-      </p>
-      <div className="container flex w-full justify-between gap-3 rounded-md bg-white px-2">
-        <div className="w-1/2 rounded-md bg-white p-4 shadow-md">
-          <Upload
-            beforeUpload={() => false}
-            fileList={fileList}
-            onChange={handleFileChange}
-            accept=".pdf"
-            maxCount={1}
-          >
-            <Button type="primary">Chọn file PDF</Button>
-          </Upload>
+  const handleSubmit = async () => {
+    setIsModalVisible(true);
+    // form.validateFields().then(async (values) => {
+    //   if (!fileList.length) {
+    //     message.error('Vui lòng tải lên file PDF!');
+    //     return;
+    //   }
+    //   setLoading(true);
+    //   const formData = new FormData();
+    //   formData.append('contentId', book?.data?.content?._id || '');
+    //   if (fileList[0].originFileObj) {
+    //     formData.append('file', fileList[0].originFileObj); // Thêm file
+    //   } else {
+    //     throw new Error('File is undefined');
+    //   }
 
-          {pdfUrl && (
-            <div className="mt-4 h-[calc(100vh-230px)] overflow-auto border">
-              <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
-                <Viewer
-                  fileUrl={pdfUrl}
-                  plugins={[defaultLayoutPluginInstance]}
-                />
-              </Worker>
-            </div>
+    //   try {
+    //     if (isShortBook) {
+    //       formData.append('status', 'FINISH');
+    //       const response = await bookService.addChapter(formData);
+    //       console.log('response1', response);
+    //       router.push(`/bookManager`);
+    //       message.success('Thêm nội dung thành công!');
+    //       form.resetFields();
+    //       setFileList([]);
+    //       return;
+    //     } else {
+    //       const response = await bookService.addChapterbyOutline(formData);
+    //       console.log('response2', response);
+    //       refetch();
+    //       message.success('Thêm nội dung thành công!');
+    //       form.resetFields();
+    //       setFileList([]);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error:', error);
+    //     message.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // });
+  };
+
+  // if (isLoading) {
+  //   return <p>Loading...</p>;
+  // }
+
+  return (
+    <Spin spinning={loading} size="large" tip="Đang xử lý...">
+      <h1 className="text-center text-3xl font-semibold">Thêm nội dung sách</h1>
+
+      <div className="container flex w-full justify-between rounded-md bg-white p-10">
+        <div className="w-1/3 justify-items-center">
+          {book?.data?.image && (
+            <img
+              src={book.data.image}
+              alt="Book Cover"
+              className="mb-4 w-5/6 rounded-lg object-cover"
+            />
           )}
+          <h2 className="mb-4 text-center text-xl font-bold">
+            {book?.data?.title}
+          </h2>
         </div>
 
-        {/* Phần bên phải: Form thêm chương */}
-        <div className="w-1/2 rounded-md bg-white p-4 shadow-md">
+        <div className="w-1/2">
           <Form form={form} layout="vertical">
             <Form.Item
-              label="Tiêu đề chương"
-              name="chapterTitle"
-              rules={[
-                { required: true, message: 'Vui lòng nhập tiêu đề chương!' },
-              ]}
+              label="Tải lên file PDF"
+              name="file"
+              rules={[{ required: true, message: 'Vui lòng chọn file PDF!' }]}
             >
-              <Input placeholder="Nhập tiêu đề chương" />
+              <Upload
+                beforeUpload={() => false} // Ngăn chặn upload tự động
+                fileList={fileList}
+                onChange={handleFileChange}
+                accept=".pdf"
+                maxCount={1} // Giới hạn chỉ chọn một tệp
+              >
+                <Button type="primary">Chọn file PDF</Button>
+              </Upload>
             </Form.Item>
 
-            <Form.Item
-              label="Trang bắt đầu"
-              name="startPage"
-              rules={[
-                { required: true, message: 'Vui lòng nhập trang bắt đầu!' },
-              ]}
-            >
-              <Input type="number" placeholder="1" />
+            <Form.Item>
+              <Checkbox
+                checked={isShortBook}
+                onChange={(e) => setIsShortBook(e.target.checked)}
+              >
+                Sách không theo chương
+              </Checkbox>
             </Form.Item>
-
-            <Form.Item
-              label="Trang kết thúc"
-              name="endPage"
-              rules={[
-                { required: true, message: 'Vui lòng nhập trang kết thúc!' },
-              ]}
-            >
-              <Input type="number" placeholder="4" />
-            </Form.Item>
-
-            <div className="flex justify-between">
-              <Button type="primary" onClick={handleAddChapter}>
-                Thêm Chương
-              </Button>
-              <Button onClick={Finish} type="primary">
-                Hoàn Thành
+            <div className="mt-4 text-right">
+              <Button type="primary" onClick={handleSubmit}>
+                Đăng sách
               </Button>
             </div>
           </Form>
-          <Typography.Title level={4} className="mt-6 text-center">
-            Danh sách các chương
-          </Typography.Title>
-          {/* <List
-            dataSource={chapters}
-            renderItem={(chapter) => (
-              <List.Item>
-                <div className="flex w-full justify-between">
-                  <span>{chapter.title}</span>
-                  <span className="text-sm text-gray-500">
-                    {formatPages(chapter.pages)}
-                  </span>
-                </div>
-              </List.Item>
-            )}
-            bordered
-            className="mb-5 max-h-64 overflow-y-auto"
-          /> */}
-          <Table
-            columns={columns}
-            dataSource={chapters}
-            bordered
-            pagination={{
-              pageSize: 4,
-              // pageSizeOptions: ['5', '10'],
-              showSizeChanger: true,
-            }}
-            className="rounded-md shadow-md"
-            components={{
-              header: {
-                cell: ({
-                  children,
-                  ...restProps
-                }: {
-                  children: React.ReactNode;
-                  [key: string]: any;
-                }) => (
-                  <th
-                    {...restProps}
-                    style={{
-                      backgroundColor: '#e6f7ff',
-                      color: '#1890ff',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {children}
-                  </th>
-                ),
-              },
-            }}
-            style={{
-              overflow: 'hidden',
-            }}
-          />
         </div>
       </div>
+      <Modal
+        title="Thông báo"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+        centered
+        className="rounded-lg p-2 text-base"
+      >
+        <p className="inline">
+          Mục lục của file PDF có lẽ sai cấu trúc. Có thể tham khảo mẫu
+        </p>
+        <Button
+          type="link"
+          href="https://drive.google.com/uc?export=download&id=1NQSWXgxHX8PLw60LFj-RfmuYyfZqJuM-"
+          className="font-semibold text-blue-500 underline"
+        >
+          tại đây
+        </Button>
+
+        <div className="mt-5 flex justify-end space-x-4">
+          <Button
+            onClick={() => {
+              setIsModalVisible(false);
+            }}
+            className="border-gray-300 text-gray-500 hover:text-gray-700"
+          >
+            Bỏ qua
+          </Button>
+          <Button
+            type="primary"
+            className="bg-blue-500 text-white hover:bg-blue-600"
+            onClick={() => {
+              router.push(`/addAllchapterOutline?id=${bookId}`);
+            }}
+          >
+            Tạo thủ công
+          </Button>
+        </div>
+      </Modal>
     </Spin>
   );
 };

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -28,6 +28,7 @@ import {
   topViewTableColumns,
 } from '@/ultils/column';
 import AdminHomePage from '../home/page';
+import { UserModal } from '@/models/userInfo';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -40,10 +41,14 @@ ChartJS.register(
 );
 
 const OverviewPage = () => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
   const [selectedOverview, setSelectedOverview] = useState(
     OverviewType.REVENUE,
   );
-
+  const user: UserModal = useMemo(() => {
+    return userInfo ? userInfo.userRaw : null;
+  }, [userInfo]);
   const [dateRange, setDateRange] = useState([
     dayjs().subtract(7, 'day'),
     dayjs(),
@@ -193,13 +198,27 @@ const OverviewPage = () => {
     const endDate = dateRange[1].format('DD-MM-YYYY');
     const fileName = `TopNguoiDung_${startDate}_${endDate}.xlsx`;
 
+    const headerInfo = [
+      ['Tiêu đề:', 'Top người dùng'],
+      ['Người tạo:', user?.userName],
+      ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
+      [
+        'Khoảng thời gian dữ liệu:',
+        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+      ],
+      [' ', ' '],
+      [],
+    ];
+
     const data = topUsers.tableData.map((user: any, index: any) => ({
       STT: index + 1,
       'Tên người dùng': user.userName,
       'Số tiền nạp': user.totalAmount,
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet([]);
+    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
+    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Top Users');
 
@@ -212,18 +231,33 @@ const OverviewPage = () => {
     const endDate = dateRange[1].format('DD-MM-YYYY');
     const fileName = `TopSach_${startDate}_${endDate}.xlsx`;
 
+    const headerInfo = [
+      ['Tiêu đề:', 'Top sách theo lượt view'],
+      ['Người tạo:', user?.userName],
+      ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
+      [
+        'Khoảng thời gian dữ liệu:',
+        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+      ],
+      [' ', ' '],
+      [],
+    ];
+
     const data = topViewData.tableData.map((book: any, index: any) => ({
       STT: index + 1,
       'Tên sách': book.title,
       'Tổng lượt đọc': book.totalViews,
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet([]);
+    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
+    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Top Books');
 
     XLSX.writeFile(workbook, fileName);
   };
+
   const handleExportRevenue = () => {
     if (!revenueOverTime?.tableData || revenueOverTime.tableData.length === 0)
       return;
@@ -232,6 +266,18 @@ const OverviewPage = () => {
     const endDate = dateRange[1].format('DD-MM-YYYY');
     const fileName = `DoanhThu_${startDate}_${endDate}.xlsx`;
 
+    const headerInfo = [
+      ['Tiêu đề:', 'Doanh thu theo thời gian'],
+      ['Người tạo:', user?.userName],
+      ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
+      [
+        'Khoảng thời gian dữ liệu:',
+        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+      ],
+      [' ', ' '],
+      [],
+    ];
+
     const data = revenueOverTime.tableData.map((entry: any, index: any) => ({
       STT: index + 1,
       'Tên người nạp': entry.userId.userName,
@@ -239,7 +285,9 @@ const OverviewPage = () => {
       'Ngày nạp': dayjs(entry.date).format('DD-MM-YYYY'),
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet([]);
+    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
+    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Revenue');
 
@@ -310,7 +358,7 @@ const OverviewPage = () => {
               0,
             ) > 0 ? (
               <div className="chart-table-container grid grid-cols-2">
-                <div className="chart-container col-span-2 md:col-span-1">
+                <div className="chart-container col-span-2 pt-5 md:col-span-1">
                   <div className="h-96 w-5/6">
                     <Bar data={revenueOverTime} />
                   </div>
@@ -379,7 +427,7 @@ const OverviewPage = () => {
             topUsers.datasets[0].data.reduce((a: any, b: any) => a + b, 0) >
               0 ? (
               <div className="chart-table-container flex">
-                <div className="chart-container w-1/2">
+                <div className="chart-container w-1/2 pt-5">
                   <div className="h-96 w-5/6">
                     <Bar data={topUsers} />
                   </div>
@@ -447,7 +495,7 @@ const OverviewPage = () => {
             topViewData.datasets[0].data.reduce((a: any, b: any) => a + b, 0) >
               0 ? (
               <div className="chart-table-container flex">
-                <div className="chart-container w-2/3">
+                <div className="chart-container w-2/3 pt-5">
                   <div className="h-96 w-11/12">
                     <Bar data={topViewData} />
                   </div>

@@ -103,7 +103,10 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   // Tách nội dung thành các câu dựa vào dấu câu và giữ từng đoạn riêng biệt
   useEffect(() => {
     if (chapter?.text && chapter.text.length > 0) {
-      const paragraphArray = chapter.text.slice(1).map((paragraph: string) => {
+      const textArray =
+        chapter.text[0] === '' ? chapter.text.slice(1) : chapter.text;
+
+      const paragraphArray = textArray.map((paragraph: string) => {
         return paragraph.replace(/\n \n/g, '##BREAK##').replace(/\n/g, ' ');
       });
       const voiceParagraphs = paragraphArray.map((p) => p.split('##BREAK##'));
