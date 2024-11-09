@@ -145,4 +145,17 @@ export const adminService = {
         throw error;
       });
   },
+  searchUser: async (text: string): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/search-user`,
+      method: 'GET',
+      params: {
+        text,
+      },
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

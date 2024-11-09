@@ -23,6 +23,7 @@ export const overviewService = {
   getRevenueOverTime: async (
     startDate: string,
     endDate: string,
+    userId?: string,
   ): Promise<any> => {
     return axiosClient()({
       baseURL: `${OVERVIEW_ROUTE_URL}/revenue-over-time`,
@@ -30,6 +31,7 @@ export const overviewService = {
       params: {
         startDate,
         endDate,
+        userId,
       },
     })
       .then((res) => res.data)

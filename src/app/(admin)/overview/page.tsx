@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Radio, Select, Table } from 'antd';
+import { AutoComplete, Radio, Select, Table } from 'antd';
 import { OverviewType } from '@/constants/overviewType';
 import dayjs from 'dayjs';
 import { useQuery } from 'react-query';
@@ -27,8 +27,8 @@ import {
   topUserTableColumns,
   topViewTableColumns,
 } from '@/ultils/column';
-import AdminHomePage from '../home/page';
 import { UserModal } from '@/models/userInfo';
+import { adminService } from '@/services/adminService';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -55,6 +55,10 @@ const OverviewPage = () => {
   ]);
 
   const [limit, setLimit] = useState(5);
+
+  const [searchText, setSearchText] = useState('');
+
+  const [selectedUser, setSelectedUser] = useState('');
 
   const topOptions = [
     { value: 1, label: 'Top 1' },
@@ -90,9 +94,14 @@ const OverviewPage = () => {
   } = useQuery(
     [QueryKey.REVENUE_OVER_TIME, selectedOverview],
     async () => {
+      let userId = '';
+      if (selectedUser) {
+        userId = selectedUser;
+      }
       const response = await overviewService.getRevenueOverTime(
         dateRange[0].format('YYYY-MM-DD'),
         dateRange[1].format('YYYY-MM-DD'),
+        userId,
       );
       return response;
     },
@@ -100,7 +109,6 @@ const OverviewPage = () => {
       enabled: selectedOverview === OverviewType.REVENUE,
     },
   );
-
   const {
     data: topUsers,
     refetch: refetchTopUser,
@@ -119,7 +127,6 @@ const OverviewPage = () => {
       enabled: selectedOverview === OverviewType.TOP_USERS,
     },
   );
-
   const {
     data: topViewData,
     refetch: refetchTopView,
@@ -148,6 +155,28 @@ const OverviewPage = () => {
       enabled: selectedOverview === OverviewType.USER_DEPOSIT_RATE,
     },
   );
+  const {
+    data: users,
+    refetch: refetchUser,
+    isLoading: isLoadingUserData,
+  } = useQuery(
+    [QueryKey.USER, searchText],
+    async () => {
+      const response = await adminService.searchUser(searchText);
+      console.log({ response });
+      return response;
+    },
+    {
+      enabled: true,
+    },
+  );
+
+  const userOptions = useMemo(() => {
+    return users?.map((user: any) => ({
+      label: user.userName,
+      value: user.userCode,
+    }));
+  }, [users]);
 
   const options = [
     // {
@@ -174,6 +203,15 @@ const OverviewPage = () => {
 
   const handleDateChange = (dates: any) => {
     setDateRange(dates);
+  };
+
+  const handleSearch = async (value: string) => {
+    setSearchText(value);
+  };
+
+  const handleSelect = async (value: string) => {
+    setSelectedUser(value);
+    console.log('đã chọn', value);
   };
 
   useEffect(() => {
@@ -257,7 +295,6 @@ const OverviewPage = () => {
 
     XLSX.writeFile(workbook, fileName);
   };
-
   const handleExportRevenue = () => {
     if (!revenueOverTime?.tableData || revenueOverTime.tableData.length === 0)
       return;
@@ -316,32 +353,54 @@ const OverviewPage = () => {
       />
 
       {selectedOverview !== OverviewType.USER_DEPOSIT_RATE && (
-        <div className="mb-4 mt-4 flex w-full max-w-md items-end space-x-4">
-          <div className="w-3/4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Chọn khoảng thời gian
-            </label>
-            <DateRangePicker
-              allowClear
-              format={DATE_FORMAT_DDMMYYYY}
-              value={[dayjs(dateRange[0]), dayjs(dateRange[1])]}
-              onChange={(date) => {
-                handleDateChange(date);
-              }}
-            />
-          </div>
-
-          {selectedOverview === OverviewType.TOP_USERS ||
-          selectedOverview === OverviewType.TOP_VIEW ? (
-            <div className="w-1/4 items-end">
-              <Select
-                defaultValue={5}
-                onChange={handleTopLimitChange}
-                options={topOptions}
-                className="h-9 w-full"
+        <div className="w-full p-4">
+          <div className="grid w-full grid-cols-4 space-x-4">
+            <div className="col-span-1">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Chọn khoảng thời gian
+              </label>
+              <DateRangePicker
+                allowClear
+                format={DATE_FORMAT_DDMMYYYY}
+                value={[dayjs(dateRange[0]), dayjs(dateRange[1])]}
+                onChange={(date) => {
+                  handleDateChange(date);
+                }}
               />
             </div>
-          ) : null}
+
+            {selectedOverview == OverviewType.REVENUE && (
+              <>
+                <div className="col-span-1">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Tìm kiếm theo người dùng
+                  </label>
+                  <AutoComplete
+                    style={{ width: 200 }}
+                    onSearch={handleSearch}
+                    onSelect={handleSelect}
+                    onChange={handleSelect}
+                    placeholder="Nhập tên hoặc mã sinh viên người dùng"
+                    options={userOptions}
+                  />
+                </div>
+              </>
+            )}
+            {selectedOverview === OverviewType.TOP_USERS ||
+            selectedOverview === OverviewType.TOP_VIEW ? (
+              <div className="col-span-1">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Chọn top
+                </label>
+                <Select
+                  defaultValue={5}
+                  onChange={handleTopLimitChange}
+                  options={topOptions}
+                  className="w-full"
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
 
