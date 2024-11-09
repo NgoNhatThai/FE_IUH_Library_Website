@@ -1,11 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import BookGroup from '@/containers/Home/BookGroup';
 import CategoryGroup from '@/containers/Home/CategoryGroup';
 import GroupSlider from '@/containers/Home/GroupSlider';
 import { bookService } from '@/services/bookService';
 import { categoryService } from '@/services/categoryService';
 import { homeConfigService } from '@/services/homeConfigService';
+import { userInfo } from '@/models/userInfo';
 
 interface HomeConfig {
   data?: {
@@ -51,10 +52,20 @@ const HomePage: React.FC = () => {
   const [homeConfig, setHomeConfig] = useState<HomeConfig | null>(null);
   const [categoryResponse, setCategoryResponse] =
     useState<CategoryResponse | null>(null);
+  const [recommendBooks, setRecommendBooks] = useState<BookResponse | null>(
+    null,
+  );
   const [topViewBookResponse, setTopViewBookResponse] =
     useState<BookResponse | null>(null);
   const [newUpdatedBookResponse, setNewUpdatedBookResponse] =
     useState<BookResponse | null>(null);
+
+  const storedUserInfo = localStorage.getItem('userInfo');
+  const user: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+
+  const userId = useMemo(() => {
+    return user?.userRaw?._id;
+  }, [user]);
 
   useEffect(() => {
     loadCozeChat();
@@ -70,6 +81,10 @@ const HomePage: React.FC = () => {
 
         const topViewBook: BookResponse = await bookService.getTopViewBook();
         setTopViewBookResponse(topViewBook);
+
+        const recommendBooks: BookResponse =
+          await bookService.getSuggestedBook(userId);
+        setRecommendBooks(recommendBooks);
 
         const newUpdatedBook: BookResponse = await bookService.getNewBooks();
         setNewUpdatedBookResponse(newUpdatedBook);
@@ -88,6 +103,9 @@ const HomePage: React.FC = () => {
       )}
       {categoryResponse?.data && (
         <CategoryGroup data={categoryResponse?.data} />
+      )}
+      {recommendBooks?.data?.length && (
+        <BookGroup data={recommendBooks.data} title="Gợi ý cho bạn" />
       )}
       {topViewBookResponse?.data && (
         <BookGroup

@@ -119,7 +119,7 @@ export const bookService = {
         throw error;
       });
   },
-  getSuggestedBook: async (userId: string): Promise<any> => {
+  getSuggestedBook: async (userId: string): Promise<BookResponse> => {
     return axiosClient()({
       baseURL: `${BOOK_ROUTE_URL}/get-recommend-books`,
       method: 'GET',
