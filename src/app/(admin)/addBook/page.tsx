@@ -14,7 +14,6 @@ import {
 import { useForm } from 'antd/es/form/Form';
 import { PlusOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumb';
 import { useQuery } from 'react-query';
 import { adminService } from '@/services/adminService';
 import { QueryKey } from '@/types/api';
@@ -36,7 +35,7 @@ const AddBookPage = () => {
   const [formCategory] = useForm<CategoryModel>();
   const [formAuthor] = useForm<AuthorModel>();
   const [formMajor] = useForm<MajorModel>();
-  const [imageList, setImageList] = useState([]);
+  const [imageList, setImageList] = useState<any>([]);
   const [isModalCatergory, setIsModalCatergor] = useState(false);
   const [isModalAuthor, setIsModalAuthor] = useState(false);
   const [isModalMajor, setIsModalMajor] = useState(false);
@@ -94,21 +93,34 @@ const AddBookPage = () => {
     const formData = new FormData();
     formData.append('image', imageList[0].originFileObj);
     formData.append('title', values.title ? values.title : '');
-    formData.append('desc', values.desc ? values.desc : '');
-    formData.append(
-      'categoryId',
-      values.categoryId ? String(values.categoryId) : '',
-    );
-    formData.append('authorId', values.authorId ? String(values.authorId) : '');
-    formData.append('majorId', values.majorId ? String(values.majorId) : '');
-    formData.append('limit', values.limit ? values.limit : '');
-    formData.append('price', values.price ? String(values.price) : '0');
+    if (values.desc) {
+      formData.append('desc', values.desc);
+    }
+    if (values.categoryId) {
+      formData.append('categoryId', String(values.categoryId));
+    }
+    if (values.authorId) {
+      formData.append('authorId', String(values.authorId));
+    }
+    if (values.majorId) {
+      formData.append('majorId', String(values.majorId));
+    }
+    if (values.limit) {
+      formData.append('limit', values.limit);
+    }
+    if (values.price) {
+      formData.append('price', String(values.price));
+    }
 
     try {
       const response = await bookService.createBook(formData);
-      setBookResponse(response?.data?._id);
-      toast.success('Đăng sách thành công!');
-      setIsModalAddChapter(true);
+      if (response.status == 200) {
+        setBookResponse(response?.data?._id);
+        toast.success('Đăng sách thành công!');
+        setIsModalAddChapter(true);
+      } else {
+        toast.success('Có lỗi xảy ra khi đăng sách!');
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
@@ -116,16 +128,12 @@ const AddBookPage = () => {
       setLoading(false);
     }
   };
-  console.log('bookResponse', bookResponse);
   const handleChapterOption = (option: string) => {
     if (bookResponse) {
       if (option === 'chapter') {
-        console.log('Response for chapter:', bookResponse);
         router.push(`/addOneChapter?id=${bookResponse}`);
       } else if (option === 'full') {
-        console.log('Response for chapter:', bookResponse);
-
-        router.push(`/addAllChapter?id=${bookResponse}`);
+        router.push(`/addAllChapterByOutline?id=${bookResponse}`);
       }
       setIsModalAddChapter(false);
     } else {
@@ -264,7 +272,6 @@ const AddBookPage = () => {
                   </div>
                 }
                 name="categoryId"
-                rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
               >
                 <Select placeholder="Chọn danh mục">{categoriesOptions}</Select>
               </Form.Item>
@@ -284,7 +291,6 @@ const AddBookPage = () => {
                   </div>
                 }
                 name="authorId"
-                rules={[{ required: true, message: 'Vui lòng chọn tác giả!' }]}
               >
                 <Select placeholder="Chọn tác giả">{authorsOptions}</Select>
               </Form.Item>
@@ -304,9 +310,6 @@ const AddBookPage = () => {
                   </div>
                 }
                 name="majorId"
-                rules={[
-                  { required: true, message: 'Vui lòng chọn chuyên ngành!' },
-                ]}
               >
                 <Select placeholder="Chọn chuyên ngành">{majorsOptions}</Select>
               </Form.Item>
@@ -447,15 +450,14 @@ const AddBookPage = () => {
         <Modal open={isModalAddChapter} footer={null} closable={false}>
           <div className="text-center">
             <p className="mb-6 text-lg">
-              Bạn muốn nội dung sách đang theo chapter hay đăng hết nội dung 1
-              lần?
+              Bạn muốn đăng nội dung sách theo từng chương hay đăng toàn bộ ?
             </p>
             <div className="flex justify-center space-x-4">
               <Button
                 type="primary"
                 onClick={() => handleChapterOption('chapter')}
               >
-                Đăng chapter
+                Đăng theo chương
               </Button>
               <Button
                 style={{
@@ -465,7 +467,7 @@ const AddBookPage = () => {
                 }}
                 onClick={() => handleChapterOption('full')}
               >
-                Đăng nguyên
+                Đăng toàn bộ
               </Button>
             </div>
           </div>
