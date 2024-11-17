@@ -45,7 +45,7 @@ const Sidebar = () => {
           icon: <BarChartOutlined />,
         },
         { label: 'Tài khoản', key: '/accounts', icon: <UserOutlined /> },
-        { label: 'adđ', key: '/addAllChapter', icon: <UserOutlined /> },
+        // { label: 'adđ', key: '/addAllChapter', icon: <UserOutlined /> },
       ],
     },
   ];

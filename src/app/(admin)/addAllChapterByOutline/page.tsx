@@ -39,7 +39,7 @@ const AddAllChapter = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const addContent = async () => {
     form.validateFields().then(async (values) => {
       if (!fileList.length) {
         message.error('Vui lòng tải lên file PDF!');
@@ -131,7 +131,7 @@ const AddAllChapter = () => {
               </Checkbox>
             </Form.Item>
             <div className="mt-4 text-right">
-              <Button type="primary" onClick={handleSubmit}>
+              <Button type="primary" onClick={addContent}>
                 Đăng sách
               </Button>
             </div>
@@ -170,7 +170,7 @@ const AddAllChapter = () => {
             type="primary"
             className="bg-blue-500 text-white hover:bg-blue-600"
             onClick={() => {
-              router.push(`/addAllchapter?id=${bookId}`);
+              router.push(`/addAllChapter?id=${bookId}`);
             }}
           >
             Tạo thủ công

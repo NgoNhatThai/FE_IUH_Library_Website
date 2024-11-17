@@ -87,7 +87,7 @@ const AddBookPage = () => {
     ));
   }, [authors]);
 
-  const onFinish = async (values: BookModel) => {
+  const CreateBook = async (values: BookModel) => {
     setLoading(true);
 
     const formData = new FormData();
@@ -209,7 +209,7 @@ const AddBookPage = () => {
       <div className="container w-[80%] rounded-md bg-white p-4 md:mb-10">
         {/* <Breadcrumb title="Quản lý sách" /> */}
         <hr className="my-4" />
-        <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form form={form} layout="vertical" onFinish={CreateBook}>
           <h1 className="mb-4 text-2xl font-semibold">Thêm sách mới</h1>
           <div className="grid grid-cols-2">
             <div className="col-span-1">

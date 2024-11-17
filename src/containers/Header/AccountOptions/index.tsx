@@ -54,14 +54,26 @@ const AccountOptions = ({
                   </Account>
                 </Link>
               </div>
-              <p className="text-center text-sm font-medium">
+              <p className="text-center text-sm font-medium text-black">
                 {userInfo?.userRaw?.userName ?? ''}
               </p>
-              <p className="text-center text-sm font-medium">
+              <p className="text-center text-sm font-medium text-black">
                 {userInfo?.userRaw?.studentCode ?? ''}
               </p>
             </div>
             <ul className="py-1">
+              {userInfo?.userRaw?.isManager && (
+                <li className="border-b">
+                  <button
+                    onClick={() => {
+                      window.location.href = '/';
+                    }}
+                    className="block w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
+                  >
+                    Trang chủ
+                  </button>
+                </li>
+              )}
               <li className="border-b">
                 <button
                   onClick={() => {

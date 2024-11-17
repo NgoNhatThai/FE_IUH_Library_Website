@@ -48,7 +48,7 @@ const AddOneChapter = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const addChapter = async () => {
     form.validateFields().then(async (values) => {
       if (!fileList.length) {
         message.error('Vui lòng tải lên file PDF!');
@@ -74,7 +74,7 @@ const AddOneChapter = () => {
           return;
         }
         refetch();
-        message.success('Thêm chương mới thành công!');
+        toast.success('Thêm chương mới thành công!');
         form.resetFields();
         setFileList([]);
       } catch (error) {
@@ -92,7 +92,7 @@ const AddOneChapter = () => {
 
   return (
     <Spin spinning={loading} size="large" tip="Đang xử lý...">
-      <h1 className="text-center text-3xl font-semibold">Thêm Chapter</h1>
+      <h1 className="text-center text-3xl font-semibold">Thêm chương</h1>
 
       <div className="container flex w-full justify-between rounded-md bg-white p-10">
         <div className="w-1/3 justify-items-center">
@@ -162,7 +162,7 @@ const AddOneChapter = () => {
               </Checkbox>
             </Form.Item>
             <div className="mt-4 text-right">
-              <Button type="primary" onClick={handleSubmit}>
+              <Button type="primary" onClick={addChapter}>
                 Đăng chương
               </Button>
             </div>

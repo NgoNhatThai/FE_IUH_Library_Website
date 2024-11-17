@@ -20,6 +20,7 @@ import { useQuery } from 'react-query';
 import { BookDetailResponse } from '@/models/bookModel';
 import { QueryKey } from '@/types/api';
 import { bookService } from '@/services/bookService';
+import { toast } from 'react-toastify';
 const AddAllChapterOutline = () => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
@@ -117,7 +118,7 @@ const AddAllChapterOutline = () => {
     throw new Error('Book ID is null');
   });
   const [loading, setLoading] = useState(false);
-  const Finish = async () => {
+  const addContent = async () => {
     if (!pdfUrl) {
       message.error('Vui lòng chọn file PDF!');
       return;
@@ -148,12 +149,15 @@ const AddAllChapterOutline = () => {
       console.log('response', response);
       if (response.status == 200) {
         refetch();
-        message.success('Thêm nội dung sách thành công!');
+        toast.success('Thêm nội dung sách thành công!');
         form.resetFields();
         setFileList([]);
         setChapters([]);
       } else {
-        message.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+        toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+        form.resetFields();
+        setFileList([]);
+        setChapters([]);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -232,7 +236,7 @@ const AddAllChapterOutline = () => {
               <Button type="primary" onClick={handleAddChapter}>
                 Thêm Chương
               </Button>
-              <Button onClick={Finish} type="primary">
+              <Button onClick={addContent} type="primary">
                 Hoàn Thành
               </Button>
             </div>
