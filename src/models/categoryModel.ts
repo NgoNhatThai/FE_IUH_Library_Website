@@ -15,4 +15,6 @@ export interface CategoryModel {
   status?: CategoryStatus;
   createdAt?: string;
   updatedAt?: string;
+  children?: CategoryModel[];
+  avatarMetadata?: any; // Add this line
 }

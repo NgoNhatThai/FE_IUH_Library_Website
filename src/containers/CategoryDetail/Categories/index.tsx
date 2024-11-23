@@ -95,7 +95,7 @@ const Categories = ({ categoryId }: CategoriesProps) => {
   const handleSelectChildCategory = (index: number) => {
     if (selectedCategory?.children) {
       setSelectedChildCategory(selectedCategory.children[index]);
-      router.push(`${CATEGORIES_QUERY}${selectedCategory.children[index].id}`);
+      router.push(`${CATEGORIES_QUERY}${selectedCategory.children[index]._id}`);
       tabListChildrenRef.current[index].scrollIntoView({
         behavior: 'smooth',
         block: 'center',
@@ -106,12 +106,12 @@ const Categories = ({ categoryId }: CategoriesProps) => {
 
   const getIndexCategory = (categoryId: string) => {
     const parentCategory = data?.find(
-      (category: CategoryModel) => category.id === categoryId,
+      (category: CategoryModel) => category._id === categoryId,
     );
     if (parentCategory) {
       return (
         data?.findIndex(
-          (category: CategoryModel) => category.id === parentCategory.id,
+          (category: CategoryModel) => category._id === parentCategory.id,
         ) || 0
       );
     }
@@ -119,7 +119,7 @@ const Categories = ({ categoryId }: CategoriesProps) => {
     data?.forEach((category: CategoryModel, index: number) => {
       if (category.children) {
         const childIndex = category.children.findIndex(
-          (child: CategoryModel) => child.id === categoryId,
+          (child: CategoryModel) => child._id === categoryId,
         );
         if (childIndex !== -1) {
           parentIndex = index;
@@ -143,7 +143,7 @@ const Categories = ({ categoryId }: CategoriesProps) => {
         >
           {data?.map((category: CategoryModel, index: number) => {
             return (
-              <Tab key={category.id}>
+              <Tab key={category._id}>
                 <div className="bg-grey-background border-grey-intermediate flex w-[60px] flex-grow cursor-pointer border">
                   <CustomImage
                     key={index}
@@ -164,7 +164,7 @@ const Categories = ({ categoryId }: CategoriesProps) => {
         selectedIndex={
           selectedCategory?.children?.findIndex(
             (category: CategoryModel) =>
-              category.id === selectedChildCategory?.id,
+              category._id === selectedChildCategory?._id,
           ) || 0
         }
         selectedTabClassName="react-tabs__tab react-tabs__tab--selected"
@@ -178,7 +178,7 @@ const Categories = ({ categoryId }: CategoriesProps) => {
             (category: CategoryModel, __index: number) => {
               return (
                 <Tab
-                  key={category.id}
+                  key={category._id}
                   className="flex w-full min-w-24 items-center justify-center p-2"
                 >
                   <div className="flex h-full items-center justify-center">
