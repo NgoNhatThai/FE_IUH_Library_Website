@@ -32,7 +32,7 @@ declare global {
 const loadCozeChat = () => {
   const script = document.createElement('script');
   script.src =
-    'https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.5/libs/oversea/index.js';
+    'https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.0.0-beta.4/libs/oversea/index.js';
   script.onload = () => {
     if (window.CozeWebSDK) {
       new window.CozeWebSDK.WebChatClient({

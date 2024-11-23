@@ -102,7 +102,7 @@ const UserInfoPage = () => {
     setOpen(!open);
   };
 
-  const handleFinish = async () => {
+  const addRequestAmount = async () => {
     try {
       if (amount === 0) {
         toast.error('Vui lòng nhập số tiền cần nạp!');
@@ -418,7 +418,7 @@ const UserInfoPage = () => {
           bankName: selectedBankAccount?.bankName || '',
         }}
         userId={String(userCode)}
-        handleFinish={handleFinish}
+        handleFinish={addRequestAmount}
       />
     </div>
   );
