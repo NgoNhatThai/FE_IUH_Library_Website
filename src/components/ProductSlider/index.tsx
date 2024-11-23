@@ -94,7 +94,7 @@ const ProductSlider = ({ data: banners }: { data: CmsCategoryModel[] }) => {
                 alt={item?.name}
                 className="!h-full object-cover"
                 ratio="video"
-                avatarMetadata={item?.avatarMetadata}
+                avatarMetadata={item?.avatarMetadata?.[0]?.downloadUrl}
               />
             </div>
           );

@@ -8,7 +8,7 @@ import { QueryKey } from '@/types/api';
 import { useQuery } from 'react-query';
 import CartItemHome from '@/components/BookItem';
 import { useRouter } from 'next/navigation';
-import { PRODUCT } from '@/constants';
+// import { PRODUCT } from '@/constants';
 import SpinnerLoader from '@/components/SpinnerLoader';
 
 const Products = ({ categoryId }: CategoriesProps) => {
@@ -32,7 +32,7 @@ const Products = ({ categoryId }: CategoriesProps) => {
   });
 
   const handleOnClick = (product: ProductModel) => {
-    router.push(`${PRODUCT}/${product.id}`);
+    // router.push(`${PRODUCT}/${product.id}`);
   };
 
   return (
