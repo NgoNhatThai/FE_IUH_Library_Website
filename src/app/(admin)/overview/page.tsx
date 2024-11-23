@@ -22,6 +22,7 @@ import DateRangePicker from '@/components/DateRangePicker';
 import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
 import ButtonExport from '@/components/Button/ButtonExport';
 import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import {
   revenueTableColumns,
   topUserTableColumns,
@@ -229,7 +230,7 @@ const OverviewPage = () => {
     }
   }, [selectedOverview, dateRange, limit]);
 
-  const handleExportTopUsers = () => {
+  const handleExportTopUsers = async () => {
     if (!topUsers?.tableData || topUsers.tableData.length === 0) return;
 
     const startDate = dateRange[0].format('DD-MM-YYYY');
@@ -242,27 +243,91 @@ const OverviewPage = () => {
       ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
       [
         'Khoảng thời gian dữ liệu:',
-        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+        `Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
       ],
-      [' ', ' '],
-      [],
     ];
 
-    const data = topUsers.tableData.map((user: any, index: any) => ({
-      STT: index + 1,
-      'Tên người dùng': user.userName,
-      'Số tiền nạp': user.totalAmount,
-    }));
+    const headers = [['STT', 'Tên người dùng', 'Số tiền nạp']];
+    const data = topUsers.tableData.map((user: any, index: any) => [
+      index + 1,
+      user.userName,
+      user.totalAmount,
+    ]);
 
-    const worksheet = XLSX.utils.json_to_sheet([]);
-    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
-    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Top Users');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Top Users');
 
-    XLSX.writeFile(workbook, fileName);
+    headerInfo.forEach((row) => {
+      const headerRow = worksheet.addRow(row);
+      headerRow.eachCell((cell, colIndex) => {
+        cell.font = {
+          bold: true,
+          size: 14,
+          color: { argb: colIndex === 1 ? 'FF000000' : 'FF0073CF' },
+        };
+        cell.alignment = {
+          vertical: 'middle',
+          horizontal: colIndex === 1 ? 'left' : 'center',
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEFEFEF' },
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(headers[0]);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4472C4' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
+
+    data.forEach((rowData: any) => {
+      const row = worksheet.addRow(rowData);
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.columns = [{ width: 30 }, { width: 62 }, { width: 20 }];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
   };
-  const handleExportTopView = () => {
+
+  const handleExportTopView = async () => {
     if (!topViewData?.tableData || topViewData.tableData.length === 0) return;
 
     const startDate = dateRange[0].format('DD-MM-YYYY');
@@ -275,27 +340,91 @@ const OverviewPage = () => {
       ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
       [
         'Khoảng thời gian dữ liệu:',
-        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+        `Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
       ],
-      [' ', ' '],
-      [],
     ];
 
-    const data = topViewData.tableData.map((book: any, index: any) => ({
-      STT: index + 1,
-      'Tên sách': book.title,
-      'Tổng lượt đọc': book.totalViews,
-    }));
+    const headers = [['STT', 'Tên sách', 'Tổng lượt xem']];
+    const data = topViewData.tableData.map((book: any, index: any) => [
+      index + 1,
+      book.title,
+      book.totalViews,
+    ]);
 
-    const worksheet = XLSX.utils.json_to_sheet([]);
-    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
-    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Top Books');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Top Books');
 
-    XLSX.writeFile(workbook, fileName);
+    headerInfo.forEach((row) => {
+      const headerRow = worksheet.addRow(row);
+      headerRow.eachCell((cell, colIndex) => {
+        cell.font = {
+          bold: true,
+          size: 14,
+          color: { argb: colIndex === 1 ? 'FF000000' : 'FF0073CF' },
+        };
+        cell.alignment = {
+          vertical: 'middle',
+          horizontal: colIndex === 1 ? 'left' : 'center',
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEFEFEF' },
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(headers[0]);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4472C4' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
+
+    data.forEach((rowData: any) => {
+      const row = worksheet.addRow(rowData);
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.columns = [{ width: 30 }, { width: 62 }, { width: 20 }];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
   };
-  const handleExportRevenue = () => {
+
+  const handleExportRevenue = async () => {
     if (!revenueOverTime?.tableData || revenueOverTime.tableData.length === 0)
       return;
 
@@ -309,26 +438,94 @@ const OverviewPage = () => {
       ['Thời gian xuất file:', dayjs().format('DD-MM-YYYY HH:mm')],
       [
         'Khoảng thời gian dữ liệu:',
-        ` Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
+        `Ngày bắt đầu: ${startDate} _ Ngày kết thúc: ${endDate}`,
       ],
-      [' ', ' '],
-      [],
     ];
 
-    const data = revenueOverTime.tableData.map((entry: any, index: any) => ({
-      STT: index + 1,
-      'Tên người nạp': entry.userId.userName,
-      'Số tiền nạp': entry.amount,
-      'Ngày nạp': dayjs(entry.date).format('DD-MM-YYYY'),
-    }));
+    const headers = [['STT', 'Tên người nạp', 'Số tiền nạp', 'Ngày nạp']];
+    const data = revenueOverTime.tableData.map((entry: any, index: any) => [
+      index + 1,
+      entry.userId.userName,
+      entry.amount,
+      dayjs(entry.date).format('DD-MM-YYYY'),
+    ]);
 
-    const worksheet = XLSX.utils.json_to_sheet([]);
-    XLSX.utils.sheet_add_aoa(worksheet, headerInfo);
-    XLSX.utils.sheet_add_json(worksheet, data, { origin: -1 });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Revenue');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Revenue');
 
-    XLSX.writeFile(workbook, fileName);
+    headerInfo.forEach((row) => {
+      const headerRow = worksheet.addRow(row);
+      headerRow.eachCell((cell, colIndex) => {
+        cell.font = {
+          bold: true,
+          size: 14,
+          color: { argb: colIndex === 1 ? 'FF000000' : 'FF0073CF' },
+        };
+        cell.alignment = {
+          vertical: 'middle',
+          horizontal: colIndex === 1 ? 'left' : 'center',
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEFEFEF' },
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(headers[0]);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4472C4' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
+
+    data.forEach((rowData: any) => {
+      const row = worksheet.addRow(rowData);
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet.columns = [
+      { width: 30 }, // STT
+      { width: 62 }, // Tên người nạp
+      { width: 20 }, // Số tiền nạp
+      { width: 20 }, // Ngày nạp
+    ];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
   };
 
   const handleTopLimitChange = (value: number) => {
