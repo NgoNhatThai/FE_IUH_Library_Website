@@ -39,7 +39,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
     return userInfo ? userInfo.userRaw : null;
   }, [userInfo]);
 
-  const { data: isFollow } = useQuery({
+  const { data: isFollow, refetch: followDataRefetch } = useQuery({
     queryKey: [QueryKey.BOOK],
     queryFn: async () =>
       await userService.checkFollowBook(String(user?._id), String(data._id)),
@@ -68,6 +68,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
         const followResult = await userService.follow(user._id, data._id);
         if (followResult) {
           toast.success('Theo dõi thành công');
+          followDataRefetch();
         } else {
           toast.error('Theo dõi thất bại');
         }
@@ -77,10 +78,12 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
         user._id,
         String(data._id),
       );
-      if (unfollowResult) toast.success('Bỏ theo dõi thành công');
+      if (unfollowResult) {
+        toast.success('Bỏ theo dõi thành công');
+        followDataRefetch();
+      }
     }
   };
-
   const handleBuyBook = async (bookId: string) => {
     try {
       if (!user) {
@@ -137,7 +140,6 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
     doc.save(`${bookTitle}.pdf`);
     setIsLoading(false);
   };
-
   const convertBlobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve) => {
       const reader = new FileReader();

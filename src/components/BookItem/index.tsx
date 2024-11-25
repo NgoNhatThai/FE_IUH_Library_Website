@@ -6,7 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { BookModel } from '@/models/bookModel';
 
 interface BookItemProps {
-  data: BookModel;
+  data: BookModel | any;
 }
 
 const BookItem = ({ data }: BookItemProps) => {

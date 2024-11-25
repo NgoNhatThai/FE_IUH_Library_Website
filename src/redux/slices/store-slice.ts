@@ -10,7 +10,9 @@ type initialStateType = {
 };
 
 const initialState: initialStateType = {
-  storeConfig: {},
+  storeConfig: {
+    id: undefined,
+  },
   stores: [],
   storeInfo: {},
 };

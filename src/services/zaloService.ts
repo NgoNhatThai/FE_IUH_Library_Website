@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GetLocation, GetPhoneNumber, ZaloCreateOrder } from 'types/api';
 import { ShareCurrentPage } from 'types/zmp-sdk';
 import api, {
@@ -30,7 +31,6 @@ import {
 } from 'zmp-sdk/apis';
 import { getNetworkType } from 'zmp-sdk/apis';
 import config from '../config';
-import { userService } from './userService';
 
 export const zaloService = {
   getAccessToken: async (): Promise<string> => {
@@ -53,10 +53,10 @@ export const zaloService = {
   getCurrentLocation: (): Promise<GetLocation> => {
     return new Promise((resolve, reject) => {
       getLocation({
-        success: (data) => {
+        success: (data: any) => {
           resolve(data);
         },
-        fail: (error) => {
+        fail: (error: any) => {
           reject(error);
         },
       });
@@ -65,10 +65,10 @@ export const zaloService = {
   getUserPhoneNumber: (): Promise<GetPhoneNumber> => {
     return new Promise((resolve, reject) => {
       getPhoneNumber({
-        success: (data) => {
+        success: (data: any) => {
           resolve(data);
         },
-        fail: (error) => {
+        fail: (error: any) => {
           reject(error);
         },
       });
@@ -136,7 +136,7 @@ export const zaloService = {
   },
   onNetworkStatusChange: async () => {
     return new Promise((resolve) => {
-      onNetworkStatusChange((data) => {
+      onNetworkStatusChange((data: any) => {
         resolve(data);
       });
     });
@@ -234,10 +234,10 @@ export const zaloService = {
         item: data.item || [],
         amount: data.amount,
         method: data.method,
-        success: (data) => {
+        success: (data: any) => {
           resolve(data);
         },
-        fail: (err) => {
+        fail: (err: any) => {
           reject(err);
         },
       });

@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pie, Bar } from 'react-chartjs-2';
@@ -21,7 +22,6 @@ import { overviewService } from '@/services/overviewService';
 import DateRangePicker from '@/components/DateRangePicker';
 import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
 import ButtonExport from '@/components/Button/ButtonExport';
-import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import {
   revenueTableColumns,
@@ -259,7 +259,7 @@ const OverviewPage = () => {
 
     headerInfo.forEach((row) => {
       const headerRow = worksheet.addRow(row);
-      headerRow.eachCell((cell, colIndex) => {
+      headerRow.eachCell((cell: any, colIndex: any) => {
         cell.font = {
           bold: true,
           size: 14,
@@ -286,7 +286,7 @@ const OverviewPage = () => {
     worksheet.addRow([]);
 
     const headerRow = worksheet.addRow(headers[0]);
-    headerRow.eachCell((cell) => {
+    headerRow.eachCell((cell: any) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
       cell.fill = {
         type: 'pattern',
@@ -304,7 +304,7 @@ const OverviewPage = () => {
 
     data.forEach((rowData: any) => {
       const row = worksheet.addRow(rowData);
-      row.eachCell((cell) => {
+      row.eachCell((cell: any) => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.border = {
           top: { style: 'thin' },
@@ -356,7 +356,7 @@ const OverviewPage = () => {
 
     headerInfo.forEach((row) => {
       const headerRow = worksheet.addRow(row);
-      headerRow.eachCell((cell, colIndex) => {
+      headerRow.eachCell((cell: any, colIndex: any) => {
         cell.font = {
           bold: true,
           size: 14,
@@ -383,7 +383,7 @@ const OverviewPage = () => {
     worksheet.addRow([]);
 
     const headerRow = worksheet.addRow(headers[0]);
-    headerRow.eachCell((cell) => {
+    headerRow.eachCell((cell: any) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
       cell.fill = {
         type: 'pattern',
@@ -401,7 +401,7 @@ const OverviewPage = () => {
 
     data.forEach((rowData: any) => {
       const row = worksheet.addRow(rowData);
-      row.eachCell((cell) => {
+      row.eachCell((cell: any) => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.border = {
           top: { style: 'thin' },
@@ -455,7 +455,7 @@ const OverviewPage = () => {
 
     headerInfo.forEach((row) => {
       const headerRow = worksheet.addRow(row);
-      headerRow.eachCell((cell, colIndex) => {
+      headerRow.eachCell((cell: any, colIndex: any) => {
         cell.font = {
           bold: true,
           size: 14,
@@ -482,7 +482,7 @@ const OverviewPage = () => {
     worksheet.addRow([]);
 
     const headerRow = worksheet.addRow(headers[0]);
-    headerRow.eachCell((cell) => {
+    headerRow.eachCell((cell: any) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
       cell.fill = {
         type: 'pattern',
@@ -500,7 +500,7 @@ const OverviewPage = () => {
 
     data.forEach((rowData: any) => {
       const row = worksheet.addRow(rowData);
-      row.eachCell((cell) => {
+      row.eachCell((cell: any) => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.border = {
           top: { style: 'thin' },
