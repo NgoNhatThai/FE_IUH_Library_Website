@@ -1,6 +1,7 @@
 [build]
-  command = "yarn && yarn dev"
-  publish = ".next"
+  command = "yarn install && yarn build && yarn start" 
+  publish = ".next"                                  
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+  package = "@netlify/plugin-nextjs"                 
+
