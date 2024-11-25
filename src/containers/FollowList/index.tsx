@@ -12,7 +12,8 @@ import FollowBookList from './FollowBookList';
 const ShoppingCart = () => {
   const [followBook, setFollowBook] = useState<BookModel[] | null>(null);
 
-  const storedUserInfo = localStorage.getItem('userInfo');
+  const storedUserInfo =
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
   const params = useMemo(() => {

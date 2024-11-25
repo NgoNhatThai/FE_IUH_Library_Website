@@ -20,7 +20,8 @@ import {
 } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 const RightHeader = () => {
-  const storedUserInfo = localStorage.getItem('userInfo');
+  const storedUserInfo =
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
   const [showPopup, setShowPopup] = useState(false);

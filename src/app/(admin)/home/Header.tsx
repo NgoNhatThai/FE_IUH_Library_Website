@@ -18,7 +18,8 @@ type HeaderProps = {
 };
 
 const Header = ({ collapsed, toggleSidebar }: HeaderProps) => {
-  const storedUserInfo = localStorage.getItem('userInfo');
+  const storedUserInfo =
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
   const user: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef(null);

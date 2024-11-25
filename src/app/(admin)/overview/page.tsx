@@ -42,7 +42,9 @@ ChartJS.register(
 );
 
 const OverviewPage = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const userInfo = JSON.parse(
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '{}',
+  );
 
   const [selectedOverview, setSelectedOverview] = useState(
     OverviewType.REVENUE,

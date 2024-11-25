@@ -34,7 +34,8 @@ const UserInfoPage = () => {
   const [openQR, setOpenQR] = useState(false);
   const [selectedBankAccount, setSelectedBankAccount] = useState<any>();
   const [amount, setAmount] = useState<number>(0);
-  const storedUserInfo = localStorage.getItem('userInfo');
+  const storedUserInfo =
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
   const userInfo: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const userId = userInfo?.userRaw?._id;
   const userCode = userInfo?.userRaw?.studentCode;

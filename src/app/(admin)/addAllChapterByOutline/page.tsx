@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { Suspense, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Button, Form, Upload, Spin, Checkbox, Modal, message } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
 import { useQuery } from 'react-query';
@@ -10,8 +10,8 @@ import { BookDetailResponse } from '@/models/bookModel';
 
 const AddAllChapter = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookId = searchParams.get('id');
+  const params = useParams();
+  const bookId = params.id;
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const AddAllChapter = () => {
     refetch,
   } = useQuery<BookDetailResponse>([QueryKey.BOOK, bookId], async () => {
     if (bookId) {
-      return await bookService.getDetailBook(bookId);
+      return await bookService.getDetailBook(String(bookId));
     }
     throw new Error('Book ID is null');
   });
@@ -87,7 +87,9 @@ const AddAllChapter = () => {
   };
 
   return (
-    <Spin spinning={loading} size="large" tip="Đang xử lý...">
+    <Suspense
+      fallback={<Spin spinning={loading} size="large" tip="Đang xử lý..." />}
+    >
       <h1 className="text-center text-3xl font-semibold">Thêm nội dung sách</h1>
 
       <div className="container flex w-full justify-between rounded-md bg-white p-10">
@@ -209,7 +211,7 @@ const AddAllChapter = () => {
           </Button>
         </div>
       </Modal>
-    </Spin>
+    </Suspense>
   );
 };
 

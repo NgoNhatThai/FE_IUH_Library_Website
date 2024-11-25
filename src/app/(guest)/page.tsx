@@ -60,7 +60,8 @@ const HomePage: React.FC = () => {
   const [newUpdatedBookResponse, setNewUpdatedBookResponse] =
     useState<BookResponse | null>(null);
 
-  const storedUserInfo = localStorage.getItem('userInfo');
+  const storedUserInfo =
+    typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
   const user: userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
   const userId = useMemo(() => {
