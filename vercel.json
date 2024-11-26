@@ -1,9 +1,8 @@
 {
-    "redirects": [
+    "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "http://103.163.118.194:8080/api/$1",
-            "permanent": false
+            "destination": "http://103.163.118.194:8080/api/$1"
         }
     ]
 }
