@@ -2,7 +2,7 @@
     "redirects": [
         {
             "source": "/api/(.*)",
-            "destination": "http://103.163.118.194:8080/$1",
+            "destination": "http://103.163.118.194:8080/api/$1",
             "permanent": false
         }
     ]
