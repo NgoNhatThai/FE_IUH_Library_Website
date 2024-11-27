@@ -12,3 +12,16 @@
   status = 200
   force = true
 
+# Chuyển hướng cho các route động book/[slug] và chapter/[slug]
+[[redirects]]
+  from = "/book/*"
+  to = "/book/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/chapter/*"
+  to = "/chapter/:splat"
+  status = 200
+  force = true
+
