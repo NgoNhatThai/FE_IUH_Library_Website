@@ -10,6 +10,18 @@ const nextConfig = {
       'example.com',
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/book/:slug',
+        destination: '/book/:slug',
+      },
+      {
+        source: '/chapter/:slug',
+        destination: '/chapter/:slug',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

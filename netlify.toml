@@ -15,13 +15,13 @@
 # Chuyển hướng cho các route động book/[slug] và chapter/[slug]
 [[redirects]]
   from = "/book/*"
-  to = "/book/:splat"
+  to = "/book/[slug]"
   status = 200
   force = true
 
 [[redirects]]
   from = "/chapter/*"
-  to = "/chapter/:splat"
+  to = "/chapter/[slug]"
   status = 200
   force = true
 
