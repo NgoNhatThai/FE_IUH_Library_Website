@@ -6,8 +6,6 @@
 /book/*  /book/:splat  200
 /chapter/*  /chapter/:splat  200
 
-# Chuyển hướng các đường dẫn không hợp lệ đến trang 404
-/*  /404.html  404
 
 
 
