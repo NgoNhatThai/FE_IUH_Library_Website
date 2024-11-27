@@ -59,6 +59,7 @@ const HomePage: React.FC = () => {
     useState<BookResponse | null>(null);
   const [newUpdatedBookResponse, setNewUpdatedBookResponse] =
     useState<BookResponse | null>(null);
+  const [majorBooks, setMajorBooks] = useState<BookResponse | null>(null);
 
   const storedUserInfo =
     typeof window !== 'undefined' ? localStorage.getItem('userInfo') : '';
@@ -66,6 +67,10 @@ const HomePage: React.FC = () => {
 
   const userId = useMemo(() => {
     return user?.userRaw?._id;
+  }, [user]);
+
+  const majorId = useMemo(() => {
+    return user?.userRaw?.majorId?._id;
   }, [user]);
 
   useEffect(() => {
@@ -86,6 +91,10 @@ const HomePage: React.FC = () => {
         const recommendBooks: BookResponse =
           await bookService.getSuggestedBook(userId);
         setRecommendBooks(recommendBooks);
+
+        const majorBooks: BookResponse =
+          await bookService.getBookByMajor(majorId);
+        setMajorBooks(majorBooks);
 
         const newUpdatedBook: BookResponse = await bookService.getNewBooks();
         setNewUpdatedBookResponse(newUpdatedBook);
@@ -113,6 +122,9 @@ const HomePage: React.FC = () => {
           data={topViewBookResponse.data}
           title="Sách hot trong tháng"
         />
+      )}
+      {majorBooks?.data && (
+        <BookGroup data={majorBooks.data} title="Sách theo chuyên ngành" />
       )}
       {newUpdatedBookResponse?.data && (
         <BookGroup

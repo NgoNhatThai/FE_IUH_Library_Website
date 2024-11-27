@@ -16,6 +16,7 @@ export interface UserModal {
   password: string;
   memberShip: string;
   isManager?: boolean;
+  majorId?: any;
   refresh_token: string;
   status: string;
   createdAt: string;

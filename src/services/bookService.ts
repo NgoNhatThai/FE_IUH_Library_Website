@@ -83,11 +83,14 @@ export const bookService = {
         throw err;
       });
   },
-  getBookByMajor: async (id: string): Promise<BookResponse> => {
+  getBookByMajor: async (majorId: string): Promise<BookResponse> => {
     return axios({
-      baseURL: `${BOOK_ROUTE_URL}/get-book-by-major/${id}`,
+      baseURL: `${BOOK_ROUTE_URL}/get-books-by-major`,
       method: 'GET',
       headers: {},
+      params: {
+        majorId: majorId,
+      },
     })
       .then((res) => res.data)
       .catch((err) => {
