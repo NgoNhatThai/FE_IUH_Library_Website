@@ -5,5 +5,23 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Cấu hình chuyển hướng và rewrite
+[[redirects]]
+  from = "/api/*"
+  to = "http://103.163.118.194:8080/:splat"
+  status = 200
+  force = true
 
+# Chuyển hướng cho các route động book/[slug] và chapter/[slug]
+[[redirects]]
+  from = "/book/*"
+  to = "/book/[slug]"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/chapter/*"
+  to = "/chapter/[slug]"
+  status = 200
+  force = true
 
