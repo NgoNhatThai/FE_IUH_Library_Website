@@ -88,16 +88,16 @@ const HomePage: React.FC = () => {
         const topViewBook: BookResponse = await bookService.getTopViewBook();
         setTopViewBookResponse(topViewBook);
 
-        const recommendBooks: BookResponse =
-          await bookService.getSuggestedBook(userId);
-        setRecommendBooks(recommendBooks);
+        const newUpdatedBook: BookResponse = await bookService.getNewBooks();
+        setNewUpdatedBookResponse(newUpdatedBook);
 
         const majorBooks: BookResponse =
           await bookService.getBookByMajor(majorId);
         setMajorBooks(majorBooks);
 
-        const newUpdatedBook: BookResponse = await bookService.getNewBooks();
-        setNewUpdatedBookResponse(newUpdatedBook);
+        const recommendBooks: BookResponse =
+          await bookService.getSuggestedBook(userId);
+        setRecommendBooks(recommendBooks);
       } catch (error) {
         console.log(error);
       }

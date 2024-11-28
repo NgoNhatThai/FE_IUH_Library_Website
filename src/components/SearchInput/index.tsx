@@ -6,7 +6,7 @@ import { bookService } from '@/services/bookService';
 import { QueryKey } from '@/types/api';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 
 const SearchHeader: React.FC = () => {
@@ -17,6 +17,7 @@ const SearchHeader: React.FC = () => {
   const searchDebounce = useDebounce(searchTerm, 1000);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const router = useRouter();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -56,16 +57,29 @@ const SearchHeader: React.FC = () => {
     // router.push(SEARCH);
   };
 
-  const handleOnClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
+  const handleOnClick = () => {
     setIsOpenSearch(true);
   };
+
+  const handleOutsideClick = (e: MouseEvent) => {
+    if (
+      searchContainerRef.current &&
+      !searchContainerRef.current.contains(e.target as Node)
+    ) {
+      setIsOpenSearch(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   return (
     <div
       className="relative mx-1 flex flex-grow rounded-md border border-gray-300 bg-white md:mx-4"
       onClick={handleOnClick}
-      onBlur={() => setIsOpenSearch(false)}
+      ref={searchContainerRef}
     >
       <input
         readOnly={windowWidth < 768}

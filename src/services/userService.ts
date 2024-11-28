@@ -272,4 +272,17 @@ export const userService = {
         throw error;
       });
   },
+  getUserReadHistory: async (userId: string): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-user-read-history`,
+      method: 'GET',
+      params: {
+        userId,
+      },
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };
