@@ -5,4 +5,6 @@ export enum OverviewType {
   AVERAGE_PROCESSING_TIME = 'averageProcessingTime',
   USER_DEPOSIT_RATE = 'userDepositRate',
   TOP_VIEW = 'topView',
+  TIME_READ = 'timeRead',
+  INCOMEEXPENSE = 'incomeExpense',
 }

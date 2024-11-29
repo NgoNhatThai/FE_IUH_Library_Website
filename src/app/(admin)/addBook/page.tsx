@@ -131,8 +131,11 @@ const AddBookPage = () => {
   const handleChapterOption = (option: string) => {
     if (bookResponse) {
       if (option === 'chapter') {
+        localStorage.setItem('@bookId', bookResponse);
         router.push(`/addOneChapter?id=${bookResponse}`);
       } else if (option === 'full') {
+        localStorage.setItem('@bookId', bookResponse);
+
         router.push(`/addAllChapterByOutline?id=${bookResponse}`);
       }
       setIsModalAddChapter(false);

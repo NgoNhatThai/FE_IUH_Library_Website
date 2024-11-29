@@ -47,6 +47,7 @@ const BookManagerPage = () => {
         <Button
           type="text"
           onClick={() => {
+            localStorage.setItem('@bookId', recod?._id);
             router.push(`/addOneChapter?id=${recod?._id}`);
           }}
         >

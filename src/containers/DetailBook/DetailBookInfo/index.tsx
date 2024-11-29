@@ -16,15 +16,58 @@ import { QueryKey } from '@/types/api';
 import ConfirmModal from '@/components/ConfirmModal';
 import { DownloadOutlined } from '@ant-design/icons';
 import jsPDF from 'jspdf';
+import { Modal } from 'antd';
 const DetailBookInfo = ({ data }: { data: BookModel }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const rating = 5;
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [modalRating, setModalRating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const rating =
+    typeof data?.review === 'object' && data.review.rate
+      ? parseFloat(data.review.rate.toFixed(1))
+      : 0;
+
+  const closeRatingModal = () => {
+    setModalRating(false);
+    setSelectedRating(0);
+  };
+
+  const handleRatingChange = (value: any) => {
+    setSelectedRating(value);
+  };
+
+  const submitRating = async () => {
+    if (!selectedRating) {
+      toast.error('Vui lòng chọn số sao');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const response = await userService.submitReview({
+        userId: user._id,
+        bookId: data._id ?? '',
+        rating: selectedRating,
+      });
+      console.log('response', response);
+      if (response.errCode == '200') {
+        toast.success('Đánh giá thành công!');
+        closeRatingModal();
+        window.location.reload();
+      } else {
+        toast.error('Đánh giá thất bại');
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra, vui lòng thử lại!');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const router = useRouter();
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
   const [openModal, setOpenModal] = React.useState(false);
 
-  const handleOnClick = async (id: string) => {
+  const handleReadBook = async (id: string) => {
     if (user) {
       console.log('ddd:', user, data?._id, id);
       await userService.read(user._id, data?._id ?? '', id);
@@ -213,26 +256,56 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
 
           <div className="mt-2 flex w-full items-center gap-2">
             <div className="flex flex-grow items-center gap-1">
-              <span className="mr-1 rounded-sm bg-orange-400 px-1">
-                {rating}
+              <span
+                className="mr-1 rounded-sm bg-orange-400 px-1"
+                onClick={(e) => {
+                  setModalRating(true);
+                }}
+              >
+                {typeof data?.review === 'object' &&
+                data.review.rate !== undefined
+                  ? data.review.rate.toFixed(1)
+                  : '0'}
               </span>
-              {Array.from({ length: rating }, (_, index) => {
-                let num = index + 0.5;
+              {Array.from({ length: 5 }, (_, index) => {
+                let num = index + 1;
                 return (
                   <span key={index}>
-                    {rating >= index + 1 ? (
+                    {rating >= num ? (
                       <Star strokeWidth={3} size={18} color="#FF8922" />
-                    ) : rating >= num ? (
+                    ) : rating >= num - 0.5 ? (
                       <StarHalf strokeWidth={3} size={18} color="#FF8922" />
                     ) : (
-                      ''
+                      <Star strokeWidth={3} size={18} color="#e0e0e0" />
                     )}
                   </span>
                 );
               })}
             </div>
           </div>
-
+          <Modal
+            open={modalRating}
+            onOk={submitRating}
+            onCancel={closeRatingModal}
+            className="fixed inset-0 flex items-center justify-center bg-opacity-50"
+          >
+            <div className="w-96 rounded-lg bg-white p-6">
+              <h2 className="mb-4 text-center text-xl font-bold">
+                Đánh giá sách
+              </h2>
+              <div className="mb-4 flex justify-center">
+                {Array.from({ length: 5 }, (_, index) => (
+                  <span
+                    key={index}
+                    className={`cursor-pointer ${selectedRating >= index + 1 ? 'text-yellow-400' : 'text-gray-300'}`}
+                    onClick={() => handleRatingChange(index + 1)}
+                  >
+                    <Star strokeWidth={3} size={30} />
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Modal>
           <div className="mt-4">
             <p className="md:text-md text-sm text-gray-600">
               Danh mục:
@@ -262,7 +335,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
             <p className="md:text-md text-sm text-gray-600">
               Tình trạng:{' '}
               <span className="text-gray-700">
-                {data.status === 'PUBLISH' ? 'Đang phát hành' : 'Tạm ngưng'}
+                {data.status === 'status' ? 'Đang phát hành' : 'Hoàn thành'}
               </span>
             </p>
           </div>
@@ -278,7 +351,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
                     data.content.chapters
                       ? data.content.chapters[0]
                       : {};
-                  handleOnClick(chapter._id + '');
+                  handleReadBook(chapter._id + '');
                 }}
               >
                 Đọc từ đầu
@@ -290,7 +363,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
                     bookmark.length > 0 &&
                       bookmark.map((item: any) => {
                         if (item.bookId === data._id) {
-                          handleOnClick(item.chapterId);
+                          handleReadBook(item.chapterId);
                         }
                       });
                   }}

@@ -41,7 +41,7 @@ const ShoppingCart = () => {
   }, [followBook]);
 
   return (
-    <div className="h-screen md:container">
+    <div className="h-full md:container">
       {followBook ? (
         <>{followBook.length > 0 && <FollowBookList data={followBook} />}</>
       ) : (

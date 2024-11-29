@@ -285,4 +285,38 @@ export const userService = {
         throw error;
       });
   },
+  getINCOMEEXPENSE: async (
+    startDate: string,
+    endDate: string,
+    userId: string,
+  ): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/get-user-amount`,
+      method: 'GET',
+      params: {
+        startDate,
+        endDate,
+        userId,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
+  submitReview: async (data: {
+    userId: string;
+    bookId: string;
+    rating: number;
+  }): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/rate`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

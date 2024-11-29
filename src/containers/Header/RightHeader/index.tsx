@@ -78,23 +78,28 @@ const RightHeader = () => {
               title={
                 <div>
                   {item?.requestId ? (
-                    <DollarOutlined
-                      style={{
-                        fontSize: '16px',
-                        color: '#52c41a',
-                        marginRight: '8px',
-                      }}
-                    />
+                    <>
+                      <DollarOutlined
+                        style={{
+                          fontSize: '16px',
+                          color: '#52c41a',
+                          marginRight: '8px',
+                        }}
+                      />
+                      {'Thông báo nạp tiền'}
+                    </>
                   ) : (
-                    <NotificationOutlined
-                      style={{
-                        fontSize: '16px',
-                        color: '#1890ff',
-                        marginRight: '8px',
-                      }}
-                    />
+                    <>
+                      <NotificationOutlined
+                        style={{
+                          fontSize: '16px',
+                          color: '#1890ff',
+                          marginRight: '8px',
+                        }}
+                      />
+                      {'Thông báo thêm chương'}
+                    </>
                   )}
-                  {'Nạp/rút' || 'Thông báo'}
                 </div>
               }
               description={

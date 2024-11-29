@@ -5,7 +5,7 @@ import { Config } from '@/models/configModel';
 import { adminService } from '@/services/adminService';
 import { useQuery } from 'react-query';
 import { QueryKey } from '@/types/api';
-import { CategoryModel } from '@/models';
+// import { CategoryModel } from '@/models';
 import { toast } from 'react-toastify';
 
 const { Option } = Select;
@@ -77,7 +77,7 @@ const WebConfig = () => {
           <Input placeholder="Nhập email" />
         </Form.Item>
 
-        <Form.Item label="Chọn danh mục" name="categories">
+        {/* <Form.Item label="Chọn danh mục" name="categories">
           <Select mode="multiple" placeholder="Chọn danh mục">
             {categories &&
               categories.map((category: CategoryModel) => (
@@ -86,7 +86,7 @@ const WebConfig = () => {
                 </Option>
               ))}
           </Select>
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item label="Upload Banner" name="banners">
           <Upload>

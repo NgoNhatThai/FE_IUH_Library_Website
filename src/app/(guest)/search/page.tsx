@@ -7,7 +7,7 @@ const ResultSearchPage = async () => {
     <Suspense fallback={<Spin />}>
       <div
         id="main-search-product"
-        className="flex max-h-screen flex-col bg-[--background-light-color]"
+        className="flex max-h-full flex-col bg-[--background-light-color]"
       >
         <SearchedBook />
       </div>

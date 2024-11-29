@@ -108,4 +108,23 @@ export const overviewService = {
         throw error;
       });
   },
+  getReadTime: async (
+    startDate: string,
+    endDate: string,
+    userId: string,
+  ): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${OVERVIEW_ROUTE_URL}/get-read-time-overview`,
+      method: 'GET',
+      params: {
+        startDate,
+        endDate,
+        userId,
+      },
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

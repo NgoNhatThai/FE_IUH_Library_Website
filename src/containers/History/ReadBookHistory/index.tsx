@@ -1,7 +1,7 @@
 'use client';
 import BookItem from '@/components/BookItem';
 import Breadcrumb from '@/components/Breadcrumb';
-import PaginationFooter from '@/components/PaginationFooter';
+// import PaginationFooter from '@/components/PaginationFooter';
 import { BookModel } from '@/models/bookModel';
 import { useRouter } from 'next/navigation';
 
@@ -17,8 +17,8 @@ const FollowBookList = ({ data }: FollowBookListProps) => {
     totalPages: 10,
   };
   return (
-    <div className="relative h-screen rounded-md bg-white p-2 md:p-4">
-      <Breadcrumb title="Danh sách theo dõi" />
+    <div className="relative h-full rounded-md bg-white p-2 md:p-4">
+      <Breadcrumb title="Sách đọc gần đây" />
       <div className="relative p-2 pb-16">
         <div className="grid grid-cols-2 gap-4 bg-white md:grid-cols-4">
           {data.map((item, index) => (
@@ -32,9 +32,9 @@ const FollowBookList = ({ data }: FollowBookListProps) => {
           ))}
         </div>
       </div>
-      <div className="absolute bottom-2 w-[96%] items-center justify-center">
+      {/* <div className="absolute bottom-2 w-[96%] items-center justify-center">
         <PaginationFooter params={params} />
-      </div>
+      </div> */}
     </div>
   );
 };

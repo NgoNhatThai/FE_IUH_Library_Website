@@ -44,7 +44,7 @@ const HistoryList = () => {
   console.log(history);
 
   return (
-    <div className="h-screen md:container">
+    <div className="h-full md:container">
       {history ? (
         <>{history.length > 0 && <FollowBookList data={history} />}</>
       ) : (

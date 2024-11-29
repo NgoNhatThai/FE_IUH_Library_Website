@@ -64,6 +64,7 @@ const useIntersectionObserver = (
 };
 
 const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
+  console.log('chapter', chapter?.bookType);
   const [viewIndex, setViewIndex] = useState<number | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -388,12 +389,12 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   const currentIndex =
     chapter.allChapters?.findIndex((chap) => chap._id === chapter._id) ?? -1;
 
-  const combinedItems = chapter.text
-    ? chapter.text.slice(1).map((text, index) => ({
-        text,
+  const combinedItems = chapter.images
+    ? chapter.images.map((image, index) => ({
+        image,
+        mp3: chapter.mp3s ? chapter.mp3s[index] : '',
       }))
     : [];
-
   useIntersectionObserver((entry) => {
     const id = entry.target.getAttribute('data-observe');
     if (id) {
@@ -454,10 +455,30 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
 
         <PrevNextChapterButton chapter={chapter} currentIndex={currentIndex} />
       </div>
-
-      <div className="mx-auto mb-8 flex flex-col items-center justify-center gap-4 md:w-2/3">
-        {renderText()}
-      </div>
+      {chapter?.bookType == 'VOICE' ? (
+        <div className="mx-auto mb-8 flex flex-col items-center justify-center gap-4 md:w-2/3">
+          {renderText()}
+        </div>
+      ) : (
+        <div className="mx-auto mb-8 flex flex-col items-center justify-center gap-4 md:w-1/2">
+          {combinedItems.map((item, index) => (
+            <div
+              id={String(index)}
+              key={index}
+              data-observe={index}
+              className="relative p-2"
+            >
+              <img
+                src={item.image}
+                alt={`Page ${index + 1}`}
+                className="mb-4 h-auto w-full rounded shadow-lg"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {/* <div className="mx-auto mb-8 flex flex-col items-center justify-center gap-4 md:w-2/3">
+        {renderText()} */}
 
       <PrevNextChapterButton chapter={chapter} currentIndex={currentIndex} />
 

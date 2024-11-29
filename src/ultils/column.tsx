@@ -81,3 +81,28 @@ export const topViewTableColumns = [
     render: (totalViews: number) => <p>{totalViews}</p>,
   },
 ];
+export const readTimeColumns = [
+  {
+    title: 'STT',
+    key: 'stt',
+    render: (_: any, __: any, index: number) => <p>{index + 1}</p>,
+  },
+  {
+    title: 'Tiêu đề sách',
+    dataIndex: 'title',
+    key: 'title',
+    render: (bookId: string) => <p>{bookId}</p>,
+  },
+  {
+    title: 'Thời gian đọc',
+    dataIndex: 'readTime',
+    key: 'readTime',
+    render: (readTime: number) => <p>{readTime}</p>,
+  },
+  {
+    title: 'Ngày đọc',
+    dataIndex: 'date',
+    key: 'date',
+    render: (date: any) => <p>{date}</p>,
+  },
+];

@@ -53,7 +53,14 @@ const SearchedBook = () => {
         return searchText;
       }
       if (categoryId) {
-        return 'Danh mục';
+        if (data.length > 0) {
+          return (
+            'Danh mục ' +
+            (typeof data[0].categoryId === 'object'
+              ? data[0].categoryId?.name
+              : '')
+          );
+        } else return;
       }
       if (authorId) {
         return 'Tác giả';
@@ -83,7 +90,7 @@ const SearchedBook = () => {
   }, [searchText, categoryId, authorId, majorId]);
 
   return (
-    <div className="h-screen bg-white md:container">
+    <div className="h-full bg-white md:container">
       {data.length > 0 ? (
         <>
           <div>

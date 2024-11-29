@@ -117,10 +117,10 @@ const SearchHeader: React.FC = () => {
                     <div className="ml-2 flex flex-col">
                       <p className="text-sm font-semibold">{result.title}</p>
                       <p className="text-xs italic text-gray-500">
-                        {result.author ?? 'Tác giả: đang cập nhật'}
+                        {result.authorId[0].name ?? 'Tác giả: đang cập nhật'}
                       </p>
                       <p className="text-xs italic text-gray-500">
-                        {result.category ?? 'Thể loại: đang cập nhật'}
+                        {result.categoryId[0].name ?? 'Thể loại: đang cập nhật'}
                       </p>
                     </div>
                   </div>

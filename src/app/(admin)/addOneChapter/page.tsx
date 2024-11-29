@@ -1,28 +1,34 @@
 'use client';
-import React, { Suspense, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { BookDetailResponse } from '@/models/bookModel';
+import { bookService } from '@/services/bookService';
+import { QueryKey } from '@/types/api';
 import {
   Button,
+  Checkbox,
   Form,
   Input,
+  List,
+  Spin,
+  Typography,
   Upload,
   message,
-  List,
-  Typography,
-  Spin,
-  Checkbox,
 } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
+import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { QueryKey } from '@/types/api';
-import { bookService } from '@/services/bookService';
-import { BookDetailResponse } from '@/models/bookModel';
 import { toast } from 'react-toastify';
 
 const AddOneChapter = () => {
   const router = useRouter();
-  const params = useParams();
-  const bookId = params.id;
+  const [bookId, setBookId] = useState<string | ''>('');
+  useEffect(() => {
+    const id = localStorage.getItem('@bookId');
+    if (id) {
+      setBookId(id);
+    }
+  }, []);
+  console.log('bookId', bookId);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [loading, setLoading] = useState(false);

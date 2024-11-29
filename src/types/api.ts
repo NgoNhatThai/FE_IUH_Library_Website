@@ -140,6 +140,8 @@ export enum QueryKey {
   AUTHOR = 'AUTHOR',
   MAJOR = 'MAJOR',
   TOP_VIEW = 'TOP_VIEW',
+  TIME_READ = 'TIME_READ',
+  INCOMEEXPENSE = 'INCOMEEXPENSE',
 }
 
 export enum SearchKey {

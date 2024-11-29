@@ -14,6 +14,7 @@ export interface ChapterModel {
   updatedAt?: string;
   allChapters?: ChapterModel[];
   comments: CommentModel[];
+  bookType?: string;
 }
 
 export interface ChapterResponse {

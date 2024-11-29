@@ -52,6 +52,11 @@ const CommentContainer = ({
         },
       ]);
       setComment('');
+    } else {
+      toast.error('Bình luận không được để trống', {
+        position: 'bottom-right',
+      });
+      return;
     }
 
     try {
