@@ -538,18 +538,20 @@ const OverviewPage = () => {
 
   return (
     <div className="mx-auto rounded-md bg-white p-2 md:ml-10 md:mr-10">
-      <h1 className="mb-5 text-center text-2xl font-bold">
-        Thống kê Thư viện Online
-      </h1>
+      <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+        <h1 className="mb-5 text-center text-2xl font-bold">
+          Thống kê Thư viện Online
+        </h1>
 
-      <Radio.Group
-        className="mb-5 flex justify-center space-x-2"
-        options={options}
-        defaultValue={OverviewType.REVENUE}
-        onChange={(e) => setSelectedOverview(e.target.value)}
-        optionType="button"
-        buttonStyle="solid"
-      />
+        <Radio.Group
+          className="mb-5 flex justify-center space-x-2"
+          options={options}
+          defaultValue={OverviewType.REVENUE}
+          onChange={(e) => setSelectedOverview(e.target.value)}
+          optionType="button"
+          buttonStyle="solid"
+        />
+      </div>
 
       {selectedOverview !== OverviewType.USER_DEPOSIT_RATE && (
         <div className="w-full p-4">

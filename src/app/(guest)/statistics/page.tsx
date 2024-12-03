@@ -9,7 +9,7 @@ import { overviewService } from '@/services/overviewService';
 import { QueryKey } from '@/types/api';
 import { readTimeColumns } from '@/ultils/column';
 import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
-import { Radio, Table } from 'antd';
+import { Table } from 'antd';
 import {
   ArcElement,
   BarElement,
@@ -22,18 +22,9 @@ import {
   Tooltip,
 } from 'chart.js';
 import dayjs from 'dayjs';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import { useQuery } from 'react-query';
 import { userService } from '@/services/userService';
-
-// import ButtonExport from '@/components/Button/ButtonExport';
-// import ButtonExport from '@/components/Button/ButtonExport';
-
-// import {
-//   revenueTableColumns,
-//   topUserTableColumns,
-//   topViewTableColumns,
-// } from '@/ultils/column';
 
 ChartJS.register(
   CategoryScale,
@@ -255,151 +246,85 @@ const PersonalStatistics = () => {
   //   link.click();
   // };
   return (
-    <>
-      <div className="relative h-full rounded-md bg-white p-2 md:p-4">
+    <div className="container mx-auto px-4">
+      {/* Breadcrumb */}
+      <div className="relative mb-6 rounded-lg bg-white p-4 shadow-md">
         <Breadcrumb title="Thống kê cá nhân" />
       </div>
-      <div className="mx-auto rounded-md bg-white p-2 pl-4">
-        <h1 className="mb-5 text-center text-2xl font-bold">
-          Thống kê cá nhân
-        </h1>
 
-        <Radio.Group
-          className="mb-5 flex justify-center space-x-2"
-          options={options}
-          defaultValue={OverviewType.TIME_READ}
-          onChange={(e) => setSelectedOverview(e.target.value)}
-          optionType="button"
-          buttonStyle="solid"
-        />
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-800">Thống kê cá nhân</h1>
+      </div>
 
-        <div className="w-full p-4">
-          <div className="grid w-full grid-cols-4 space-x-4">
-            <div className="col-span-1">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Chọn khoảng thời gian
-              </label>
-              <DateRangePicker
-                allowClear
-                format={DATE_FORMAT_DDMMYYYY}
-                value={[dayjs(dateRange[0]), dayjs(dateRange[1])]}
-                onChange={(date) => {
-                  handleDateChange(date);
-                }}
-              />
-            </div>
+      {/* Bộ lọc ngày */}
+      <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+        <div className="grid grid-cols-4 gap-6">
+          <div className="col-span-4 md:col-span-1">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Chọn khoảng thời gian
+            </label>
+            <DateRangePicker
+              allowClear
+              format={DATE_FORMAT_DDMMYYYY}
+              value={[dayjs(dateRange[0]), dayjs(dateRange[1])]}
+              onChange={(date) => handleDateChange(date)}
+              className="w-full"
+            />
           </div>
         </div>
+      </div>
 
-        {/* Các biểu đồ */}
-        <div className="h-screen">
+      {/* Phần biểu đồ và bảng */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Biểu đồ */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
           {selectedOverview === OverviewType.TIME_READ && (
-            <>
-              <h2 className="mb-3 text-center text-xl font-semibold">
-                Thời gian đọc sách của bạn
-              </h2>
+            <div className="flex flex-col items-center">
               {dataReadTime &&
               dataReadTime.datasets[0].data.reduce(
-                (a: number, b: number) => a + b,
+                (a: any, b: any) => a + b,
                 0,
               ) > 0 ? (
-                <div className="chart-table-container grid grid-cols-2">
-                  <div className="chart-container col-span-2 pt-5 md:col-span-1">
-                    <div className="h-96 w-5/6">
-                      <Bar data={dataReadTime} />
-                    </div>
-                  </div>
-
-                  <div className="table-container col-span-2 md:col-span-1">
-                    <div className="mb-2 flex justify-end">
-                      {/* <ButtonExport onClick={handleExportReadTime} /> */}
-                    </div>
-
-                    <Table
-                      columns={readTimeColumns}
-                      dataSource={expandedDataSource}
-                      loading={isLoadingReadTime}
-                      rowKey="id"
-                      pagination={{
-                        pageSize: 5,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['5', '10', '20', '30'],
-                      }}
-                      components={{
-                        header: {
-                          cell: ({
-                            children,
-                            ...restProps
-                          }: {
-                            children: React.ReactNode;
-                            [key: string]: any;
-                          }) => (
-                            <th
-                              {...restProps}
-                              style={{
-                                backgroundColor: '#e6f7ff',
-                                color: '#1890ff',
-                                fontWeight: 'bold',
-                              }}
-                            >
-                              {children}
-                            </th>
-                          ),
-                        },
-                      }}
-                      style={{
-                        overflow: 'hidden',
-                        marginTop: '47px',
-                      }}
-                    />
-
-                    {/* Hiển thị thông tin thời gian đọc trung bình và tỉ lệ đọc sách hằng ngày */}
-                    {totalReadTime > 0 && (
-                      <div className="mt-4">
-                        <span>
-                          Thời gian đọc trung bình: {averageReadTime.toFixed(1)}{' '}
-                          phút trong vòng {totalDays} ngày
-                        </span>
-                        <br />
-                        <span>
-                          Tỉ lệ đọc sách hằng ngày: {readingRate}% (số ngày đọc:{' '}
-                          {readingDays}/{totalDays})
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                <div className="h-96 w-full">
+                  <Bar
+                    data={dataReadTime}
+                    options={{ maintainAspectRatio: false }}
+                  />
                 </div>
               ) : (
-                <div className="flex items-center justify-center">
-                  <span className="text-center font-medium italic text-gray-500">
-                    Không có dữ liệu
-                  </span>
-                </div>
-              )}
-            </>
-          )}
-
-          {selectedOverview === OverviewType.INCOMEEXPENSE && (
-            <div className="chart-container" style={{ height: '500px' }}>
-              <h2 className="mb-10 text-center text-xl font-semibold">
-                Tỷ lệ thu chi
-              </h2>
-              {income || expense ? (
-                <div className="mx-auto h-96 w-96">
-                  <Pie data={pieChartData} />
-                </div>
-              ) : (
-                <div>
-                  <span className="text-center font-medium italic text-gray-500">
-                    Không có dữ liệu
-                  </span>
-                </div>
+                <p className="text-gray-500">Không có dữ liệu để hiển thị.</p>
               )}
             </div>
           )}
         </div>
+
+        {/* Bảng dữ liệu */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          {totalReadTime > 0 && (
+            <div className="mb-4 text-sm text-gray-700">
+              <p>
+                Thời gian đọc trung bình: {averageReadTime.toFixed(1)} phút
+                trong vòng {totalDays} ngày
+              </p>
+              <p>
+                Tỉ lệ đọc sách hằng ngày: {readingRate}% (số ngày đọc:{' '}
+                {readingDays}/{totalDays})
+              </p>
+            </div>
+          )}
+          <Table
+            columns={readTimeColumns}
+            dataSource={expandedDataSource}
+            pagination={{
+              pageSize: 5,
+              showSizeChanger: false,
+            }}
+            className="rounded-lg"
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

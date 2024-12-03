@@ -70,42 +70,50 @@ const RightHeader = () => {
     >
       <List
         itemLayout="horizontal"
-        dataSource={notificationData?.data}
+        dataSource={notificationData?.data?.slice(0, 5)} // Giới hạn số lượng thông báo là 5
         renderItem={(item: Notify) => (
-          <List.Item>
+          <List.Item
+            className={`transition-all ${
+              item.status === 'UNREAD' ? 'bg-white' : 'bg-gray-100'
+            } mb-2 rounded-lg shadow-sm hover:bg-gray-50`}
+          >
             <List.Item.Meta
-              className={`${item.status === 'UNREAD' ? '' : 'bg-gray-100'} p-2`}
+              className="p-4"
               title={
-                <div>
+                <div className="flex items-center text-base font-semibold text-gray-800">
                   {item?.requestId ? (
                     <>
                       <DollarOutlined
                         style={{
-                          fontSize: '16px',
+                          fontSize: '18px',
                           color: '#52c41a',
                           marginRight: '8px',
                         }}
                       />
-                      {'Thông báo nạp tiền'}
+                      <span>Thông báo nạp tiền</span>
                     </>
                   ) : (
                     <>
                       <NotificationOutlined
                         style={{
-                          fontSize: '16px',
+                          fontSize: '18px',
                           color: '#1890ff',
                           marginRight: '8px',
                         }}
                       />
-                      {'Thông báo thêm chương'}
+                      <span>Thông báo thêm chương</span>
                     </>
                   )}
                 </div>
               }
               description={
                 <a
-                  className="cursor-pointer"
-                  href={`${item?.bookId && item?.chapterId ? `/chapter/${item.chapterId}` : `/user-info`}`}
+                  className="cursor-pointer text-sm text-gray-600 hover:text-blue-500"
+                  href={`${
+                    item?.bookId && item?.chapterId
+                      ? `/chapter/${item.chapterId}`
+                      : `/user-info`
+                  }`}
                   onClick={() => {
                     if (
                       item.status === 'UNREAD' &&
@@ -119,7 +127,7 @@ const RightHeader = () => {
                     }
                   }}
                 >
-                  {item?.message || 0}
+                  {item?.message || 'Không có nội dung'}
                 </a>
               }
             />
