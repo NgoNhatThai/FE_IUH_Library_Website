@@ -1,7 +1,7 @@
 // config.js
 const config = {
   MODE: process.env.NEXT_PUBLIC_MODE,
-  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL ?? 'http://103.163.118.194:8080',
+  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL ?? 'http://103.167.89.145:8080',
   OA_ID: process.env.NEXT_PUBLIC_OA_ID,
   HOTLINE: process.env.NEXT_PUBLIC_HOTLINE,
   GMAIL: process.env.NEXT_PUBLIC_GMAIL,

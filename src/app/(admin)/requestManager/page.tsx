@@ -5,11 +5,17 @@ import { Request } from '@/models/requestModel';
 import { adminService } from '@/services/adminService';
 import { QueryKey } from '@/types/api';
 import { formatCurrencyVND } from '@/ultils/number';
-import { Badge, Button, Table } from 'antd';
+import { Badge, Button, DatePicker, Input, Select, Space, Table } from 'antd';
+const { Option } = Select;
+import dayjs, { Dayjs } from 'dayjs';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { toast } from 'react-toastify';
 
 const RequestManagerPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const columns = [
     {
       title: 'Người yêu cầu',
@@ -80,7 +86,23 @@ const RequestManagerPage = () => {
     adminService.getAllRequest,
     {},
   );
-  console.log('data', data);
+  const filteredData = (data || []).filter((request: any) => {
+    const userName = request?.userId?.userName || '';
+    const studentCode = request?.userId?.studentCode || '';
+    const createdAt = dayjs(request.createdAt).format('DD-MM-YYYY');
+
+    const matchesSearchTerm =
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      studentCode.toString().includes(searchTerm);
+
+    const matchesDate = selectedDate
+      ? dayjs(request.createdAt).isSame(selectedDate, 'day')
+      : true;
+    const matchesStatus = statusFilter ? request.status === statusFilter : true;
+
+    return matchesSearchTerm && matchesDate && matchesStatus;
+  });
+
   const handleAcceptRequest = async (userId: string, requestId: string) => {
     try {
       const response = await adminService.acceptRequest({ userId, requestId });
@@ -95,9 +117,32 @@ const RequestManagerPage = () => {
   return (
     <div className="container rounded-md bg-white">
       <h1 className="mb-4 text-center text-2xl font-bold">Yêu cầu nạp tiền</h1>
+      <Space className="mb-4 flex justify-end" size="middle">
+        <Select
+          placeholder="Chọn trạng thái"
+          onChange={(value) => setStatusFilter(value)}
+          allowClear
+          style={{ width: 200 }}
+        >
+          <Option value="PENDING">Chưa duyệt</Option>
+          <Option value="APPROVED">Đã duyệt</Option>
+        </Select>
+        <Input
+          placeholder="Tìm theo người yêu cầu"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: 300 }}
+        />
+        <DatePicker
+          placeholder="Chọn ngày"
+          onChange={(date) => setSelectedDate(date)}
+          format="DD-MM-YYYY"
+          style={{ width: 200 }}
+        />
+      </Space>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData}
         loading={isLoading}
         rowKey="id"
         // pagination={{

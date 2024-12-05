@@ -1,44 +1,43 @@
 'use client';
-import React, { useState } from 'react';
-import { Table, Button, Space, Input, Popover } from 'antd';
-import {
-  PlusOutlined,
-  SettingOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import { QueryKey } from '@/types/api';
 import { adminService } from '@/services/adminService';
-import { useQuery } from 'react-query';
+import { QueryKey } from '@/types/api';
+import { SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import { Button, Input, Popover, Space, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
 
-const AuthorManagerPage = () => {
+const AccountManagerPage = () => {
   const router = useRouter();
   const navigateToPage = (path: string) => {
     router.push(path);
   };
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: authors, refetch: refetchAuthors } = useQuery(
+  const { data: account, refetch: refetchaccount } = useQuery(
     [QueryKey.AUTHOR],
     async (): Promise<
       {
-        name: string;
-        birthDate: string;
-        desc: string;
+        userName: string;
+        avatar: string;
+        studentCode: string;
         status: string;
         createdAt: string;
         _id: string;
+        majorId: string;
       }[]
     > => {
-      return await adminService.getAllAuthor();
+      return await adminService.getAllaccount();
     },
   );
 
-  const filteredData = (authors || []).filter((author) =>
-    author.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredData = (account || []).filter(
+    (author) =>
+      author.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      author.studentCode.toString().includes(searchTerm),
   );
-
+  console.log('account', account);
   const optionsMenu = (
     <div className="flex flex-col space-y-2">
       <Button type="text" onClick={() => alert('Sửa tác giả')}>
@@ -52,24 +51,39 @@ const AuthorManagerPage = () => {
 
   const columns = [
     {
-      title: 'Tên tác giả',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string) => <span className="font-semibold">{name}</span>,
-      width: 150,
+      title: 'Ảnh đại diện',
+      dataIndex: 'avatar',
+      key: 'avatar',
+      render: (name: string) =>
+        name ? (
+          <img
+            src={name}
+            alt="avatar"
+            className="rounded-full"
+            style={{ width: 60, height: 60 }}
+          />
+        ) : (
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            alt="avatar"
+            className="rounded-full"
+            style={{ width: 60, height: 60 }}
+          />
+        ),
+      width: 110,
     },
     {
-      title: 'Ngày sinh',
-      dataIndex: 'birthDate',
-      key: 'birthDate',
-      render: (birthDate: string) => dayjs(birthDate).format('DD-MM-YYYY'),
-      width: 80,
+      title: 'Tên người dùng',
+      dataIndex: 'userName',
+      key: 'userName',
+      render: (userName: string) => <p>{userName}</p>,
+      width: 170,
     },
     {
-      title: 'Mô tả',
-      dataIndex: 'desc',
-      key: 'desc',
-      width: 350,
+      title: 'MSSV',
+      dataIndex: 'studentCode',
+      key: 'studentCode',
+      width: 250,
       ellipsis: true,
     },
     {
@@ -109,7 +123,7 @@ const AuthorManagerPage = () => {
       <div className="mb-4 flex items-center justify-between">
         <p className="text-3xl font-bold">Quản lý tác giả</p>
         <div className="flex items-center space-x-2">
-          <Button
+          {/* <Button
             type="primary"
             icon={<PlusOutlined />}
             size="large"
@@ -117,9 +131,9 @@ const AuthorManagerPage = () => {
             onClick={() => navigateToPage('/addAuthor')}
           >
             Thêm
-          </Button>
+          </Button> */}
           <Input
-            placeholder="Tìm tác giả"
+            placeholder="Tìm tài khoản"
             prefix={<SearchOutlined />}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: 300, height: 40 }}
@@ -169,4 +183,4 @@ const AuthorManagerPage = () => {
   );
 };
 
-export default AuthorManagerPage;
+export default AccountManagerPage;

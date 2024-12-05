@@ -274,6 +274,7 @@ const AddBookPage = () => {
                     />
                   </div>
                 }
+                rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                 name="categoryId"
               >
                 <Select placeholder="Chọn danh mục">{categoriesOptions}</Select>
@@ -293,6 +294,7 @@ const AddBookPage = () => {
                     />
                   </div>
                 }
+                rules={[{ required: true, message: 'Vui lòng chọn tác giả!' }]}
                 name="authorId"
               >
                 <Select placeholder="Chọn tác giả">{authorsOptions}</Select>
@@ -312,6 +314,9 @@ const AddBookPage = () => {
                     />
                   </div>
                 }
+                rules={[
+                  { required: true, message: 'Vui lòng chọn chuyên ngành!' },
+                ]}
                 name="majorId"
               >
                 <Select placeholder="Chọn chuyên ngành">{majorsOptions}</Select>

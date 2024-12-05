@@ -106,9 +106,9 @@ const MajorManagerPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: 300, height: 40 }}
           />
-          <Button type="primary" icon={<SearchOutlined />}>
+          {/* <Button type="primary" icon={<SearchOutlined />}>
             Tìm
-          </Button>
+          </Button> */}
         </div>
       </div>
       <Table

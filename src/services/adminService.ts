@@ -158,4 +158,14 @@ export const adminService = {
         throw error;
       });
   },
+  getAllaccount: async (): Promise<[]> => {
+    return axiosClient()({
+      baseURL: `${ADMIN_ROUTE_URL}/get-all-user?pageIndex=0&pageSize=50`,
+      method: 'GET',
+    })
+      .then((res) => res.data.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

@@ -7,6 +7,8 @@ import {
   BarChartOutlined,
   AppstoreOutlined,
   UserOutlined,
+  BankOutlined,
+  MoneyCollectOutlined,
 } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -37,12 +39,12 @@ const Sidebar = () => {
         {
           label: 'Ngân hàng',
           key: '/bank',
-          icon: <BarChartOutlined />,
+          icon: <BankOutlined />,
         },
         {
           label: 'Yêu cầu nạp tiền',
           key: '/requestManager',
-          icon: <BarChartOutlined />,
+          icon: <MoneyCollectOutlined />,
         },
         { label: 'Tài khoản', key: '/accounts', icon: <UserOutlined /> },
         // { label: 'adđ', key: '/addAllChapter', icon: <UserOutlined /> },

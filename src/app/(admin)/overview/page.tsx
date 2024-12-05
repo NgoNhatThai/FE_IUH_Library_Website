@@ -1,35 +1,35 @@
 // @ts-nocheck
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Pie, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { AutoComplete, Radio, Select, Table } from 'antd';
-import { OverviewType } from '@/constants/overviewType';
-import dayjs from 'dayjs';
-import { useQuery } from 'react-query';
-import { QueryKey } from '@/types/api';
-import { overviewService } from '@/services/overviewService';
-import DateRangePicker from '@/components/DateRangePicker';
-import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
 import ButtonExport from '@/components/Button/ButtonExport';
-import ExcelJS from 'exceljs';
+import DateRangePicker from '@/components/DateRangePicker';
+import { OverviewType } from '@/constants/overviewType';
+import { UserModal } from '@/models/userInfo';
+import { adminService } from '@/services/adminService';
+import { overviewService } from '@/services/overviewService';
+import { QueryKey } from '@/types/api';
 import {
   revenueTableColumns,
   topUserTableColumns,
   topViewTableColumns,
 } from '@/ultils/column';
-import { UserModal } from '@/models/userInfo';
-import { adminService } from '@/services/adminService';
+import { DATE_FORMAT_DDMMYYYY } from '@/ultils/dateUtils';
+import { Radio, Select, Table } from 'antd';
+import {
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
+} from 'chart.js';
+import dayjs from 'dayjs';
+import ExcelJS from 'exceljs';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Bar, Pie } from 'react-chartjs-2';
+import { useQuery } from 'react-query';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -570,7 +570,7 @@ const OverviewPage = () => {
               />
             </div>
 
-            {selectedOverview == OverviewType.REVENUE && (
+            {/* {selectedOverview == OverviewType.REVENUE && (
               <>
                 <div className="col-span-1">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -586,7 +586,7 @@ const OverviewPage = () => {
                   />
                 </div>
               </>
-            )}
+            )} */}
             {selectedOverview === OverviewType.TOP_USERS ||
             selectedOverview === OverviewType.TOP_VIEW ? (
               <div className="col-span-1">
