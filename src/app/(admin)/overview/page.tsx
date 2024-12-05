@@ -76,26 +76,12 @@ const OverviewPage = () => {
     { value: 10, label: 'Top 10' },
   ];
 
-  // const { data: transactionOverview, refetch: refetchTransaction } = useQuery(
-  //   [QueryKey.TRANSACTION_OVERVIEW, selectedOverview],
-  //   async () => {
-  //     const response = await overviewService.getTransactionOverview(
-  //       dateRange[0].format('YYYY-MM-DD'),
-  //       dateRange[1].format('YYYY-MM-DD'),
-  //     );
-  //     return response;
-  //   },
-  //   {
-  //     enabled: selectedOverview === OverviewType.REVENUE,
-  //   },
-  // );
-
   const {
     data: revenueOverTime,
     refetch: refetchRevenue,
     isLoading: isLoadingRevenueData,
   } = useQuery(
-    [QueryKey.REVENUE_OVER_TIME, selectedOverview],
+    [QueryKey.REVENUE_OVER_TIME, selectedOverview, selectedUser],
     async () => {
       let userId = '';
       if (selectedUser) {
@@ -166,7 +152,6 @@ const OverviewPage = () => {
     [QueryKey.USER, searchText],
     async () => {
       const response = await adminService.searchUser(searchText);
-      console.log({ response });
       return response;
     },
     {
@@ -175,10 +160,12 @@ const OverviewPage = () => {
   );
 
   const userOptions = useMemo(() => {
-    return users?.map((user: any) => ({
-      label: user.userName,
-      value: user.userCode,
-    }));
+    const options =
+      users?.map((user: any) => ({
+        label: user.userName,
+        value: user._id,
+      })) || [];
+    return options;
   }, [users]);
 
   const options = [
@@ -210,11 +197,21 @@ const OverviewPage = () => {
 
   const handleSearch = async (value: string) => {
     setSearchText(value);
+    refetchUser();
   };
 
-  const handleSelect = async (value: string) => {
+  const handleSelect = (value: string) => {
     setSelectedUser(value);
-    console.log('đã chọn', value);
+  };
+
+  const handleClear = () => {
+    setSearchText('');
+    setSelectedUser('');
+  };
+
+  const getLabelByValue = (value: string) => {
+    const selectedOption = userOptions.find((option) => option.value === value);
+    return selectedOption ? selectedOption.label : '';
   };
 
   useEffect(() => {
@@ -580,7 +577,9 @@ const OverviewPage = () => {
                     style={{ width: 200 }}
                     onSearch={handleSearch}
                     onSelect={handleSelect}
-                    onChange={handleSelect}
+                    value={getLabelByValue(selectedUser)}
+                    allowClear
+                    onClear={handleClear}
                     placeholder="Nhập tên hoặc mã sinh viên người dùng"
                     options={userOptions}
                   />
@@ -676,7 +675,6 @@ const OverviewPage = () => {
             )}
           </>
         )}
-
         {selectedOverview === OverviewType.TOP_USERS && (
           <>
             {' '}
