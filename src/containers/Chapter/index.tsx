@@ -1,24 +1,27 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
-import { ChapterModel } from '@/models/chapterModel';
+import clear from '@/assets/images/clear.png';
+import setting from '@/assets/images/setting.png';
+import Voice from '@/assets/images/voice.png';
+import CommentContainer from '@/components/CommentContainer';
 import ContinueReadingPopup from '@/components/ContinuePopup';
 import PrevNextChapterButton from '@/components/PrevNextChapterButton';
-import { HomeIcon } from 'lucide-react';
-import CommentContainer from '@/components/CommentContainer';
+import { ChapterModel } from '@/models/chapterModel';
 import { CommentModel } from '@/models/commentModel';
-import Image from 'next/image';
-import Voice from '@/assets/images/voice.png';
-import setting from '@/assets/images/setting.png';
-import clear from '@/assets/images/clear.png';
-import Modal from 'react-modal';
 import {
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+  SettingOutlined,
   StepBackwardOutlined,
   StepForwardOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
   StopOutlined,
-  SettingOutlined,
 } from '@ant-design/icons';
+import { HomeIcon } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Modal from 'react-modal';
+// import { overviewService } from '@/services/overviewService';
+import { UserModal } from '@/models/userInfo';
+import { overviewService } from '@/services/overviewService';
 
 // Modal styles
 const customModalStyles = {
@@ -64,7 +67,11 @@ const useIntersectionObserver = (
 };
 
 const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
-  console.log('chapter', chapter?.bookType);
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const user: UserModal = useMemo(() => {
+    console.log({ userInfo });
+    return userInfo ? userInfo.userRaw : null;
+  }, [userInfo]);
   const [viewIndex, setViewIndex] = useState<number | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -88,6 +95,33 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   const [paragraphs, setParagraphs] = useState<string[][]>([]);
   const paragraphRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  console.log('bookId', chapter?.bookId);
+  const [startTime, setStartTime] = useState(new Date().getTime());
+  useEffect(() => {
+    const handelUpdateReadTime = async () => {
+      const currentTime = new Date().getTime();
+      if (user) {
+        const readingDuration = Math.floor((currentTime - startTime) / 60000);
+        if (readingDuration >= 1) {
+          try {
+            const res = await overviewService.updateTimeRead({
+              userId: user?._id,
+              bookId: chapter?.bookId,
+              date: new Date().toISOString().split('T')[0],
+              time: readingDuration,
+            });
+            console.log('res', res);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }
+    };
+    const interval = setInterval(() => {
+      handelUpdateReadTime();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     const availableVoices = synth.getVoices();
     const filteredVoices = availableVoices.filter(
@@ -496,25 +530,28 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
         />
       </div>
       {/* button setting */}
-      <div
-        className="fixed right-6 top-1/4 z-10 block h-[40px] w-[40px]"
-        style={{
-          top: '20%',
-        }}
-      >
-        <button
-          className="z-50 mb-24 flex h-full w-full items-center justify-center rounded-full bg-opacity-75 shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          onClick={openModal}
+      {chapter?.bookType == 'VOICE' && (
+        <div
+          className="fixed right-6 top-1/4 z-10 block h-[40px] w-[40px]"
+          style={{
+            top: '20%',
+          }}
         >
-          <Image src={setting} alt="Settings" width={25} height={25} />
-        </button>
-      </div>
+          <button
+            className="z-50 mb-24 flex h-full w-full items-center justify-center rounded-full bg-opacity-75 shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            onClick={openModal}
+          >
+            <Image src={setting} alt="Settings" width={25} height={25} />
+          </button>
+        </div>
+      )}
+
       {/* button show voice */}
       <div
         className="fixed top-1/4 z-10 block h-[40px] w-[40px]"
         style={{
           top: '20%',
-          right: '5%',
+          right: chapter?.bookType == 'VOICE' ? '5%' : '1%',
         }}
       >
         <button
@@ -710,7 +747,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
         </button>
       </Modal>
       {isVoice && (
-        <div className="fixed bottom-5 left-1/2 z-10 flex h-[60px] w-auto -translate-x-1/2 transform items-center justify-center space-x-4 rounded-md px-4 shadow-lg">
+        <div className="fixed bottom-5 left-1/2 z-10 flex h-[60px] w-auto -translate-x-1/2 transform items-center justify-center space-x-4 rounded-md bg-gray-50 px-4 shadow-[0px_4px_6px_rgba(0,0,0,0.6)]">
           <button
             onClick={handleStepBackward}
             className="flex h-12 w-12 items-center justify-center focus:outline-none"

@@ -127,4 +127,21 @@ export const overviewService = {
         throw error;
       });
   },
+
+  updateTimeRead: async (data: {
+    userId: string;
+    bookId: any;
+    date: string;
+    time: number;
+  }): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${OVERVIEW_ROUTE_URL}/update-read-time`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

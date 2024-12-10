@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Table, Button, Space, Input, Popover } from 'antd';
+import { Table, Button, Space, Input, Popover, Modal, Form } from 'antd';
 import {
   PlusOutlined,
   SettingOutlined,
@@ -11,6 +11,10 @@ import { QueryKey } from '@/types/api';
 import { adminService } from '@/services/adminService';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
+import TextArea from 'antd/es/input/TextArea';
+import { useForm } from 'antd/es/form/Form';
+import { MajorModel } from '@/models/majorModel';
+import { toast } from 'react-toastify';
 
 const MajorManagerPage = () => {
   const router = useRouter();
@@ -18,6 +22,8 @@ const MajorManagerPage = () => {
     router.push(path);
   };
   const [searchTerm, setSearchTerm] = useState('');
+  const [formMajor] = useForm<MajorModel>();
+  const [isModalMajor, setIsModalMajor] = useState(false);
 
   // Fetch majors data from API
   const { data: majors, refetch: refetchMajors } = useQuery(
@@ -27,6 +33,24 @@ const MajorManagerPage = () => {
     },
   );
 
+  const handleOkModalMajor = async () => {
+    try {
+      const values = await formMajor.validateFields(['name', 'desc']);
+      const data: MajorModel = {
+        name: values.name,
+        desc: values.desc,
+        status: 'ACTIVE',
+      };
+      await adminService.createMajor(data);
+      toast.success('Thêm chuyên ngành thành công!');
+      formMajor.resetFields();
+      refetchMajors();
+      setIsModalMajor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
   // Filter data based on search term
   const filteredData = (majors || []).filter((major: any) =>
     major.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -96,7 +120,7 @@ const MajorManagerPage = () => {
             icon={<PlusOutlined />}
             size="large"
             style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
-            onClick={() => navigateToPage('/addMajor')}
+            onClick={() => setIsModalMajor(true)}
           >
             Thêm
           </Button>
@@ -147,6 +171,34 @@ const MajorManagerPage = () => {
           overflow: 'hidden',
         }}
       />
+      <Modal
+        title="Thêm chuyên ngành mới"
+        open={isModalMajor}
+        onOk={handleOkModalMajor}
+        onCancel={() => setIsModalMajor(false)}
+      >
+        <Form form={formMajor} layout="vertical">
+          <Form.Item
+            label="Tên chuyên ngành"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng nhập tên chuyên ngành!',
+              },
+            ]}
+          >
+            <Input placeholder="Nhập tên chuyên ngành" />
+          </Form.Item>
+          <Form.Item
+            label="Mô tả"
+            name="desc"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          >
+            <TextArea rows={4} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

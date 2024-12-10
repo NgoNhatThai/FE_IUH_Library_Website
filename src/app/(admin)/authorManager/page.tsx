@@ -1,6 +1,15 @@
 'use client';
 import React, { useState } from 'react';
-import { Table, Button, Space, Input, Popover } from 'antd';
+import {
+  Table,
+  Button,
+  Space,
+  Input,
+  Popover,
+  Modal,
+  Form,
+  DatePicker,
+} from 'antd';
 import {
   PlusOutlined,
   SettingOutlined,
@@ -11,6 +20,10 @@ import { QueryKey } from '@/types/api';
 import { adminService } from '@/services/adminService';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
+import { useForm } from 'antd/es/form/Form';
+import { AuthorModel, AuthorStatus } from '@/models/authorModel';
+import { toast } from 'react-toastify';
+import TextArea from 'antd/es/input/TextArea';
 
 const AuthorManagerPage = () => {
   const router = useRouter();
@@ -18,7 +31,32 @@ const AuthorManagerPage = () => {
     router.push(path);
   };
   const [searchTerm, setSearchTerm] = useState('');
+  const [formAuthor] = useForm<AuthorModel>();
+  const [isModalAuthor, setIsModalAuthor] = useState(false);
 
+  const handleOkModalAuthor = async () => {
+    try {
+      const values = await formAuthor.validateFields([
+        'name',
+        'desc',
+        'birthDate',
+      ]);
+      const data: AuthorModel = {
+        name: values.name,
+        desc: values.desc,
+        birthDate: values.birthDate,
+        status: AuthorStatus.ACTIVE,
+      };
+      await adminService.createAuthor(data);
+      toast.success('Thêm tác giả thành công!');
+      formAuthor.resetFields();
+      refetchAuthors();
+      setIsModalAuthor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
   const { data: authors, refetch: refetchAuthors } = useQuery(
     [QueryKey.AUTHOR],
     async (): Promise<
@@ -114,7 +152,7 @@ const AuthorManagerPage = () => {
             icon={<PlusOutlined />}
             size="large"
             style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
-            onClick={() => navigateToPage('/addAuthor')}
+            onClick={() => setIsModalAuthor(true)}
           >
             Thêm
           </Button>
@@ -165,6 +203,44 @@ const AuthorManagerPage = () => {
           overflow: 'hidden',
         }}
       />
+      <Modal
+        title="Thêm tác giả mới"
+        open={isModalAuthor}
+        onOk={handleOkModalAuthor}
+        onCancel={() => setIsModalAuthor(false)}
+      >
+        <Form form={formAuthor} layout="vertical">
+          <Form.Item
+            label="Tên tác giả"
+            name="name"
+            rules={[{ required: true, message: 'Vui lòng nhập tên tác giả!' }]}
+          >
+            <Input placeholder="Nhập tên tác giả" />
+          </Form.Item>
+          <Form.Item
+            label="Ngày sinh"
+            name="birthDate"
+            rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
+          >
+            <DatePicker
+              format="DD/MM/YYYY"
+              style={{ width: '100%' }}
+              size="large"
+              placeholder="Chọn ngày sinh"
+              disabledDate={(current) =>
+                current && current > dayjs().endOf('day')
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Mô tả"
+            name="desc"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          >
+            <TextArea rows={4} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

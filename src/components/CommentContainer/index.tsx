@@ -34,7 +34,9 @@ const CommentContainer = ({
   const handleCommentChange = (e: any) => {
     setComment(e.target.value);
   };
-
+  const sortedComments = useMemo(() => {
+    return [...commentsList].reverse();
+  }, [commentsList]);
   const handleCommentSubmit = async () => {
     if (comment.trim()) {
       setCommentsList([
@@ -116,7 +118,7 @@ const CommentContainer = ({
       )}
 
       <div className="space-y-4">
-        {commentsList.slice(0, visibleComments).map((item, index) => (
+        {sortedComments.slice(0, visibleComments).map((item, index) => (
           <div
             key={index}
             className="rounded-md border border-gray-300 bg-white p-2"
@@ -135,7 +137,7 @@ const CommentContainer = ({
           </div>
         ))}
 
-        {visibleComments < commentsList.length && (
+        {visibleComments < sortedComments?.length && (
           <button
             onClick={showMoreComments}
             className="text-blue-500 hover:underline"

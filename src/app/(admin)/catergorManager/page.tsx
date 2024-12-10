@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Table, Button, Image, Space, Input, Popover } from 'antd';
+import { Table, Button, Image, Space, Input, Popover, Modal, Form } from 'antd';
 import {
   PlusOutlined,
   SettingOutlined,
@@ -11,13 +11,20 @@ import { QueryKey } from '@/types/api';
 import { adminService } from '@/services/adminService';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
+import TextArea from 'antd/es/input/TextArea';
+import { useForm } from 'antd/es/form/Form';
+import { CategoryModel, CategoryStatus } from '@/models';
+import { toast } from 'react-toastify';
 
 const CategoryManagerPage = () => {
   const router = useRouter();
+  const [isModalCatergory, setIsModalCatergor] = useState(false);
+
   const navigateToPage = (path: string) => {
     router.push(path);
   };
   const [searchTerm, setSearchTerm] = useState('');
+  const [formCategory] = useForm<CategoryModel>();
 
   const { data: categories, refetch: refetchCategories } = useQuery(
     [QueryKey.CATEGORY],
@@ -34,7 +41,24 @@ const CategoryManagerPage = () => {
       return await adminService.getAllCategory();
     },
   );
-
+  const handleOkModalCategory = async () => {
+    try {
+      const values = await formCategory.validateFields(['name', 'desc']);
+      const data: CategoryModel = {
+        name: values.name,
+        desc: values.desc,
+        status: CategoryStatus.ACTIVE,
+      };
+      await adminService.createCategory(data);
+      toast.success('Thêm danh mục thành công!');
+      formCategory.resetFields();
+      refetchCategories();
+      setIsModalCatergor(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Đã có lỗi xảy ra, vui lòng thử lại sau!');
+    }
+  };
   const filteredData = (categories || []).filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -109,7 +133,7 @@ const CategoryManagerPage = () => {
             icon={<PlusOutlined />}
             size="large"
             style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
-            onClick={() => navigateToPage('/addCategory')}
+            onClick={() => setIsModalCatergor(true)}
           >
             Thêm
           </Button>
@@ -160,6 +184,29 @@ const CategoryManagerPage = () => {
           overflow: 'hidden',
         }}
       />
+      <Modal
+        title="Thêm danh mục mới"
+        open={isModalCatergory}
+        onOk={handleOkModalCategory}
+        onCancel={() => setIsModalCatergor(false)}
+      >
+        <Form form={formCategory} layout="vertical">
+          <Form.Item
+            label="Tên danh mục"
+            name="name"
+            rules={[{ required: true, message: 'Vui lòng nhập tên danh mục!' }]}
+          >
+            <Input placeholder="Nhập tên danh mục" />
+          </Form.Item>
+          <Form.Item
+            label="Mô tả"
+            name="desc"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          >
+            <TextArea rows={4} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
