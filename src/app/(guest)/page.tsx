@@ -91,13 +91,13 @@ const HomePage: React.FC = () => {
         const newUpdatedBook: BookResponse = await bookService.getNewBooks();
         setNewUpdatedBookResponse(newUpdatedBook);
 
-        const majorBooks: BookResponse =
-          await bookService.getBookByMajor(majorId);
-        setMajorBooks(majorBooks);
-
         const recommendBooks: BookResponse =
           await bookService.getSuggestedBook(userId);
         setRecommendBooks(recommendBooks);
+
+        const majorBooks: BookResponse =
+          await bookService.getBookByMajor(majorId);
+        setMajorBooks(majorBooks);
       } catch (error) {
         console.log(error);
       }
