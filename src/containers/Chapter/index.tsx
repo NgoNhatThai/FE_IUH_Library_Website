@@ -3,7 +3,7 @@ import clear from '@/assets/images/clear.png';
 import setting from '@/assets/images/setting.png';
 import Voice from '@/assets/images/voice.png';
 import CommentContainer from '@/components/CommentContainer';
-import ContinueReadingPopup from '@/components/ContinuePopup';
+// import ContinueReadingPopup from '@/components/ContinuePopup';
 import PrevNextChapterButton from '@/components/PrevNextChapterButton';
 import { ChapterModel } from '@/models/chapterModel';
 import { CommentModel } from '@/models/commentModel';
@@ -22,6 +22,7 @@ import Modal from 'react-modal';
 // import { overviewService } from '@/services/overviewService';
 import { UserModal } from '@/models/userInfo';
 import { overviewService } from '@/services/overviewService';
+import { userService } from '@/services/userService';
 
 // Modal styles
 const customModalStyles = {
@@ -69,7 +70,7 @@ const useIntersectionObserver = (
 const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const user: UserModal = useMemo(() => {
-    console.log({ userInfo });
+    // console.log({ userInfo });
     return userInfo ? userInfo.userRaw : null;
   }, [userInfo]);
   const [viewIndex, setViewIndex] = useState<number | null>(null);
@@ -96,6 +97,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   const paragraphRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   console.log('bookId', chapter?.bookId);
+  console.log('bookId', chapter?.bookType);
   const [startTime, setStartTime] = useState(new Date().getTime());
   useEffect(() => {
     const handelUpdateReadTime = async () => {
@@ -417,7 +419,26 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   };
 
   useEffect(() => {
-    handleSaveBookmark();
+    console.log('chapter._id', chapter._id);
+
+    if (user) {
+      const updateBookmark = async () => {
+        try {
+          await userService.updateUserBookMark({
+            userId: user._id,
+            bookId: chapter.bookId,
+            chapterId: chapter._id,
+          });
+          console.log('Cập nhật bookmark thành công');
+        } catch (error) {
+          console.error('Lỗi khi cập nhật bookmark:', error);
+        }
+      };
+      updateBookmark();
+    } else {
+      console.log('no user');
+      handleSaveBookmark();
+    }
   }, [chapter]);
 
   const currentIndex =
@@ -468,7 +489,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
   return (
     <div className="container mx-auto mb-10 items-center justify-center p-4">
       <div className="items-center">
-        <ContinueReadingPopup
+        {/* <ContinueReadingPopup
           visible={!clicked}
           onClick={() => {
             if (viewIndex !== null) {
@@ -476,7 +497,7 @@ const Chapter = ({ chapter }: { chapter: ChapterModel }) => {
               setClicked(true);
             }
           }}
-        />
+        /> */}
         <div className="flex items-center justify-start">
           <HomeIcon size={24} />
           <a href="/" className="md:text-md ml-2 text-sm font-medium">

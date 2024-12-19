@@ -319,4 +319,19 @@ export const userService = {
         throw error;
       });
   },
+  updateUserBookMark: async (data: {
+    userId: string;
+    bookId: any;
+    chapterId: any;
+  }): Promise<any> => {
+    return axiosClient()({
+      baseURL: `${USER_ROUTE_URL}/update-user-book-mark`,
+      method: 'POST',
+      data,
+    })
+      .then((res) => res.data)
+      .catch((error) => {
+        throw error;
+      });
+  },
 };

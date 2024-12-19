@@ -69,16 +69,34 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
 
   const handleReadBook = async (id: string) => {
     if (user) {
-      console.log('ddd:', user, data?._id, id);
-      await userService.read(user._id, data?._id ?? '', id);
+      try {
+        console.log('ddd:', user, data?._id, id);
+        const res = await userService.getUserBookMark(
+          user._id,
+          String(data._id),
+        );
+
+        if (res?.readChapterIds?.length > 0) {
+          console.log('đã đọc');
+          router.push(`${CHAPTER}/${id}`);
+        } else {
+          console.log('chưa đọc');
+          await userService.read(user._id, data?._id ?? '', id);
+          router.push(`${CHAPTER}/${id}`);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      console.log('không có user');
+      router.push(`${CHAPTER}/${id}`);
     }
-    router.push(`${CHAPTER}/${id}`);
   };
 
   const bookmark = JSON.parse(localStorage.getItem('@bookmark') || '[]');
 
   const user: UserModal = useMemo(() => {
-    console.log({ userInfo });
+    // console.log({ userInfo });
     return userInfo ? userInfo.userRaw : null;
   }, [userInfo]);
 
@@ -97,7 +115,7 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
     refetchOnWindowFocus: false,
     enabled: Boolean(data._id),
   });
-
+  console.log('userBookMark', userBookMark);
   const isBuy = useMemo(() => {
     if (userBookMark && userBookMark.isBuy) {
       return true;
@@ -356,7 +374,20 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
               >
                 Đọc từ đầu
               </button>
-              {bookmark && bookmark.length > 0 ? (
+              {user ? (
+                userBookMark &&
+                userBookMark?.readChapterIds?.length > 0 && (
+                  <button
+                    className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                    onClick={() => {
+                      userBookMark?.readChapterIds?.length > 0 &&
+                        handleReadBook(userBookMark?.lastReadChapterId);
+                    }}
+                  >
+                    Đọc tiếp
+                  </button>
+                )
+              ) : bookmark && bookmark.length > 0 ? (
                 <button
                   className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
                   onClick={() => {
@@ -373,6 +404,23 @@ const DetailBookInfo = ({ data }: { data: BookModel }) => {
               ) : (
                 <></>
               )}
+              {/* {bookmark && bookmark.length > 0 ? (
+                <button
+                  className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                  onClick={() => {
+                    bookmark.length > 0 &&
+                      bookmark.map((item: any) => {
+                        if (item.bookId === data._id) {
+                          handleReadBook(item.chapterId);
+                        }
+                      });
+                  }}
+                >
+                  Đọc tiếp
+                </button>
+              ) : (
+                <></>
+              )} */}
               <button
                 className="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
                 onClick={() => {

@@ -125,6 +125,7 @@ const AccountOptions = ({
                   onClick={() => {
                     localStorage.removeItem('userInfo');
                     localStorage.removeItem('@access_token');
+                    localStorage.removeItem('@bookmark');
                     window.location.href = '/';
                   }}
                   className="block w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
