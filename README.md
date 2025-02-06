@@ -17,13 +17,6 @@ easy? [Use the template at the bottom](#editing-this-readme)!
 - [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line)
       or push an existing Git repository with the following command:
 
-```
-cd existing_repo
-git remote add origin https://git.idsolutions.com.vn/addy-platform/addy-shop-book.git
-git branch -M master
-git push -uf origin master
-```
-
 ## Integrate with your tools
 
 - [ ] [Set up project integrations](http://git.idsolutions.com.vn/addy-platform/addy-shop-book/-/settings/integrations)
